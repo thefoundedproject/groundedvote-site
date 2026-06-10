@@ -1,0 +1,368 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── RACES ────────────────────────────────────────────────────────────────────
+// A race is a specific election contest (e.g., "MN Senate 2026")
+model Race {
+  id          String   @id @default(cuid())
+  state       String   // e.g. "MN"
+  stateFull   String   // e.g. "Minnesota"
+  chamber     Chamber
+  district    String?  // null for Senate, "5" for House district 5
+  year        Int
+  label       String   // e.g. "Minnesota Senate 2026"
+  isCompetitive Boolean @default(false) // flagged as a key race
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  candidates    Candidate[]
+  questions     Question[]
+  quizSessions  QuizSession[]
+
+  @@index([state, chamber, year])
+}
+
+enum Chamber {
+  HOUSE
+  SENATE
+}
+
+// ─── CANDIDATES ───────────────────────────────────────────────────────────────
+model Candidate {
+  id              String   @id @default(cuid())
+  raceId          String
+  race            Race     @relation(fields: [raceId], references: [id])
+  firstName       String
+  lastName        String
+  party           String   // stored but never shown in quiz questions
+  bioguideId      String?  // Congress.gov ID for incumbents
+  incumbent       Boolean  @default(false)
+  website         String?
+  imageUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  positions       Position[]
+  quizAnswers     CandidateAnswer[]  // their answers to generated questions
+
+  @@index([raceId])
+}
+
+// ─── POSITIONS ────────────────────────────────────────────────────────────────
+// A raw position extracted from a source document
+model Position {
+  id            String       @id @default(cuid())
+  candidateId   String
+  candidate     Candidate    @relation(fields: [candidateId], references: [id])
+  topic         PolicyTopic
+  stance        String       // plain language summary of position
+  sourceType    SourceType
+  sourceUrl     String?
+  sourceDate    DateTime?
+  rawText       String?      // original text from source
+  createdAt     DateTime     @default(now())
+
+  questions     Question[]   // questions generated from this position
+
+  @@index([candidateId, topic])
+}
+
+enum PolicyTopic {
+  HEALTHCARE
+  ECONOMY
+  IMMIGRATION
+  ENVIRONMENT
+  EDUCATION
+  HOUSING
+  CRIMINAL_JUSTICE
+  FOREIGN_POLICY
+  VOTING_RIGHTS
+  SOCIAL_SECURITY
+  DRUG_POLICY
+  GUN_POLICY
+  LABOR
+  TAXES
+  VETERANS
+  INFRASTRUCTURE
+  TECHNOLOGY
+  OTHER
+}
+
+enum SourceType {
+  VOTING_RECORD
+  CAMPAIGN_PLATFORM
+  QUESTIONNAIRE
+  PUBLIC_STATEMENT
+  MEDIA_INTERVIEW
+  THIRD_PARTY_AGGREGATOR
+}
+
+// Evidence type taxonomy for AI-extracted CandidateAnswers.
+// Mirrors confidence bands documented in the Academic White Paper.
+enum EvidenceType {
+  VOTING_RECORD       // Explicit congressional vote — highest confidence
+  PUBLIC_STATEMENT    // Floor speech, press release, interview
+  CAMPAIGN_PLATFORM   // Website or campaign doc — unverified self-report
+  PARTY_INFERENCE     // Inferred from party platform — lowest confidence
+}
+
+// ─── QUESTIONS ────────────────────────────────────────────────────────────────
+// A bias-audited question generated for a race on a topic
+model Question {
+  id              String        @id @default(cuid())
+  raceId          String
+  race            Race          @relation(fields: [raceId], references: [id])
+  positionId      String?
+  position        Position?     @relation(fields: [positionId], references: [id])
+  topic           PolicyTopic
+  questionText    String        // the final neutral question shown to users
+  weight          Float         @default(1.0) // importance weight in matching algorithm
+
+  // Bias audit results
+  auditStatus     AuditStatus   @default(PENDING)
+  biasScore       Float?        // 0-100, lower = more neutral
+  loadedLanguage  Float?
+  falseEquivalence Float?
+  asymmetricFraming Float?
+  culturalAssumption Float?
+
+  // All generated variants archived for transparency
+  variants        QuestionVariant[]
+
+  // Candidate answers (their actual positions mapped to this question)
+  candidateAnswers CandidateAnswer[]
+
+  // User answers in quiz sessions
+  userAnswers     UserAnswer[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([raceId, topic])
+  @@index([auditStatus])
+}
+
+enum AuditStatus {
+  PENDING
+  GENERATING
+  AUDITING
+  APPROVED
+  FAILED
+  ARCHIVED
+}
+
+// ─── QUESTION VARIANTS ────────────────────────────────────────────────────────
+// All generated variants of a question before final selection — the public audit trail
+model QuestionVariant {
+  id              String    @id @default(cuid())
+  questionId      String
+  question        Question  @relation(fields: [questionId], references: [id])
+  variantText     String
+  generatedBy     String    // e.g. "claude-3-5-sonnet"
+  biasScore       Float?
+  loadedLanguage  Float?
+  falseEquivalence Float?
+  asymmetricFraming Float?
+  culturalAssumption Float?
+  scoredBy        String?   // e.g. "gpt-4o"
+  selected        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+}
+
+// ─── CANDIDATE ANSWERS ────────────────────────────────────────────────────────
+// Maps each candidate's actual position to a question's answer options
+model CandidateAnswer {
+  id           String       @id @default(cuid())
+  questionId   String
+  question     Question     @relation(fields: [questionId], references: [id])
+  candidateId  String
+  candidate    Candidate    @relation(fields: [candidateId], references: [id])
+  answerValue  Int          // 1=strongly oppose, 2=oppose, 3=neutral, 4=support, 5=strongly support
+  confidence   Float        @default(1.0) // how confident we are in this mapping
+  sourceNote   String?      // one-sentence evidence basis
+  evidenceType EvidenceType @default(PARTY_INFERENCE) // drives source badge display + conviction filtering
+  createdAt    DateTime     @default(now())
+
+  @@unique([questionId, candidateId])
+  @@index([candidateId, evidenceType])
+}
+
+// ─── QUIZ SESSIONS ────────────────────────────────────────────────────────────
+// Tracks a user going through the real alignment quiz for a race
+model QuizSession {
+  id          String        @id @default(cuid())
+  raceId      String
+  race        Race          @relation(fields: [raceId], references: [id])
+  email       String?       // captured at end, optional
+  completed   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  completedAt DateTime?
+
+  userAnswers UserAnswer[]
+  result      QuizResult?
+
+  @@index([raceId])
+}
+
+// ─── USER ANSWERS ─────────────────────────────────────────────────────────────
+model UserAnswer {
+  id            String      @id @default(cuid())
+  sessionId     String
+  session       QuizSession @relation(fields: [sessionId], references: [id])
+  questionId    String
+  question      Question    @relation(fields: [questionId], references: [id])
+  answerValue   Int         // 1-5 same scale as candidate answers
+  importance    Int         @default(2) // 1=low 2=medium 3=high (user-stated priority)
+  createdAt     DateTime    @default(now())
+
+  @@unique([sessionId, questionId])
+}
+
+// ─── QUIZ RESULTS ─────────────────────────────────────────────────────────────
+// Computed alignment scores after quiz completion
+model QuizResult {
+  id            String      @id @default(cuid())
+  sessionId     String      @unique
+  session       QuizSession @relation(fields: [sessionId], references: [id])
+  scores        Json        // [{ candidateId, candidateName, score }] array sorted desc
+  scoresJson    String?     // JSON string of full scores array (for permalink page)
+  topIssues     Json        // [{ topic, userValue, deviation }] sorted by weight
+  createdAt     DateTime    @default(now())
+}
+
+// ─── AWARENESS QUIZ LEADS ─────────────────────────────────────────────────────
+// The existing pre-launch quiz submissions (separate from the real quiz)
+model AwarenessLead {
+  id          String   @id @default(cuid())
+  email       String
+  profile     String   // profile key: confident/partial/low/disengaged
+  answers     Json     // raw answer array
+  notifyState String?  // state code (e.g. "MN") — set when signing up from a Coming Soon state page
+  notified    Boolean  @default(false) // true after launch email is sent
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+  @@index([notifyState])
+}
+
+// ─── STRIPE CUSTOMERS ─────────────────────────────────────────────────────────
+// Links an email to a Stripe customer ID across all Founded apps
+model StripeCustomer {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  stripeCustomerId String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  payments      Payment[]
+  subscriptions Subscription[]
+  apiKeys       ApiKey[]
+}
+
+// ─── PAYMENTS ─────────────────────────────────────────────────────────────────
+// One-time payments (donations, credit pack purchases)
+model Payment {
+  id                    String   @id @default(cuid())
+  stripeCustomerId      String?
+  stripeCustomer        StripeCustomer? @relation(fields: [stripeCustomerId], references: [id])
+  stripeSessionId       String   @unique
+  stripePaymentIntentId String?
+  app                   String   // groundedvote | rhetoricalpoints | etc.
+  product               String   // donation_once | credits_starter | etc.
+  entity                String   // The Founded Project LLC
+  amountCents           Int
+  currency              String   @default("usd")
+  status                String   @default("pending") // pending | paid | refunded
+  email                 String?
+  metadata              Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([app, status])
+  @@index([email])
+}
+
+// ─── SUBSCRIPTIONS ────────────────────────────────────────────────────────────
+model Subscription {
+  id                     String    @id @default(cuid())
+  stripeCustomerId       String
+  stripeCustomer         StripeCustomer @relation(fields: [stripeCustomerId], references: [id])
+  stripeSubscriptionId   String    @unique
+  app                    String
+  product                String
+  entity                 String
+  status                 String    // active | canceled | past_due | trialing
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  cancelAtPeriodEnd      Boolean   @default(false)
+  email                  String?
+  metadata               Json?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([app, status])
+  @@index([email])
+}
+
+// ─── API KEYS ─────────────────────────────────────────────────────────────────
+// Purchasable API keys with credit balances — used by RhetoricalPoints and others
+model ApiKey {
+  id               String   @id @default(cuid())
+  key              String   @unique  // hashed — never store plaintext after creation
+  keyPrefix        String            // first 8 chars shown to user: fp_live_xxxx
+  app              String            // which app this key is for
+  stripeCustomerId String?
+  stripeCustomer   StripeCustomer? @relation(fields: [stripeCustomerId], references: [id])
+  email            String
+  creditBalance    Int      @default(0)
+  totalCredits     Int      @default(0) // lifetime credits purchased
+  active           Boolean  @default(true)
+  lastUsedAt       DateTime?
+  expiresAt        DateTime?
+  metadata         Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  transactions     ApiKeyTransaction[]
+
+  @@index([app, active])
+  @@index([email])
+}
+
+// ─── API KEY TRANSACTIONS ─────────────────────────────────────────────────────
+// Every credit addition (purchase) and deduction (API call)
+model ApiKeyTransaction {
+  id          String   @id @default(cuid())
+  apiKeyId    String
+  apiKey      ApiKey   @relation(fields: [apiKeyId], references: [id])
+  type        String   // credit | debit
+  amount      Int      // positive = credits added, negative = credits used
+  balance     Int      // balance after this transaction
+  description String?  // e.g. "Starter pack purchase" or "POST /api/analyze"
+  paymentId   String?  // links to Payment record for credit purchases
+  createdAt   DateTime @default(now())
+
+  @@index([apiKeyId, type])
+}
+
+// ─── QUIZ FUNNEL ANALYTICS ────────────────────────────────────────────────────
+// Lightweight server-side funnel tracking. No PII stored — session IDs only.
+model QuizEvent {
+  id         String   @id @default(cuid())
+  event      String   // quiz_started | quiz_completed | results_emailed | results_shared
+  sessionId  String?  // links to QuizSession
+  raceId     String?
+  stateCode  String?
+  metadata   Json?    // e.g. { score: 78, candidateName: "Smith" }
+  createdAt  DateTime @default(now())
+
+  @@index([event, createdAt])
+  @@index([raceId])
+  @@index([stateCode])
+}
