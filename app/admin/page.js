@@ -295,9 +295,7 @@ function QuestionReview({ raceId, authHeader, onToast }) {
             value={csvText}
             onChange={e => setCsvText(e.target.value)}
             rows={6}
-            placeholder={"questionText,topic,weight
-Should Congress cap insulin prices?,HEALTHCARE,1.8
-Should the US expand nuclear energy?,CLIMATE,1.2"}
+            placeholder={"questionText,topic,weight\nShould Congress cap insulin prices?,HEALTHCARE,1.8\nShould the US expand nuclear energy?,CLIMATE,1.2"}
             style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(216,171,105,0.2)', borderRadius: 5, padding: '10px 12px', color: S.cream, fontSize: 12, fontFamily: 'monospace', resize: 'vertical', boxSizing: 'border-box', marginBottom: 10 }}
           />
           <button
