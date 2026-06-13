@@ -611,7 +611,7 @@ function Results({ scores, topIssues, race, sessionId, onRetake }) {
   }
 
   const getCandidatePhoto = (c) => {
-    if (c.candidate?.photoUrl) return c.candidate.photoUrl
+    if (c.candidate?.imageUrl) return c.candidate.imageUrl
     if (c.candidate?.bioguideId) {
       const first = c.candidate.bioguideId[0].toUpperCase()
       return `https://bioguide.congress.gov/bioguide/photo/${first}/${c.candidate.bioguideId}.jpg`
