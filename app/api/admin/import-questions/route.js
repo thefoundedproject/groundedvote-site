@@ -7,7 +7,7 @@
  *
  * Example:
  *   Should the federal minimum wage be raised to $20/hr?,ECONOMY,1.5
- *   Should the US expand nuclear energy production?,CLIMATE,1.2
+ *   Should the US expand nuclear energy production?,ENVIRONMENT,1.2
  *
  * All imported questions get auditStatus = PENDING for admin review.
  */
@@ -18,9 +18,10 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET
 function auth(req) { return req.headers.get('x-admin-secret') === ADMIN_SECRET }
 
 const VALID_TOPICS = [
-  'HEALTHCARE','ECONOMY','CLIMATE','EDUCATION','IMMIGRATION',
-  'CRIMINAL_JUSTICE','FOREIGN_POLICY','HOUSING','CIVIL_RIGHTS',
-  'GUN_POLICY','TAXES','SOCIAL_SECURITY','VETERANS','TECHNOLOGY','INFRASTRUCTURE','OTHER'
+  'HEALTHCARE','ECONOMY','ENVIRONMENT','EDUCATION','IMMIGRATION',
+  'CRIMINAL_JUSTICE','FOREIGN_POLICY','HOUSING',
+  'GUN_POLICY','TAXES','SOCIAL_SECURITY','VETERANS','TECHNOLOGY','INFRASTRUCTURE',
+  'VOTING_RIGHTS','LABOR','DRUG_POLICY','OTHER'
 ]
 
 function parseCSV(text) {
@@ -100,8 +101,6 @@ export async function POST(req) {
           topic: q.topic,
           weight: q.weight,
           auditStatus: 'PENDING',
-          generationModel: 'csv-import',
-          auditLog: [{ action: 'csv_import', timestamp: new Date().toISOString() }],
         },
       })
     )
