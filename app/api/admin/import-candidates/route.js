@@ -5,6 +5,10 @@
  * POST /api/admin/import-candidates
  * Headers: { Authorization: Bearer <ADMIN_SECRET> }
  * Body: { raceId?: string }  — omit to import all races
+ *
+ * NOTE: Congress.gov API v3 /member?stateCode= and ?chamber= params are silently
+ * ignored. We fetch ALL 119th Congress members via /member/congress/119 (paginated)
+ * and filter client-side by state, chamber, and district.
  */
 
 import { NextResponse } from 'next/server'
@@ -22,20 +26,52 @@ async function congressFetch(path, params = {}) {
   return res.json()
 }
 
-// Map state abbreviation + chamber to Congress.gov member list
-async function fetchMembersForRace(state, chamber) {
-  const chamberPath = chamber === 'SENATE' ? 'senate' : 'house'
-  try {
-    const data = await congressFetch(`/member/${state}/${chamberPath}`, {
-      congress: 119,
-      currentMember: true,
-      limit: 20,
-    })
-    return data.members || []
-  } catch (err) {
-    console.error(`Failed to fetch ${state} ${chamber}:`, err.message)
-    return []
+/**
+ * Fetch ALL current members of the 119th Congress via pagination.
+ * Congress.gov returns max 250 per page; 119th has ~552 members.
+ */
+async function fetchAllMembers119() {
+  const allMembers = []
+  let offset = 0
+  const limit = 250
+
+  while (true) {
+    const data = await congressFetch('/member/congress/119', { limit, offset })
+    const batch = data.members || []
+    allMembers.push(...batch)
+    if (batch.length < limit) break
+    offset += limit
+    // Safety cap — never loop more than 6 pages (1500 members)
+    if (offset > 1500) break
   }
+
+  console.log(`Fetched ${allMembers.length} total members from Congress.gov`)
+  return allMembers
+}
+
+/**
+ * Filter the full member list for a specific race.
+ * Uses client-side filtering because Congress.gov API ignores stateCode/chamber params.
+ */
+function filterMembersForRace(allMembers, stateFull, chamber, district) {
+  const chamberFull = chamber === 'SENATE' ? 'Senate' : 'House of Representatives'
+
+  return allMembers.filter(m => {
+    // Match state (full name e.g. "Arizona")
+    if (m.state !== stateFull) return false
+
+    // Match chamber from most recent term
+    const latestTerm = m.terms?.item?.slice(-1)?.[0]
+    if (!latestTerm || latestTerm.chamber !== chamberFull) return false
+
+    // For House races, match district number
+    if (chamber === 'HOUSE' && district) {
+      const memberDistrict = (m.district ?? '').toString()
+      return memberDistrict === district.toString()
+    }
+
+    return true
+  })
 }
 
 // Normalize party string
@@ -62,32 +98,33 @@ export async function POST(request) {
     const { raceId } = await request.json().catch(() => ({}))
 
     const races = await prisma.race.findMany({
-      where: raceId ? { id: raceId } : { year: 2026, isCompetitive: true },
+      where: raceId ? { id: raceId } : { year: 2026 },
     })
+
+    if (races.length === 0) {
+      return NextResponse.json({ error: 'No races found. Seed races first.' }, { status: 404 })
+    }
+
+    // Fetch all members ONCE, then filter per race
+    const allMembers = await fetchAllMembers119()
 
     const results = []
 
     for (const race of races) {
-      const members = await fetchMembersForRace(race.state, race.chamber)
-
-      // For House races, filter by district
-      const relevant = race.chamber === 'HOUSE' && race.district
-        ? members.filter(m => {
-            const dist = m.district?.toString() || m.districtNumber?.toString()
-            return dist === race.district
-          })
-        : members
+      const relevant = filterMembersForRace(allMembers, race.stateFull, race.chamber, race.district)
 
       let imported = 0
       let skipped = 0
 
       for (const member of relevant) {
-        const bioguideId = member.bioguideId || member.id
-        const firstName = member.name?.split(',')[1]?.trim() || member.firstName || ''
-        const lastName = member.name?.split(',')[0]?.trim() || member.lastName || ''
-        const party = normalizeParty(member.partyName || member.party)
+        const bioguideId = member.bioguideId
+        // Congress.gov name format: "Last, First Middle"
+        const nameParts = member.name?.split(',') || []
+        const lastName = nameParts[0]?.trim() || ''
+        const firstName = nameParts[1]?.trim() || ''
+        const party = normalizeParty(member.partyName)
 
-        if (!lastName) { skipped++; continue }
+        if (!lastName || !bioguideId) { skipped++; continue }
 
         const existing = await prisma.candidate.findFirst({
           where: { raceId: race.id, bioguideId },
@@ -110,15 +147,26 @@ export async function POST(request) {
 
       results.push({
         race: race.label,
-        membersFound: members.length,
-        relevant: relevant.length,
+        state: race.stateFull,
+        chamber: race.chamber,
+        district: race.district,
+        membersFound: relevant.length,
         imported,
         skipped,
       })
-      console.log(`  ${race.label}: ${imported} imported, ${skipped} skipped`)
+      console.log(`  ${race.label}: found=${relevant.length}, imported=${imported}, skipped=${skipped}`)
     }
 
-    return NextResponse.json({ success: true, results })
+    const totalImported = results.reduce((s, r) => s + r.imported, 0)
+    const noMatches = results.filter(r => r.membersFound === 0)
+
+    return NextResponse.json({
+      success: true,
+      totalRaces: races.length,
+      totalImported,
+      noMatchRaces: noMatches.length,
+      results,
+    })
   } catch (err) {
     console.error('Import candidates error:', err)
     return NextResponse.json({ error: err.message }, { status: 500 })
