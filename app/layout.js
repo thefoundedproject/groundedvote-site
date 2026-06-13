@@ -89,10 +89,10 @@ function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <nav style={{ backgroundColor: '#0F1B1F', borderBottom: menuOpen ? '1px solid rgba(216,171,105,0.1)' : 'none' }} className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+    <nav style={{ backgroundColor: '#0F1B1F', borderBottom: menuOpen ? '1px solid rgba(232,168,32,0.15)' : 'none' }} className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <a href="/" className="text-white font-semibold text-lg tracking-wide">
-          Grounded<span style={{ color: '#D8AB69' }}>Vote</span>
+          Grounded<span style={{ color: '#E8A820' }}>Vote</span>
         </a>
         <div className="hidden md:flex items-center gap-8">
           <a href="/how-it-works" className="text-gray-300 hover:text-white text-sm transition-colors">How It Works</a>
@@ -101,7 +101,7 @@ function Nav() {
           <a href="/races" className="text-gray-300 hover:text-white text-sm transition-colors">Races</a>
           <a href="/audit" className="text-gray-300 hover:text-white text-sm transition-colors">Audit Trail</a>
           <a href="/support" className="text-gray-300 hover:text-white text-sm transition-colors">Support</a>
-          <a href="/#quiz" style={{ backgroundColor: '#D8AB69', color: '#0F1B1F' }} className="px-4 py-2 text-sm font-semibold rounded hover:opacity-90 transition-opacity">
+          <a href="/#quiz" style={{ backgroundColor: '#E8A820', color: '#0F1B1F' }} className="px-4 py-2 text-sm font-semibold rounded hover:opacity-90 transition-opacity">
             Take the Quiz
           </a>
         </div>
@@ -124,7 +124,7 @@ function Nav() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div style={{ backgroundColor: '#0F1B1F', borderTop: '1px solid rgba(216,171,105,0.1)' }} className="md:hidden px-6 py-4 flex flex-col gap-4 mt-2">
+        <div style={{ backgroundColor: '#0F1B1F', borderTop: '1px solid rgba(232,168,32,0.15)' }} className="md:hidden px-6 py-4 flex flex-col gap-4 mt-2">
           <a href="/how-it-works" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">How It Works</a>
           <a href="/methodology" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Methodology</a>
           <a href="/about" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">About</a>
@@ -132,7 +132,7 @@ function Nav() {
           <a href="/races" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Races</a>
           <a href="/audit" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Audit Trail</a>
           <a href="/support" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Support</a>
-          <a href="/align" onClick={() => setMenuOpen(false)} style={{ backgroundColor: '#D8AB69', color: '#0F1B1F' }} className="px-4 py-3 text-sm font-semibold rounded text-center hover:opacity-90 transition-opacity mt-2">
+          <a href="/align" onClick={() => setMenuOpen(false)} style={{ backgroundColor: '#E8A820', color: '#0F1B1F' }} className="px-4 py-3 text-sm font-semibold rounded text-center hover:opacity-90 transition-opacity mt-2">
             Find My Match
           </a>
         </div>
@@ -147,11 +147,11 @@ function Footer() {
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div className="md:col-span-2">
-            <div className="text-white font-semibold text-lg mb-3">Grounded<span style={{ color: '#D8AB69' }}>Vote</span></div>
+            <div className="text-white font-semibold text-lg mb-3">Grounded<span style={{ color: '#E8A820' }}>Vote</span></div>
             <p className="text-sm leading-relaxed max-w-sm">
               A nonpartisan civic alignment engine. Know what you actually believe. See who actually matches.
             </p>
-            <div style={{ width: '40px', height: '2px', backgroundColor: '#D8AB69' }} className="mt-4" />
+            <div style={{ width: '40px', height: '2px', backgroundColor: '#E8A820' }} className="mt-4" />
           </div>
           <div>
             <div className="text-white text-sm font-semibold mb-4 uppercase tracking-wider">Platform</div>
