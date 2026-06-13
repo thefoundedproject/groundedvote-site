@@ -9,11 +9,11 @@ function checkAuth(request) {
 export async function POST(request) {
   if (!checkAuth(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { raceId, firstName, lastName, party, incumbent, website , photoUrl } = await request.json()
+  const { raceId, firstName, lastName, party, incumbent, website , imageUrl } = await request.json()
   if (!raceId || !lastName) return NextResponse.json({ error: 'raceId and lastName required' }, { status: 400 })
 
   const candidate = await prisma.candidate.create({
-    data: { raceId, firstName: firstName || '', lastName, party: party || '', incumbent: !!incumbent, website: website || null, photoUrl: photoUrl || null },
+    data: { raceId, firstName: firstName || '', lastName, party: party || '', incumbent: !!incumbent, website: website || null, imageUrl: imageUrl || null },
   })
 
   return NextResponse.json({ candidate })
