@@ -3,585 +3,669 @@
 import { useState, useEffect, useRef } from 'react'
 
 function useReveal(threshold = 0.12) {
-  const ref = useRef(null)
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold })
-    if (ref.current) obs.observe(ref.current)
-    return () => obs.disconnect()
-  }, [threshold])
-  return [ref, visible]
+const ref = useRef(null)
+const [visible, setVisible] = useState(false)
+useEffect(() => {
+const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true) }, { threshold })
+if (ref.current) obs.observe(ref.current)
+return () => obs.disconnect()
+}, [threshold])
+return [ref, visible]
 }
 
 function Reveal({ children, delay = 0 }) {
-  const [ref, visible] = useReveal()
-  return <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(20px)', transition: `all 0.75s ease ${delay}ms` }}>{children}</div>
+const [ref, visible] = useReveal()
+return <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(20px)', transition: `all 0.75s ease ${delay}ms` }}>{children}</div>
 }
 
 // Maps issueKey → display label for results page
 const ISSUE_LABELS = {
-  economy: 'Economic Policy',
-  healthcare: 'Healthcare',
-  environment: 'Environment & Climate',
-  immigration: 'Immigration',
-  guns: 'Gun Policy',
-  taxes: 'Taxes & Federal Spending',
-  foreign_policy: 'Foreign Policy & Defense',
-  democracy: 'Voting Rights & Democracy',
+economy: 'Economic Policy',
+healthcare: 'Healthcare',
+environment: 'Environment & Climate',
+immigration: 'Immigration',
+guns: 'Gun Policy',
+taxes: 'Taxes & Federal Spending',
+foreign_policy: 'Foreign Policy & Defense',
+democracy: 'Voting Rights & Democracy',
 }
 
+// 50 stars — one per state — scattered like the real night sky, not flag rows.
+// Deconstructed patriotism: all 50 states counted, none ranked.
+// Weighted toward edges and top so they frame content without obscuring it.
+const STARS_50 = [
+{x:3.8, y:6.2, r:1.1, o:0.14}, {x:9.1, y:3.4, r:0.8, o:0.10},
+{x:15.7, y:9.8, r:1.3, o:0.17}, {x:22.4, y:4.9, r:0.9, o:0.11},
+{x:28.9, y:13.6, r:1.0, o:0.13}, {x:35.3, y:6.1, r:1.2, o:0.15},
+{x:41.8, y:10.4, r:0.8, o:0.10}, {x:48.2, y:3.7, r:1.1, o:0.14},
+{x:54.6, y:14.8, r:0.9, o:0.11}, {x:61.0, y:7.3, r:1.3, o:0.16},
+{x:67.4, y:11.5, r:0.8, o:0.10}, {x:73.8, y:4.2, r:1.0, o:0.13},
+{x:80.2, y:16.9, r:1.2, o:0.15}, {x:86.6, y:8.7, r:0.8, o:0.10},
+{x:93.0, y:5.1, r:1.1, o:0.14}, {x:97.4, y:18.3, r:0.9, o:0.11},
+{x:1.5, y:29.7, r:0.8, o:0.09}, {x:4.2, y:44.1, r:1.0, o:0.10},
+{x:2.9, y:58.6, r:0.8, o:0.08}, {x:5.1, y:72.3, r:1.1, o:0.09},
+{x:3.4, y:84.8, r:0.8, o:0.07}, {x:7.3, y:91.5, r:1.0, o:0.08},
+{x:95.8, y:31.4, r:0.8, o:0.09}, {x:98.1, y:47.2, r:1.0, o:0.10},
+{x:96.5, y:61.8, r:0.8, o:0.08}, {x:94.2, y:75.9, r:1.1, o:0.09},
+{x:97.7, y:86.4, r:0.8, o:0.07}, {x:92.3, y:93.1, r:1.0, o:0.08},
+{x:18.6, y:27.3, r:0.9, o:0.09}, {x:31.2, y:34.8, r:1.1, o:0.10},
+{x:44.5, y:22.1, r:0.8, o:0.09}, {x:57.9, y:31.6, r:1.0, o:0.10},
+{x:71.3, y:25.4, r:0.8, o:0.09}, {x:84.7, y:33.9, r:1.2, o:0.11},
+{x:13.4, y:68.7, r:0.8, o:0.07}, {x:26.8, y:78.4, r:1.0, o:0.08},
+{x:40.2, y:62.5, r:0.8, o:0.07}, {x:53.6, y:82.3, r:1.1, o:0.08},
+{x:67.0, y:71.8, r:0.8, o:0.07}, {x:80.4, y:79.6, r:1.0, o:0.08},
+{x:19.8, y:89.4, r:0.8, o:0.07}, {x:35.6, y:93.2, r:1.0, o:0.07},
+{x:51.4, y:90.7, r:0.8, o:0.07}, {x:67.2, y:94.1, r:1.1, o:0.07},
+{x:83.0, y:88.5, r:0.8, o:0.07}, {x:88.6, y:21.7, r:0.9, o:0.10},
+{x:46.9, y:42.3, r:0.8, o:0.08}, {x:62.7, y:50.1, r:1.0, o:0.08},
+]
+
 const CIVIC_QUIZ = [
-  {
-    q: 'In the last election you voted in, how confident were you that your vote matched what you actually believe?',
-    key: 'voting_confidence',
-    options: [
-      { label: 'Very confident — I researched candidates and positions thoroughly.', value: 'confident' },
-      { label: 'Somewhat confident — I had a general sense but not much depth.', value: 'partial' },
-      { label: 'Not confident — I voted based on party or general feeling.', value: 'low' },
-      { label: 'I did not vote. I did not feel like I had enough information.', value: 'disengaged' },
-    ],
-  },
-  {
-    q: 'Which issue area matters most to you heading into the 2026 elections?',
-    key: 'primary_issue',
-    note: 'Your top two choices pre-weight your alignment score when you take the full quiz.',
-    options: [
-      { label: 'Economic policy — wages, jobs, cost of living, trade.', value: 'economy' },
-      { label: 'Healthcare — coverage, drug prices, Medicare, Medicaid.', value: 'healthcare' },
-      { label: 'Environment and climate — emissions, energy policy, public lands.', value: 'environment' },
-      { label: 'Immigration — pathways to citizenship, enforcement, border policy.', value: 'immigration' },
-    ],
-  },
-  {
-    q: 'Which of these is your second priority?',
-    key: 'secondary_issue',
-    note: 'These two priorities apply 2.5× weight to matching questions in your alignment results.',
-    options: [
-      { label: 'Gun policy — background checks, firearm regulation, public safety.', value: 'guns' },
-      { label: 'Taxes and federal spending — rates, deficits, size of government.', value: 'taxes' },
-      { label: 'Foreign policy — defense budget, military commitments, foreign aid.', value: 'foreign_policy' },
-      { label: 'Voting rights and democratic process — access, elections, accountability.', value: 'democracy' },
-    ],
-  },
-  {
-    q: 'When you encounter a political issue you have not thought about before, what is your default move?',
-    key: 'info_processing',
-    options: [
-      { label: 'I research it independently before forming any opinion.', value: 'research' },
-      { label: 'I listen to trusted people in my community or network first.', value: 'community' },
-      { label: 'I default to my general political leanings and move on.', value: 'partisan' },
-      { label: 'I avoid it — most political content feels too loaded to engage with honestly.', value: 'avoidance' },
-    ],
-  },
-  {
-    q: 'When you evaluate a candidate, what do you trust most?',
-    key: 'trust_signal',
-    options: [
-      { label: 'Their actual voting record — what they did when it counted, not what they say now.', value: 'record' },
-      { label: 'The organizations and donors who fund their campaigns.', value: 'funding' },
-      { label: 'Their stated platform and policy positions.', value: 'platform' },
-      { label: 'How they perform when questioned directly under pressure.', value: 'performance' },
-    ],
-  },
-  {
-    q: 'What would it mean for your life if you voted and knew — with confidence — that your vote matched what you actually believe?',
-    key: 'alignment_meaning',
-    options: [
-      { label: 'It would make voting feel like a deliberate act instead of a performance.', value: 'meaningful' },
-      { label: 'It would give me confidence I have not had at the ballot box before.', value: 'confidence' },
-      { label: 'It would break the cycle of voting out of fear instead of belief.', value: 'cycle' },
-      { label: 'Honestly — it would change how I feel about whether democracy can work.', value: 'democracy' },
-    ],
-  },
+{
+q: 'In the last election you voted in, how confident were you that your vote matched what you actually believe?',
+key: 'voting_confidence',
+options: [
+{ label: 'Very confident — I researched candidates and positions thoroughly.', value: 'confident' },
+{ label: 'Somewhat confident — I had a general sense but not much depth.', value: 'partial' },
+{ label: 'Not confident — I voted based on party or general feeling.', value: 'low' },
+{ label: 'I did not vote. I did not feel like I had enough information.', value: 'disengaged' },
+],
+},
+{
+q: 'Which issue area matters most to you heading into the 2026 elections?',
+key: 'primary_issue',
+note: 'Your top two choices pre-weight your alignment score when you take the full quiz.',
+options: [
+{ label: 'Economic policy — wages, jobs, cost of living, trade.', value: 'economy' },
+{ label: 'Healthcare — coverage, drug prices, Medicare, Medicaid.', value: 'healthcare' },
+{ label: 'Environment and climate — emissions, energy policy, public lands.', value: 'environment' },
+{ label: 'Immigration — pathways to citizenship, enforcement, border policy.', value: 'immigration' },
+],
+},
+{
+q: 'Which of these is your second priority?',
+key: 'secondary_issue',
+note: 'These two priorities apply 2.5× weight to matching questions in your alignment results.',
+options: [
+{ label: 'Gun policy — background checks, firearm regulation, public safety.', value: 'guns' },
+{ label: 'Taxes and federal spending — rates, deficits, size of government.', value: 'taxes' },
+{ label: 'Foreign policy — defense budget, military commitments, foreign aid.', value: 'foreign_policy' },
+{ label: 'Voting rights and democratic process — access, elections, accountability.', value: 'democracy' },
+],
+},
+{
+q: 'When you encounter a political issue you have not thought about before, what is your default move?',
+key: 'info_processing',
+options: [
+{ label: 'I research it independently before forming any opinion.', value: 'research' },
+{ label: 'I listen to trusted people in my community or network first.', value: 'community' },
+{ label: 'I default to my general political leanings and move on.', value: 'partisan' },
+{ label: 'I avoid it — most political content feels too loaded to engage with honestly.', value: 'avoidance' },
+],
+},
+{
+q: 'When you evaluate a candidate, what do you trust most?',
+key: 'trust_signal',
+options: [
+{ label: 'Their actual voting record — what they did when it counted, not what they say now.', value: 'record' },
+{ label: 'The organizations and donors who fund their campaigns.', value: 'funding' },
+{ label: 'Their stated platform and policy positions.', value: 'platform' },
+{ label: 'How they perform when questioned directly under pressure.', value: 'performance' },
+],
+},
+{
+q: 'What would it mean for your life if you voted and knew — with confidence — that your vote matched what you actually believe?',
+key: 'alignment_meaning',
+options: [
+{ label: 'It would make voting feel like a deliberate act instead of a performance.', value: 'meaningful' },
+{ label: 'It would give me confidence I have not had at the ballot box before.', value: 'confidence' },
+{ label: 'It would break the cycle of voting out of fear instead of belief.', value: 'cycle' },
+{ label: 'Honestly — it would change how I feel about whether democracy can work.', value: 'democracy' },
+],
+},
 ]
 
 const CIVIC_PROFILES = {
-  confident: {
-    title: 'You are already doing the work. GroundedVote makes it faster, cleaner, and auditable.',
-    desc: 'You research. You think. But even careful voters are shaped by framing, sourcing, and omission. The bias-audited pipeline gives your existing process a more reliable foundation — and surfaces the candidates your research might have missed.',
-    next: 'Join the notification list to be first in when we launch.',
-  },
-  partial: {
-    title: "You know your values. You just don't have a tool that connects them to policy with enough depth.",
-    desc: 'That is not a failure of effort. It is a failure of available infrastructure. GroundedVote was built specifically for this gap — people with clear values who lack a reliable, unbiased way to see which candidates actually match them.',
-    next: 'Join the list. You are exactly who this was built for.',
-  },
-  low: {
-    title: 'You are voting your identity, not your beliefs. You already sense this.',
-    desc: 'The information environment is designed to make this inevitable. When every channel is built to activate tribal response, careful deliberation requires a counter-architecture. That is what GroundedVote builds — a system that bypasses the framing and returns you to your own positions.',
-    next: 'Join the list. The alternative exists now.',
-  },
-  disengaged: {
-    title: 'You did not disengage. You were failed by the information system.',
-    desc: 'This is not apathy. You showed up to make a decision and the tools were not there. GroundedVote was built first for people in exactly this position — accessible to someone who has never followed an election closely, built to hold attention and return something real.',
-    next: 'Join the list. This was built for you first.',
-  },
+confident: {
+title: 'You are already doing the work. GroundedVote makes it faster, cleaner, and auditable.',
+desc: 'You research. You think. But even careful voters are shaped by framing, sourcing, and omission. The bias-audited pipeline gives your existing process a more reliable foundation — and surfaces the candidates your research might have missed.',
+next: 'Join the notification list to be first in when we launch.',
+},
+partial: {
+title: "You know your values. You just don't have a tool that connects them to policy with enough depth.",
+desc: 'That is not a failure of effort. It is a failure of available infrastructure. GroundedVote was built specifically for this gap — people with clear values who lack a reliable, unbiased way to see which candidates actually match them.',
+next: 'Join the list. You are exactly who this was built for.',
+},
+low: {
+title: 'You are voting your identity, not your beliefs. You already sense this.',
+desc: 'The information environment is designed to make this inevitable. When every channel is built to activate tribal response, careful deliberation requires a counter-architecture. That is what GroundedVote builds — a system that bypasses the framing and returns you to your own positions.',
+next: 'Join the list. The alternative exists now.',
+},
+disengaged: {
+title: 'You did not disengage. You were failed by the information system.',
+desc: 'This is not apathy. You showed up to make a decision and the tools were not there. GroundedVote was built first for people in exactly this position — accessible to someone who has never followed an election closely, built to hold attention and return something real.',
+next: 'Join the list. This was built for you first.',
+},
 }
 
 function deriveProfile(answers) {
-  const scores = { confident: 0, partial: 0, low: 0, disengaged: 0 }
+const scores = { confident: 0, partial: 0, low: 0, disengaged: 0 }
 
-  // Q1 — voting confidence (weight 4 — primary signal)
-  const q1 = answers[0]?.value
-  if (q1 === 'confident') scores.confident += 4
-  else if (q1 === 'partial') scores.partial += 4
-  else if (q1 === 'low') scores.low += 4
-  else if (q1 === 'disengaged') scores.disengaged += 4
+// Q1 — voting confidence (weight 4 — primary signal)
+const q1 = answers[0]?.value
+if (q1 === 'confident') scores.confident += 4
+else if (q1 === 'partial') scores.partial += 4
+else if (q1 === 'low') scores.low += 4
+else if (q1 === 'disengaged') scores.disengaged += 4
 
-  // Q2 + Q3 — issue priorities — extracted separately, not scored for profile
+// Q2 + Q3 — issue priorities — extracted separately, not scored for profile
 
-  // Q4 — info processing (weight 2)
-  const q4 = answers[3]?.value
-  if (q4 === 'research') scores.confident += 2
-  else if (q4 === 'community') scores.partial += 2
-  else if (q4 === 'partisan') scores.low += 2
-  else if (q4 === 'avoidance') scores.disengaged += 2
+// Q4 — info processing (weight 2)
+const q4 = answers[3]?.value
+if (q4 === 'research') scores.confident += 2
+else if (q4 === 'community') scores.partial += 2
+else if (q4 === 'partisan') scores.low += 2
+else if (q4 === 'avoidance') scores.disengaged += 2
 
-  // Q5 — trust signal (weight 1)
-  const q5 = answers[4]?.value
-  if (q5 === 'record') scores.confident += 1
-  else if (q5 === 'funding') scores.partial += 1
-  else if (q5 === 'platform') scores.partial += 1
-  else if (q5 === 'performance') scores.low += 1
+// Q5 — trust signal (weight 1)
+const q5 = answers[4]?.value
+if (q5 === 'record') scores.confident += 1
+else if (q5 === 'funding') scores.partial += 1
+else if (q5 === 'platform') scores.partial += 1
+else if (q5 === 'performance') scores.low += 1
 
-  // Q6 — alignment meaning (weight 1)
-  const q6 = answers[5]?.value
-  if (q6 === 'meaningful') scores.partial += 1
-  else if (q6 === 'confidence') scores.low += 1
-  else if (q6 === 'cycle') scores.low += 1
-  else if (q6 === 'democracy') scores.disengaged += 1
+// Q6 — alignment meaning (weight 1)
+const q6 = answers[5]?.value
+if (q6 === 'meaningful') scores.partial += 1
+else if (q6 === 'confidence') scores.low += 1
+else if (q6 === 'cycle') scores.low += 1
+else if (q6 === 'democracy') scores.disengaged += 1
 
-  const profileKey = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0]
+const profileKey = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0]
 
-  // Extract issue priorities from Q2 and Q3
-  const issuePriorities = [
-    answers[1]?.value,
-    answers[2]?.value,
-  ].filter(Boolean)
+// Extract issue priorities from Q2 and Q3
+const issuePriorities = [
+answers[1]?.value,
+answers[2]?.value,
+].filter(Boolean)
 
-  return { profileKey, issuePriorities }
+return { profileKey, issuePriorities }
 }
 
 function NotifyForm() {
-  const [email, setEmail] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [stateCode, setStateCode] = useState(null)
+const [email, setEmail] = useState('')
+const [submitted, setSubmitted] = useState(false)
+const [loading, setLoading] = useState(false)
+const [stateCode, setStateCode] = useState(null)
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const s = params.get('state')
-    if (s) setStateCode(s.toUpperCase())
-  }, [])
+useEffect(() => {
+const params = new URLSearchParams(window.location.search)
+const s = params.get('state')
+if (s) setStateCode(s.toUpperCase())
+}, [])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      await fetch('/api/quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          answers: [],
-          profile: { title: 'Notification signup', desc: '', next: '' },
-          notifyState: stateCode ?? null,
-        }),
-      })
-    } catch {}
-    setLoading(false)
-    setSubmitted(true)
-  }
+const handleSubmit = async (e) => {
+e.preventDefault()
+setLoading(true)
+try {
+await fetch('/api/quiz', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+email,
+answers: [],
+profile: { title: 'Notification signup', desc: '', next: '' },
+notifyState: stateCode ?? null,
+}),
+})
+} catch {}
+setLoading(false)
+setSubmitted(true)
+}
 
-  if (submitted) {
-    return (
-      <div style={{ padding: '20px 0' }}>
-        <p style={{ color: '#E8A820', fontWeight: 700, fontSize: 15 }}>You are on the list.</p>
-        <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 13, marginTop: 6 }}>
-          {stateCode
-            ? `We will email you as soon as ${stateCode} races go live on GroundedVote.`
-            : 'We will notify you when the full platform is live.'}
-        </p>
-      </div>
-    )
-  }
+if (submitted) {
+return (
+<div style={{ padding: '20px 0' }}>
+<p style={{ color: '#E8A820', fontWeight: 700, fontSize: 15 }}>You are on the list.</p>
+<p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 13, marginTop: 6 }}>
+{stateCode
+? `We will email you as soon as ${stateCode} races go live on GroundedVote.`
+: 'We will notify you when the full platform is live.'}
+</p>
+</div>
+)
+}
 
-  return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {stateCode && (
-        <div style={{ backgroundColor: 'rgba(94,207,166,0.12)', border: '1px solid rgba(94,207,166,0.25)', borderRadius: 6, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: '#5ECFA6', fontSize: 18 }}>📍</span>
-          <p style={{ color: '#5ECFA6', fontSize: 13, fontWeight: 600, margin: 0 }}>
-            Notifying you when <strong>{stateCode}</strong> races go live
-          </p>
-        </div>
-      )}
-      <input
-        name="email"
-        required
-        type="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        placeholder="your@email.com"
-        style={{ padding: '14px 18px', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(232,168,32,0.3)', borderRadius: 6, fontSize: 15, color: 'white', outline: 'none' }}
-      />
-      <button
-        type="submit"
-        disabled={loading}
-        style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px', borderRadius: 6, fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1, fontFamily: 'inherit' }}
-      >
-        {loading ? 'Saving...' : stateCode ? `Notify me when ${stateCode} is live` : 'Notify me at launch'}
-      </button>
-    </form>
-  )
+return (
+<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+{stateCode && (
+<div style={{ backgroundColor: 'rgba(94,207,166,0.12)', border: '1px solid rgba(94,207,166,0.25)', borderRadius: 6, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+<span style={{ color: '#5ECFA6', fontSize: 18 }}>📍</span>
+<p style={{ color: '#5ECFA6', fontSize: 13, fontWeight: 600, margin: 0 }}>
+Notifying you when <strong>{stateCode}</strong> races go live
+</p>
+</div>
+)}
+<input
+name="email"
+required
+type="email"
+value={email}
+onChange={e => setEmail(e.target.value)}
+placeholder="your@email.com"
+style={{ padding: '14px 18px', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(232,168,32,0.3)', borderRadius: 6, fontSize: 15, color: 'white', outline: 'none' }}
+/>
+<button
+type="submit"
+disabled={loading}
+style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px', borderRadius: 6, fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1, fontFamily: 'inherit' }}
+>
+{loading ? 'Saving...' : stateCode ? `Notify me when ${stateCode} is live` : 'Notify me at launch'}
+</button>
+</form>
+)
 }
 
 function CivicQuiz() {
-  const [step, setStep] = useState(0)
-  const [answers, setAnswers] = useState([])
-  const [selected, setSelected] = useState(null)
-  const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [profile, setProfile] = useState(null)
-  const [issuePriorities, setIssuePriorities] = useState([])
-  const [heroVisible, setHeroVisible] = useState(false)
+const [step, setStep] = useState(0)
+const [answers, setAnswers] = useState([])
+const [selected, setSelected] = useState(null)
+const [email, setEmail] = useState('')
+const [loading, setLoading] = useState(false)
+const [profile, setProfile] = useState(null)
+const [issuePriorities, setIssuePriorities] = useState([])
+const [heroVisible, setHeroVisible] = useState(false)
 
-  useEffect(() => { setTimeout(() => setHeroVisible(true), 100) }, [])
+useEffect(() => { setTimeout(() => setHeroVisible(true), 100) }, [])
 
-  const question = CIVIC_QUIZ[step - 1]
+const question = CIVIC_QUIZ[step - 1]
 
-  const handleNext = () => {
-    if (!selected) return
-    const newAnswers = [...answers, { q: question.q, value: selected, a: question.options.find(o => o.value === selected).label }]
-    setAnswers(newAnswers)
-    setSelected(null)
-    if (step < CIVIC_QUIZ.length) {
-      setStep(step + 1)
-    } else {
-      const { profileKey, issuePriorities: derived } = deriveProfile(newAnswers)
-      setProfile(CIVIC_PROFILES[profileKey] || CIVIC_PROFILES.partial)
-      setIssuePriorities(derived)
-      setStep(CIVIC_QUIZ.length + 1)
-    }
-  }
+const handleNext = () => {
+if (!selected) return
+const newAnswers = [...answers, { q: question.q, value: selected, a: question.options.find(o => o.value === selected).label }]
+setAnswers(newAnswers)
+setSelected(null)
+if (step < CIVIC_QUIZ.length) {
+setStep(step + 1)
+} else {
+const { profileKey, issuePriorities: derived } = deriveProfile(newAnswers)
+setProfile(CIVIC_PROFILES[profileKey] || CIVIC_PROFILES.partial)
+setIssuePriorities(derived)
+setStep(CIVIC_QUIZ.length + 1)
+}
+}
 
-  const handleEmail = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      await fetch('/api/quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, answers, profile, issuePriorities }),
-      })
-    } catch {}
-    setLoading(false)
-    setStep(CIVIC_QUIZ.length + 2)
-  }
+const handleEmail = async (e) => {
+e.preventDefault()
+setLoading(true)
+try {
+await fetch('/api/quiz', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ email, answers, profile, issuePriorities }),
+})
+} catch {}
+setLoading(false)
+setStep(CIVIC_QUIZ.length + 2)
+}
 
-  // HERO STATE
-  if (step === 0) return (
-    <div id="quiz" style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 24px', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 50%, rgba(232,168,32,0.10), transparent 60%)', pointerEvents: 'none' }} />
-      <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 80, alignItems: 'center' }}>
-        <div>
-          <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.8s 200ms' }}>GroundedVote</p>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 300, color: '#F5F0E8', lineHeight: 1.1, letterSpacing: '-0.025em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 400ms' }}>
-              Most Americans vote
-            </div>
-          </div>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 300, color: '#E8A820', lineHeight: 1.1, letterSpacing: '-0.025em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 560ms' }}>
-              on fear.
-            </div>
-          </div>
-          <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 17, lineHeight: 1.75, maxWidth: 440, marginTop: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 900ms' }}>
-            We generate neutral policy questions from actual candidate positions. You answer honestly. Then you see which candidates match what you already believe.
-          </p>
-          <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 14, lineHeight: 1.7, maxWidth: 400, marginTop: 12, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 1.1s' }}>
-            Every question goes through a bias audit before it reaches you. No loaded language. No political framing.
-          </p>
-        </div>
+// HERO STATE — postmodern expressionist design
+// Background: 50 scattered stars (one per state) + film grain texture
+// Typography: "on fear." dominates — heavier, larger than "Most Americans vote"
+if (step === 0) return (
+<div id="quiz" style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 24px', position: 'relative', overflow: 'hidden' }}>
 
-        <div style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 1s ease 700ms' }}>
-          <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(232,168,32,0.2)', borderRadius: 12, padding: 40 }}>
-            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Before We Build This For You</p>
-            <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, lineHeight: 1.3, marginBottom: 12 }}>Six questions about how you currently vote.</h3>
-            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 32 }}>
-              Two of these questions establish your issue priorities — and pre-weight your alignment score when you take the full quiz. No wrong answers.
-            </p>
-            <button onClick={() => setStep(1)} style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '16px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%' }}>
-              Begin the civic mirror →
-            </button>
-            <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Takes about 3 minutes. Results sent to your email.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+{/* Starfield — 50 stars, one per state, deconstructed from flag geometry */}
+<svg aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter id="gv-grain" x="0%" y="0%" width="100%" height="100%">
+<feTurbulence type="fractalNoise" baseFrequency="0.68 0.72" numOctaves="4" seed="14" stitchTiles="stitch" result="noise"/>
+<feColorMatrix type="saturate" values="0" in="noise" result="gray"/>
+</filter>
+</defs>
+{/* Film grain — print culture aesthetic, spans all American political traditions */}
+<rect width="100%" height="100%" filter="url(#gv-grain)" opacity="0.055" fill="white"/>
+{/* 50 stars */}
+{STARS_50.map((s, i) => (
+<circle key={i} cx={`${s.x}%`} cy={`${s.y}%`} r={s.r} fill="#F5F0E8" opacity={s.o}/>
+))}
+</svg>
 
-  // QUIZ QUESTIONS
-  if (step >= 1 && step <= CIVIC_QUIZ.length) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
-      <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 48 }}>
-          {CIVIC_QUIZ.map((_, i) => (
-            <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < step ? '#E8A820' : 'rgba(232,168,32,0.15)', transition: 'background-color 0.4s' }} />
-          ))}
-        </div>
-        <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>Question {step} of {CIVIC_QUIZ.length}</p>
-        {question.note && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '8px 12px', backgroundColor: 'rgba(232,168,32,0.08)', borderRadius: 6, border: '1px solid rgba(232,168,32,0.2)' }}>
-            <span style={{ color: '#E8A820', fontSize: 16 }}>◎</span>
-            <p style={{ color: 'rgba(232,168,32,0.85)', fontSize: 12, fontWeight: 600, letterSpacing: '0.02em', margin: 0 }}>{question.note}</p>
-          </div>
-        )}
-        <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 300, lineHeight: 1.45, marginBottom: 40, letterSpacing: '-0.01em' }}>{question.q}</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
-          {question.options.map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setSelected(opt.value)}
-              style={{
-                textAlign: 'left', padding: '18px 22px', borderRadius: 8, fontSize: 15, lineHeight: 1.55,
-                cursor: 'pointer', transition: 'all 0.15s',
-                backgroundColor: selected === opt.value ? '#E8A820' : 'rgba(255,255,255,0.05)',
-                color: selected === opt.value ? '#0F1B1F' : '#F5F0E8',
-                border: `1.5px solid ${selected === opt.value ? '#E8A820' : 'rgba(232,168,32,0.15)'}`,
-                fontWeight: selected === opt.value ? 600 : 400,
-              }}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {step > 1 && (
-            <button onClick={() => { setStep(step - 1); setSelected(null) }} style={{ background: 'none', border: 'none', color: 'rgba(245,240,232,0.4)', fontSize: 13, cursor: 'pointer', padding: 0 }}>← Back</button>
-          )}
-          <div style={{ marginLeft: 'auto' }}>
-            <button
-              onClick={handleNext}
-              disabled={!selected}
-              style={{ backgroundColor: selected ? '#E8A820' : 'rgba(232,168,32,0.2)', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s' }}
-            >
-              {step === CIVIC_QUIZ.length ? 'See my civic profile →' : 'Continue →'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+{/* Ambient amber bloom — warmth from the left, where the headline lives */}
+<div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 20% 58%, rgba(232,168,32,0.09), transparent 52%)', pointerEvents: 'none' }} />
 
-  // EMAIL CAPTURE
-  if (step === CIVIC_QUIZ.length + 1) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
-      <div style={{ maxWidth: 520, margin: '0 auto', width: '100%' }}>
-        <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Almost there</p>
-        <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>Where should your civic profile go?</h2>
-        <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 16, lineHeight: 1.65, marginBottom: 36 }}>Your results, what they tell you about how you currently vote, and how GroundedVote will pre-weight your alignment quiz based on your stated priorities.</p>
-        <form onSubmit={handleEmail} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <input
-            required
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            style={{ padding: '18px 20px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(232,168,32,0.25)', borderRadius: 6, fontSize: 16, color: 'white', outline: 'none' }}
-          />
-          <button type="submit" disabled={loading} style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '18px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Sending...' : 'Send my civic profile'}
-          </button>
-        </form>
-        <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 12, marginTop: 12 }}>No spam. Unsubscribe anytime. Your answers are never sold or shared.</p>
-      </div>
-    </div>
-  )
+<div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 80, alignItems: 'center' }}>
+<div>
+{/* Amber horizontal rule — newspaper / print / documentary tradition */}
+<div style={{ width: 48, height: 2, backgroundColor: '#E8A820', marginBottom: 28, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.6s 100ms' }} />
 
-  // RESULT
-  if (step === CIVIC_QUIZ.length + 2 && profile) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
-      <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
-        <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Your Civic Profile</p>
-        <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 500, lineHeight: 1.3, marginBottom: 24 }}>{profile.title}</h2>
-        <p style={{ color: 'rgba(245,240,232,0.65)', fontSize: 17, lineHeight: 1.75, marginBottom: 20, maxWidth: 600 }}>{profile.desc}</p>
-        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 32, borderLeft: '2px solid rgba(232,168,32,0.4)', paddingLeft: 16 }}>{profile.next}</p>
+<p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 28, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.8s 200ms' }}>GroundedVote</p>
 
-        {issuePriorities.length > 0 && (
-          <div style={{ marginBottom: 40, padding: '20px 24px', backgroundColor: 'rgba(232,168,32,0.06)', borderRadius: 8, border: '1px solid rgba(232,168,32,0.2)' }}>
-            <p style={{ color: 'rgba(232,168,32,0.7)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 10 }}>Your Issue Priorities</p>
-            <p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 500, marginBottom: 6 }}>
-              {issuePriorities.map(k => ISSUE_LABELS[k] || k).join(' · ')}
-            </p>
-            <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 13, lineHeight: 1.6 }}>
-              When you take the full alignment quiz at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a>, questions in these areas will carry 2.5× weight in your match score — so the result reflects what you actually care about most.
-            </p>
-          </div>
-        )}
+{/* "Most Americans vote" — light, receding */}
+<div style={{ overflow: 'hidden' }}>
+<div style={{ fontSize: 'clamp(38px, 6vw, 72px)', fontWeight: 200, color: '#F5F0E8', lineHeight: 1.05, letterSpacing: '-0.03em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 400ms' }}>
+Most Americans vote
+</div>
+</div>
 
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <a href="/align" style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Take the alignment quiz →</a>
-          <a href="/methodology" style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.7)', padding: '14px 32px', borderRadius: 6, fontWeight: 600, fontSize: 14, textDecoration: 'none', border: '1px solid rgba(232,168,32,0.2)' }}>Read the methodology</a>
-        </div>
-        <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid rgba(232,168,32,0.15)' }}>
-          <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13 }}>Your results have been sent to your email. Scroll down to learn more about how GroundedVote works.</p>
-        </div>
-      </div>
-    </div>
-  )
+{/* "on fear." — DOMINANT: heavier, larger, the typographic anchor */}
+<div style={{ overflow: 'hidden', marginTop: 2 }}>
+<div style={{ fontSize: 'clamp(52px, 8.5vw, 100px)', fontWeight: 800, color: '#E8A820', lineHeight: 1.0, letterSpacing: '-0.04em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 540ms' }}>
+on fear.
+</div>
+</div>
 
-  return null
+<p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 17, lineHeight: 1.75, maxWidth: 440, marginTop: 36, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 900ms' }}>
+We generate neutral policy questions from actual candidate positions. You answer honestly. Then you see which candidates match what you already believe.
+</p>
+<p style={{ color: 'rgba(245,240,232,0.3)', fontSize: 14, lineHeight: 1.7, maxWidth: 420, marginTop: 12, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 1100ms' }}>
+Every question goes through a bias audit before it reaches you. No loaded language. No political framing.
+</p>
+</div>
+
+{/* Card — editorial treatment, not SaaS */}
+<div style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 1s ease 700ms' }}>
+<div style={{ border: '1px solid rgba(232,168,32,0.3)', borderRadius: 4, overflow: 'hidden', backdropFilter: 'blur(16px)', backgroundColor: 'rgba(15,27,31,0.88)' }}>
+{/* Amber top accent bar — the editorial flag */}
+<div style={{ height: 3, width: '100%', backgroundColor: '#E8A820' }} />
+<div style={{ padding: '36px 40px' }}>
+<p style={{ color: '#E8A820', fontSize: 9, fontWeight: 800, letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: 18 }}>Before We Build This For You</p>
+<h3 style={{ color: '#F5F0E8', fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 0, letterSpacing: '-0.02em' }}>
+Six questions about how you currently vote.
+</h3>
+{/* Inner horizontal rule */}
+<div style={{ width: 36, height: 1, backgroundColor: 'rgba(232,168,32,0.35)', margin: '18px 0' }} />
+<p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 32 }}>
+Two of these questions establish your issue priorities — and pre-weight your alignment score when you take the full quiz. No wrong answers.
+</p>
+<button
+onClick={() => setStep(1)}
+style={{
+backgroundColor: '#E8A820',
+color: '#0F1B1F',
+padding: '15px 40px',
+borderRadius: 2,
+fontWeight: 800,
+fontSize: 12,
+border: 'none',
+cursor: 'pointer',
+width: '100%',
+letterSpacing: '0.1em',
+textTransform: 'uppercase',
+fontFamily: 'inherit',
+}}
+>
+Begin the civic mirror →
+</button>
+<p style={{ color: 'rgba(245,240,232,0.2)', fontSize: 11, textAlign: 'center', marginTop: 14, letterSpacing: '0.02em' }}>Takes about 3 minutes. Results sent to your email.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+)
+
+// QUIZ QUESTIONS
+if (step >= 1 && step <= CIVIC_QUIZ.length) return (
+<div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
+<div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
+<div style={{ display: 'flex', gap: 6, marginBottom: 48 }}>
+{CIVIC_QUIZ.map((_, i) => (
+<div key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < step ? '#E8A820' : 'rgba(232,168,32,0.15)', transition: 'background-color 0.4s' }} />
+))}
+</div>
+<p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>Question {step} of {CIVIC_QUIZ.length}</p>
+{question.note && (
+<div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '8px 12px', backgroundColor: 'rgba(232,168,32,0.08)', borderRadius: 6, border: '1px solid rgba(232,168,32,0.2)' }}>
+<span style={{ color: '#E8A820', fontSize: 16 }}>◎</span>
+<p style={{ color: 'rgba(232,168,32,0.85)', fontSize: 12, fontWeight: 600, letterSpacing: '0.02em', margin: 0 }}>{question.note}</p>
+</div>
+)}
+<h2 style={{ color: '#F5F0E8', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 300, lineHeight: 1.45, marginBottom: 40, letterSpacing: '-0.01em' }}>{question.q}</h2>
+<div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
+{question.options.map(opt => (
+<button
+key={opt.value}
+onClick={() => setSelected(opt.value)}
+style={{
+textAlign: 'left', padding: '18px 22px', borderRadius: 8, fontSize: 15, lineHeight: 1.55,
+cursor: 'pointer', transition: 'all 0.15s',
+backgroundColor: selected === opt.value ? '#E8A820' : 'rgba(255,255,255,0.05)',
+color: selected === opt.value ? '#0F1B1F' : '#F5F0E8',
+border: `1.5px solid ${selected === opt.value ? '#E8A820' : 'rgba(232,168,32,0.15)'}`,
+fontWeight: selected === opt.value ? 600 : 400,
+}}
+>
+{opt.label}
+</button>
+))}
+</div>
+<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+{step > 1 && (
+<button onClick={() => { setStep(step - 1); setSelected(null) }} style={{ background: 'none', border: 'none', color: 'rgba(245,240,232,0.4)', fontSize: 13, cursor: 'pointer', padding: 0 }}>← Back</button>
+)}
+<div style={{ marginLeft: 'auto' }}>
+<button
+onClick={handleNext}
+disabled={!selected}
+style={{ backgroundColor: selected ? '#E8A820' : 'rgba(232,168,32,0.2)', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s' }}
+>
+{step === CIVIC_QUIZ.length ? 'See my civic profile →' : 'Continue →'}
+</button>
+</div>
+</div>
+</div>
+</div>
+)
+
+// EMAIL CAPTURE
+if (step === CIVIC_QUIZ.length + 1) return (
+<div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
+<div style={{ maxWidth: 520, margin: '0 auto', width: '100%' }}>
+<p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Almost there</p>
+<h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>Where should your civic profile go?</h2>
+<p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 16, lineHeight: 1.65, marginBottom: 36 }}>Your results, what they tell you about how you currently vote, and how GroundedVote will pre-weight your alignment quiz based on your stated priorities.</p>
+<form onSubmit={handleEmail} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+<input
+required
+type="email"
+value={email}
+onChange={e => setEmail(e.target.value)}
+placeholder="your@email.com"
+style={{ padding: '18px 20px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(232,168,32,0.25)', borderRadius: 6, fontSize: 16, color: 'white', outline: 'none' }}
+/>
+<button type="submit" disabled={loading} style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '18px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
+{loading ? 'Sending...' : 'Send my civic profile'}
+</button>
+</form>
+<p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 12, marginTop: 12 }}>No spam. Unsubscribe anytime. Your answers are never sold or shared.</p>
+</div>
+</div>
+)
+
+// RESULT
+if (step === CIVIC_QUIZ.length + 2 && profile) return (
+<div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
+<div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
+<p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Your Civic Profile</p>
+<h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 500, lineHeight: 1.3, marginBottom: 24 }}>{profile.title}</h2>
+<p style={{ color: 'rgba(245,240,232,0.65)', fontSize: 17, lineHeight: 1.75, marginBottom: 20, maxWidth: 600 }}>{profile.desc}</p>
+<p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 32, borderLeft: '2px solid rgba(232,168,32,0.4)', paddingLeft: 16 }}>{profile.next}</p>
+
+{issuePriorities.length > 0 && (
+<div style={{ marginBottom: 40, padding: '20px 24px', backgroundColor: 'rgba(232,168,32,0.06)', borderRadius: 8, border: '1px solid rgba(232,168,32,0.2)' }}>
+<p style={{ color: 'rgba(232,168,32,0.7)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 10 }}>Your Issue Priorities</p>
+<p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 500, marginBottom: 6 }}>
+{issuePriorities.map(k => ISSUE_LABELS[k] || k).join(' · ')}
+</p>
+<p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 13, lineHeight: 1.6 }}>
+When you take the full alignment quiz at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a>, questions in these areas will carry 2.5× weight in your match score — so the result reflects what you actually care about most.
+</p>
+</div>
+)}
+
+<div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+<a href="/align" style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Take the alignment quiz →</a>
+<a href="/methodology" style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.7)', padding: '14px 32px', borderRadius: 6, fontWeight: 600, fontSize: 14, textDecoration: 'none', border: '1px solid rgba(232,168,32,0.2)' }}>Read the methodology</a>
+</div>
+<div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid rgba(232,168,32,0.15)' }}>
+<p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13 }}>Your results have been sent to your email. Scroll down to learn more about how GroundedVote works.</p>
+</div>
+</div>
+</div>
+)
+
+return null
 }
 
 export default function Home() {
-  const forces = [
-    { name: 'Identity Signaling', desc: 'Voting has become a performance of group membership. People increasingly vote against who they fear, not toward what they believe.' },
-    { name: 'Fear Activation', desc: 'When fear is high, deliberation shrinks. Threat-based messaging is designed to keep the aperture narrow. It works.' },
-    { name: 'Party Loyalty', desc: 'For most voters, the party label is enough. Policy goes unread. The party decides what you believe before you look.' },
-    { name: 'Media Distortion', desc: 'The issues that drive clicks are rarely the issues that shape daily life. Culture war content generates revenue. Policy literacy does not.' },
-  ]
+const forces = [
+{ name: 'Identity Signaling', desc: 'Voting has become a performance of group membership. People increasingly vote against who they fear, not toward what they believe.' },
+{ name: 'Fear Activation', desc: 'When fear is high, deliberation shrinks. Threat-based messaging is designed to keep the aperture narrow. It works.' },
+{ name: 'Party Loyalty', desc: 'For most voters, the party label is enough. Policy goes unread. The party decides what you believe before you look.' },
+{ name: 'Media Distortion', desc: 'The issues that drive clicks are rarely the issues that shape daily life. Culture war content generates revenue. Policy literacy does not.' },
+]
 
-  return (
-    <>
-      <CivicQuiz />
+return (
+<>
+<CivicQuiz />
 
-      <section style={{ backgroundColor: '#F5F0E8', padding: '120px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <Reveal>
-            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Problem</p>
-            <h2 style={{ color: '#0F1B1F', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 12 }}>
-              Voter disengagement is not<br />a motivation problem.
-            </h2>
-            <h2 style={{ color: '#0F1B1F', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 48 }}>
-              It is an <em>information architecture</em> problem.
-            </h2>
-          </Reveal>
+<section style={{ backgroundColor: '#F5F0E8', padding: '120px 24px' }}>
+<div style={{ maxWidth: 1200, margin: '0 auto' }}>
+<Reveal>
+<p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Problem</p>
+<h2 style={{ color: '#0F1B1F', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 12 }}>
+Voter disengagement is not<br />a motivation problem.
+</h2>
+<h2 style={{ color: '#0F1B1F', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 48 }}>
+It is an <em>information architecture</em> problem.
+</h2>
+</Reveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 1, backgroundColor: 'rgba(15,27,31,0.08)' }}>
-            {forces.map((force, i) => (
-              <Reveal key={force.name} delay={i * 80}>
-                <div style={{ backgroundColor: '#F5F0E8', padding: '36px 28px' }}>
-                  <p style={{ color: '#0F1B1F', fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{force.name}</p>
-                  <p style={{ color: 'rgba(15,27,31,0.6)', fontSize: 14, lineHeight: 1.7 }}>{force.desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 1, backgroundColor: 'rgba(15,27,31,0.08)' }}>
+{forces.map((force, i) => (
+<Reveal key={force.name} delay={i * 80}>
+<div style={{ backgroundColor: '#F5F0E8', padding: '36px 28px' }}>
+<p style={{ color: '#0F1B1F', fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{force.name}</p>
+<p style={{ color: 'rgba(15,27,31,0.6)', fontSize: 14, lineHeight: 1.7 }}>{force.desc}</p>
+</div>
+</Reveal>
+))}
+</div>
 
-          <Reveal delay={320}>
-            <div style={{ backgroundColor: '#0F1B1F', padding: '40px 40px', borderRadius: 8, marginTop: 2 }}>
-              <p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 300, lineHeight: 1.6, maxWidth: 680 }}>
-                &ldquo;The problem is not that voters are irrational. The problem is that the information environment systematically rewards tribal activation over policy alignment.&rdquo;
-              </p>
-              <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 16 }}>GroundedVote Founding Framework · 2026</p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+<Reveal delay={320}>
+<div style={{ backgroundColor: '#0F1B1F', padding: '40px 40px', borderRadius: 8, marginTop: 2 }}>
+<p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 300, lineHeight: 1.6, maxWidth: 680 }}>
+&ldquo;The problem is not that voters are irrational. The problem is that the information environment systematically rewards tribal activation over policy alignment.&rdquo;
+</p>
+<p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 16 }}>GroundedVote Founding Framework · 2026</p>
+</div>
+</Reveal>
+</div>
+</section>
 
-      <section style={{ backgroundColor: '#0F1B1F', padding: '80px 24px' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <Reveal>
-            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 40, textAlign: 'center' }}>How It Works</p>
-          </Reveal>
-          <Reveal delay={100}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, position: 'relative' }}>
-              {[
-                { num: '01', title: 'Candidate Data', sub: 'Official records · Voting history · Campaign platforms · Verified public statements', icon: '◈' },
-                { num: '02', title: 'Bias Audit', sub: 'Three AI models · Loaded language scored · Asymmetric framing flagged · Neutral variants selected', icon: '◎' },
-                { num: '03', title: 'Civic Mirror', sub: 'Weighted issue quiz · Real population impact · Your match revealed · Full transparency', icon: '◉' },
-              ].map((phase, i) => (
-                <div key={phase.num} style={{ padding: '40px 28px', backgroundColor: i === 1 ? 'rgba(232,168,32,0.08)' : 'transparent', borderLeft: i > 0 ? '1px solid rgba(232,168,32,0.15)' : 'none', textAlign: 'center', position: 'relative' }}>
-                  {i > 0 && (
-                    <div style={{ position: 'absolute', left: -16, top: '50%', transform: 'translateY(-50%)', color: '#E8A820', fontSize: 20, fontWeight: 300 }}>→</div>
-                  )}
-                  <p style={{ color: 'rgba(232,168,32,0.4)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', marginBottom: 16 }}>{phase.num}</p>
-                  <p style={{ color: '#E8A820', fontSize: 28, marginBottom: 16 }}>{phase.icon}</p>
-                  <p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>{phase.title}</p>
-                  <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 12, lineHeight: 1.65 }}>{phase.sub}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-          <Reveal delay={300}>
-            <div style={{ textAlign: 'center', marginTop: 48 }}>
-              <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13, lineHeight: 1.6, maxWidth: 480, margin: '0 auto' }}>
-                Every question is publicly audited. Every bias score is archived. You can read the full methodology before you answer anything.
-              </p>
-              <a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#E8A820', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(232,168,32,0.4)', paddingBottom: 2 }}>Read the full methodology →</a>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+<section style={{ backgroundColor: '#0F1B1F', padding: '80px 24px' }}>
+<div style={{ maxWidth: 1000, margin: '0 auto' }}>
+<Reveal>
+<p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 40, textAlign: 'center' }}>How It Works</p>
+</Reveal>
+<Reveal delay={100}>
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, position: 'relative' }}>
+{[
+{ num: '01', title: 'Candidate Data', sub: 'Official records · Voting history · Campaign platforms · Verified public statements', icon: '◈' },
+{ num: '02', title: 'Bias Audit', sub: 'Three AI models · Loaded language scored · Asymmetric framing flagged · Neutral variants selected', icon: '◎' },
+{ num: '03', title: 'Civic Mirror', sub: 'Weighted issue quiz · Real population impact · Your match revealed · Full transparency', icon: '◉' },
+].map((phase, i) => (
+<div key={phase.num} style={{ padding: '40px 28px', backgroundColor: i === 1 ? 'rgba(232,168,32,0.08)' : 'transparent', borderLeft: i > 0 ? '1px solid rgba(232,168,32,0.15)' : 'none', textAlign: 'center', position: 'relative' }}>
+{i > 0 && (
+<div style={{ position: 'absolute', left: -16, top: '50%', transform: 'translateY(-50%)', color: '#E8A820', fontSize: 20, fontWeight: 300 }}>→</div>
+)}
+<p style={{ color: 'rgba(232,168,32,0.4)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', marginBottom: 16 }}>{phase.num}</p>
+<p style={{ color: '#E8A820', fontSize: 28, marginBottom: 16 }}>{phase.icon}</p>
+<p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>{phase.title}</p>
+<p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 12, lineHeight: 1.65 }}>{phase.sub}</p>
+</div>
+))}
+</div>
+</Reveal>
+<Reveal delay={300}>
+<div style={{ textAlign: 'center', marginTop: 48 }}>
+<p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13, lineHeight: 1.6, maxWidth: 480, margin: '0 auto' }}>
+Every question is publicly audited. Every bias score is archived. You can read the full methodology before you answer anything.
+</p>
+<a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#E8A820', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(232,168,32,0.4)', paddingBottom: 2 }}>Read the full methodology →</a>
+</div>
+</Reveal>
+</div>
+</section>
 
-      <section style={{ backgroundColor: '#E8A820', padding: '60px 24px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ color: '#0F1B1F', fontSize: 'clamp(20px, 3.5vw, 34px)', fontWeight: 300, lineHeight: 1.4 }}>
-            Democracy works when the information does.
-          </p>
-        </div>
-      </section>
+<section style={{ backgroundColor: '#E8A820', padding: '60px 24px' }}>
+<div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+<p style={{ color: '#0F1B1F', fontSize: 'clamp(20px, 3.5vw, 34px)', fontWeight: 300, lineHeight: 1.4 }}>
+Democracy works when the information does.
+</p>
+</div>
+</section>
 
-      <section style={{ backgroundColor: '#0F1B1F', padding: '120px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <Reveal>
-            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Method</p>
-            <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.02em', marginBottom: 64 }}>
-              Three phases.<br />One civic mirror.
-            </h2>
-          </Reveal>
+<section style={{ backgroundColor: '#0F1B1F', padding: '120px 24px' }}>
+<div style={{ maxWidth: 1200, margin: '0 auto' }}>
+<Reveal>
+<p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Method</p>
+<h2 style={{ color: '#F5F0E8', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.02em', marginBottom: 64 }}>
+Three phases.<br />One civic mirror.
+</h2>
+</Reveal>
 
-          {[
-            { num: '01', phase: 'Candidate Data Collection', desc: 'Position data collected from official government records, voting history, verified campaign platforms, and third-party aggregators. Source hierarchy strictly enforced. Official records weighted highest.' },
-            { num: '02', phase: 'Bias-Audited Question Generation', desc: 'A three-pass multi-model AI pipeline generates policy questions and scores each for loaded language, false equivalence, and asymmetric framing. Questions above the threshold are rewritten. The audit trail is public.' },
-            { num: '03', phase: 'Civic Alignment', desc: 'You answer a weighted issue quiz calibrated to real population impact. Questions in your stated priority areas carry additional weight. The result: a civic mirror showing which candidates most closely match your actual beliefs.' },
-          ].map((step, i) => (
-            <Reveal key={step.num} delay={i * 100}>
-              <div style={{ borderTop: '1px solid rgba(232,168,32,0.15)', padding: '40px 0', display: 'grid', gridTemplateColumns: '60px 280px 1fr', gap: 32, alignItems: 'start' }}>
-                <span style={{ color: 'rgba(232,168,32,0.4)', fontSize: 12, fontWeight: 700, paddingTop: 2 }}>{step.num}</span>
-                <p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 600, lineHeight: 1.4 }}>{step.phase}</p>
-                <p style={{ color: 'rgba(245,240,232,0.55)', fontSize: 15, lineHeight: 1.7 }}>{step.desc}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+{[
+{ num: '01', phase: 'Candidate Data Collection', desc: 'Position data collected from official government records, voting history, verified campaign platforms, and third-party aggregators. Source hierarchy strictly enforced. Official records weighted highest.' },
+{ num: '02', phase: 'Bias-Audited Question Generation', desc: 'A three-pass multi-model AI pipeline generates policy questions and scores each for loaded language, false equivalence, and asymmetric framing. Questions above the threshold are rewritten. The audit trail is public.' },
+{ num: '03', phase: 'Civic Alignment', desc: 'You answer a weighted issue quiz calibrated to real population impact. Questions in your stated priority areas carry additional weight. The result: a civic mirror showing which candidates most closely match your actual beliefs.' },
+].map((step, i) => (
+<Reveal key={step.num} delay={i * 100}>
+<div style={{ borderTop: '1px solid rgba(232,168,32,0.15)', padding: '40px 0', display: 'grid', gridTemplateColumns: '60px 280px 1fr', gap: 32, alignItems: 'start' }}>
+<span style={{ color: 'rgba(232,168,32,0.4)', fontSize: 12, fontWeight: 700, paddingTop: 2 }}>{step.num}</span>
+<p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 600, lineHeight: 1.4 }}>{step.phase}</p>
+<p style={{ color: 'rgba(245,240,232,0.55)', fontSize: 15, lineHeight: 1.7 }}>{step.desc}</p>
+</div>
+</Reveal>
+))}
+</div>
+</section>
 
-      <section style={{ backgroundColor: '#E8A820', padding: '100px 24px' }} id="notify">
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 64, alignItems: 'center' }}>
-          <Reveal>
-            <p style={{ color: 'rgba(15,27,31,0.5)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Built For Them First</p>
-            <h2 style={{ color: '#0F1B1F', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 300, lineHeight: 1.2, letterSpacing: '-0.02em', marginBottom: 20 }}>
-              The people this system harms most did not choose to be shut out.
-            </h2>
-            <p style={{ color: 'rgba(15,27,31,0.7)', fontSize: 16, lineHeight: 1.75 }}>
-              First-generation voters. Low-income voters. Communities where local journalism died years ago. People who tried civic participation and got nothing back for it. They were shut out by design, not by apathy.
-            </p>
-            <p style={{ color: 'rgba(15,27,31,0.7)', fontSize: 16, lineHeight: 1.75, marginTop: 16 }}>
-              GroundedVote was built for them first. It works for someone who has never followed an election closely. When they finish, they want to share it.
-            </p>
-          </Reveal>
-          <Reveal delay={150}>
-            <div style={{ backgroundColor: '#0F1B1F', borderRadius: 12, padding: 40 }}>
-              <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Launch Notification</p>
-              <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, marginBottom: 8 }}>The quiz launches before the 2026 election cycle.</h3>
-              <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 24 }}>Join the list. Be notified when the full platform is live. Share it with one person who needs it.</p>
-              <NotifyForm />
-            </div>
-          </Reveal>
-        </div>
-      </section>
+<section style={{ backgroundColor: '#E8A820', padding: '100px 24px' }} id="notify">
+<div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 64, alignItems: 'center' }}>
+<Reveal>
+<p style={{ color: 'rgba(15,27,31,0.5)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Built For Them First</p>
+<h2 style={{ color: '#0F1B1F', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 300, lineHeight: 1.2, letterSpacing: '-0.02em', marginBottom: 20 }}>
+The people this system harms most did not choose to be shut out.
+</h2>
+<p style={{ color: 'rgba(15,27,31,0.7)', fontSize: 16, lineHeight: 1.75 }}>
+First-generation voters. Low-income voters. Communities where local journalism died years ago. People who tried civic participation and got nothing back for it. They were shut out by design, not by apathy.
+</p>
+<p style={{ color: 'rgba(15,27,31,0.7)', fontSize: 16, lineHeight: 1.75, marginTop: 16 }}>
+GroundedVote was built for them first. It works for someone who has never followed an election closely. When they finish, they want to share it.
+</p>
+</Reveal>
+<Reveal delay={150}>
+<div style={{ backgroundColor: '#0F1B1F', borderRadius: 12, padding: 40 }}>
+<p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Launch Notification</p>
+<h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, marginBottom: 8 }}>The quiz launches before the 2026 election cycle.</h3>
+<p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 24 }}>Join the list. Be notified when the full platform is live. Share it with one person who needs it.</p>
+<NotifyForm />
+</div>
+</Reveal>
+</div>
+</section>
 
-      <section style={{ backgroundColor: '#F5F0E8', padding: '80px 24px', borderTop: '1px solid rgba(15,27,31,0.08)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
-          <div>
-            <p style={{ color: '#0F1B1F', fontSize: 18, fontWeight: 400, marginBottom: 4 }}>Funders, civic partners, and academic reviewers.</p>
-            <p style={{ color: 'rgba(15,27,31,0.5)', fontSize: 14 }}>The methodology white paper is available for review.</p>
-          </div>
-          <a href="/contact" style={{ backgroundColor: '#0F1B1F', color: '#E8A820', padding: '14px 32px', borderRadius: 6, fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Contact the team</a>
-        </div>
-      </section>
-    </>
-  )
+<section style={{ backgroundColor: '#F5F0E8', padding: '80px 24px', borderTop: '1px solid rgba(15,27,31,0.08)' }}>
+<div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
+<div>
+<p style={{ color: '#0F1B1F', fontSize: 18, fontWeight: 400, marginBottom: 4 }}>Funders, civic partners, and academic reviewers.</p>
+<p style={{ color: 'rgba(15,27,31,0.5)', fontSize: 14 }}>The methodology white paper is available for review.</p>
+</div>
+<a href="/contact" style={{ backgroundColor: '#0F1B1F', color: '#E8A820', padding: '14px 32px', borderRadius: 6, fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Contact the team</a>
+</div>
+</section>
+</>
+)
 }
