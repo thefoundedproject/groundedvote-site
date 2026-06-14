@@ -1,0 +1,173 @@
+{
+  "version": "1.1",
+  "description": "15-question policy quiz template for Senate and House races. 2 questions per major issue area covering both a broad position and a specific policy mechanism. All questions use Likert scale: Strongly Oppose (1) → Strongly Support (5). Run through bias audit pipeline before approving.",
+  "issueAreas": {
+    "economy": { "label": "Economic Policy", "weight": 1.0 },
+    "healthcare": { "label": "Healthcare", "weight": 1.0 },
+    "environment": { "label": "Environment & Climate", "weight": 1.0 },
+    "immigration": { "label": "Immigration", "weight": 1.0 },
+    "guns": { "label": "Gun Policy", "weight": 1.0 },
+    "taxes": { "label": "Taxes & Federal Spending", "weight": 1.0 },
+    "foreign_policy": { "label": "Foreign Policy & Defense", "weight": 1.0 },
+    "democracy": { "label": "Voting Rights & Democracy", "weight": 1.0 }
+  },
+  "priorityMultiplier": 2.5,
+  "note": "When a voter marks an issue area as a priority in the baseline quiz, questions tagged with that issueKey receive a 2.5x weight multiplier in match score computation.",
+  "questions": [
+    {
+      "id": "economy_01",
+      "topic": "ECONOMY",
+      "subtopic": "Minimum Wage",
+      "issueKey": "economy",
+      "questionText": "Would you support raising the federal minimum wage to $17 per hour?",
+      "rationale": "Tests broad economic floor position. Clear policy number reduces ambiguity.",
+      "biasRisk": "low",
+      "candidateDataField": "min_wage_position"
+    },
+    {
+      "id": "economy_02",
+      "topic": "ECONOMY",
+      "subtopic": "Trade Policy",
+      "issueKey": "economy",
+      "questionText": "Would you support imposing tariffs of 25% or more on imports from countries that do not meet US labor and environmental standards?",
+      "rationale": "Tests trade protectionism with neutral framing — grounds tariffs in labor/environment rather than nationalism.",
+      "biasRisk": "medium",
+      "candidateDataField": "trade_tariff_position",
+      "auditNote": "Watch for loaded language around 'protecting American workers' vs 'raising consumer prices'. Both framings bias the question."
+    },
+    {
+      "id": "healthcare_01",
+      "topic": "HEALTHCARE",
+      "subtopic": "Universal Coverage",
+      "issueKey": "healthcare",
+      "questionText": "Would you support expanding Medicare to cover all Americans regardless of age?",
+      "rationale": "Broad coverage question. 'Medicare for All' label avoided — policy described instead.",
+      "biasRisk": "low",
+      "candidateDataField": "medicare_expansion_position"
+    },
+    {
+      "id": "healthcare_02",
+      "topic": "HEALTHCARE",
+      "subtopic": "Drug Pricing",
+      "issueKey": "healthcare",
+      "questionText": "Would you support federal legislation requiring Medicare to negotiate prescription drug prices directly with pharmaceutical manufacturers?",
+      "rationale": "Specific mechanism question. High voter salience, strong candidate differentiation on this.",
+      "biasRisk": "low",
+      "candidateDataField": "drug_pricing_position"
+    },
+    {
+      "id": "environment_01",
+      "topic": "ENVIRONMENT",
+      "subtopic": "Emissions Targets",
+      "issueKey": "environment",
+      "questionText": "Would you support legislation requiring the US to reduce carbon emissions by 50% below 2005 levels by 2035?",
+      "rationale": "Specific target and baseline year make this unambiguous. Avoids 'Green New Deal' label.",
+      "biasRisk": "low",
+      "candidateDataField": "carbon_reduction_position"
+    },
+    {
+      "id": "environment_02",
+      "topic": "ENVIRONMENT",
+      "subtopic": "Fossil Fuel Permits",
+      "issueKey": "environment",
+      "questionText": "Would you support ending new federal permits for oil and gas drilling on public lands and offshore waters?",
+      "rationale": "Specific mechanism. 'New permits' framing is precise — avoids implying immediate shutdown of existing operations.",
+      "biasRisk": "medium",
+      "candidateDataField": "fossil_fuel_permits_position",
+      "auditNote": "Audit for asymmetry — 'ending permits' sounds restrictive. Ensure Likert scale framing is genuinely neutral."
+    },
+    {
+      "id": "immigration_01",
+      "topic": "IMMIGRATION",
+      "subtopic": "Pathway to Citizenship",
+      "issueKey": "immigration",
+      "questionText": "Would you support a pathway to citizenship for undocumented immigrants who have lived and worked continuously in the US for more than 5 years?",
+      "rationale": "'Continuously lived and worked' sets a specific condition that avoids blanket amnesty framing.",
+      "biasRisk": "low",
+      "candidateDataField": "pathway_citizenship_position"
+    },
+    {
+      "id": "immigration_02",
+      "topic": "IMMIGRATION",
+      "subtopic": "Border Security",
+      "issueKey": "immigration",
+      "questionText": "Would you support significantly increasing federal funding for border security infrastructure and personnel at the US southern border?",
+      "rationale": "Tests the other axis of immigration debate. 'Infrastructure and personnel' is neutral — doesn't specify wall vs. technology.",
+      "biasRisk": "medium",
+      "candidateDataField": "border_security_position",
+      "auditNote": "Watch for 'significantly' loading the question. Consider 'substantially increasing' or a specific dollar figure if candidate data supports it."
+    },
+    {
+      "id": "guns_01",
+      "topic": "GUN_POLICY",
+      "subtopic": "Background Checks",
+      "issueKey": "guns",
+      "questionText": "Would you support requiring background checks for all firearm purchases in the US, including private sales and gun show transactions?",
+      "rationale": "'Including private sales and gun shows' closes the loophole specifically — makes the question policy-precise.",
+      "biasRisk": "low",
+      "candidateDataField": "background_checks_position"
+    },
+    {
+      "id": "guns_02",
+      "topic": "GUN_POLICY",
+      "subtopic": "Assault Weapons",
+      "issueKey": "guns",
+      "questionText": "Would you support a federal ban on the manufacture and sale of semi-automatic rifles with detachable magazines to civilian buyers?",
+      "rationale": "Technical definition avoids 'assault weapon' label. 'Civilian buyers' excludes law enforcement — reduces false framing.",
+      "biasRisk": "medium",
+      "candidateDataField": "assault_weapons_position",
+      "auditNote": "'Ban' is a loaded word in some framings. Consider 'restrict the manufacture and sale of' as a lower-bias alternative."
+    },
+    {
+      "id": "taxes_01",
+      "topic": "TAXES",
+      "subtopic": "Top Marginal Rate",
+      "issueKey": "taxes",
+      "questionText": "Would you support raising the top federal income tax rate to 50% for individual income exceeding $10 million per year?",
+      "rationale": "Specific threshold ($10M) avoids 'tax the rich' framing. Most voters don't reach this bracket — reduces personal threat response.",
+      "biasRisk": "low",
+      "candidateDataField": "marginal_rate_position"
+    },
+    {
+      "id": "taxes_02",
+      "topic": "TAXES",
+      "subtopic": "Corporate Tax Rate",
+      "issueKey": "taxes",
+      "questionText": "Would you support raising the federal corporate income tax rate from 21% to 28%?",
+      "rationale": "Specific numbers (21% → 28%) anchor the question in fact. Avoids 'making corporations pay their fair share' framing.",
+      "biasRisk": "low",
+      "candidateDataField": "corporate_tax_position"
+    },
+    {
+      "id": "foreign_01",
+      "topic": "FOREIGN_POLICY",
+      "subtopic": "Defense Budget",
+      "issueKey": "foreign_policy",
+      "questionText": "Would you support increasing the federal defense budget by more than 5% per year above the rate of inflation?",
+      "rationale": "'Above inflation' is the meaningful threshold — without it, any increase sounds modest.",
+      "biasRisk": "low",
+      "candidateDataField": "defense_budget_position"
+    },
+    {
+      "id": "foreign_02",
+      "topic": "FOREIGN_POLICY",
+      "subtopic": "Foreign Aid",
+      "issueKey": "foreign_policy",
+      "questionText": "Would you support maintaining or increasing current levels of US foreign assistance to allied and developing nations?",
+      "rationale": "Combines maintenance and increase to give a directional signal. 'Allied and developing' is broader than 'foreign aid' framing.",
+      "biasRisk": "medium",
+      "candidateDataField": "foreign_aid_position",
+      "auditNote": "Watch for anti-aid framing ('giving money overseas while Americans suffer'). Question must stay descriptive."
+    },
+    {
+      "id": "democracy_01",
+      "topic": "DEMOCRACY",
+      "subtopic": "Voter Registration",
+      "issueKey": "democracy",
+      "questionText": "Would you support federal legislation requiring all states to automatically register eligible citizens to vote when they interact with government agencies?",
+      "rationale": "'When they interact with government agencies' is more precise than 'at age 18' — reflects how AVR actually works.",
+      "biasRisk": "low",
+      "candidateDataField": "auto_voter_reg_position"
+    }
+  ]
+}
