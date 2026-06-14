@@ -18,9 +18,22 @@ function Reveal({ children, delay = 0 }) {
   return <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(20px)', transition: `all 0.75s ease ${delay}ms` }}>{children}</div>
 }
 
+// Maps issueKey → display label for results page
+const ISSUE_LABELS = {
+  economy: 'Economic Policy',
+  healthcare: 'Healthcare',
+  environment: 'Environment & Climate',
+  immigration: 'Immigration',
+  guns: 'Gun Policy',
+  taxes: 'Taxes & Federal Spending',
+  foreign_policy: 'Foreign Policy & Defense',
+  democracy: 'Voting Rights & Democracy',
+}
+
 const CIVIC_QUIZ = [
   {
     q: 'In the last election you voted in, how confident were you that your vote matched what you actually believe?',
+    key: 'voting_confidence',
     options: [
       { label: 'Very confident — I researched candidates and positions thoroughly.', value: 'confident' },
       { label: 'Somewhat confident — I had a general sense but not much depth.', value: 'partial' },
@@ -29,89 +42,124 @@ const CIVIC_QUIZ = [
     ],
   },
   {
-    q: 'When you hear about a political issue in the news, what shapes your opinion most?',
+    q: 'Which issue area matters most to you heading into the 2026 elections?',
+    key: 'primary_issue',
+    note: 'Your top two choices pre-weight your alignment score when you take the full quiz.',
     options: [
-      { label: 'My own research into the policy and its evidence base.', value: 'research' },
-      { label: 'What my party or community generally believes.', value: 'community' },
-      { label: 'The emotional reaction it creates in me.', value: 'emotional' },
-      { label: 'What trusted people in my network think about it.', value: 'network' },
+      { label: 'Economic policy — wages, jobs, cost of living, trade.', value: 'economy' },
+      { label: 'Healthcare — coverage, drug prices, Medicare, Medicaid.', value: 'healthcare' },
+      { label: 'Environment and climate — emissions, energy policy, public lands.', value: 'environment' },
+      { label: 'Immigration — pathways to citizenship, enforcement, border policy.', value: 'immigration' },
     ],
   },
   {
-    q: 'What would have to be different for you to trust a civic tool enough to use it?',
+    q: 'Which of these is your second priority?',
+    key: 'secondary_issue',
+    note: 'These two priorities apply 2.5× weight to matching questions in your alignment results.',
     options: [
-      { label: 'It would have to show me where it got its data.', value: 'transparent' },
-      { label: 'It would have to be built by people not affiliated with any party.', value: 'nonpartisan' },
-      { label: 'It would have to ask me what I believe — not tell me what to think.', value: 'autonomy' },
-      { label: 'Honestly — I would just need to see that it works.', value: 'proof' },
+      { label: 'Gun policy — background checks, firearm regulation, public safety.', value: 'guns' },
+      { label: 'Taxes and federal spending — rates, deficits, size of government.', value: 'taxes' },
+      { label: 'Foreign policy — defense budget, military commitments, foreign aid.', value: 'foreign_policy' },
+      { label: 'Voting rights and democratic process — access, elections, accountability.', value: 'democracy' },
     ],
   },
   {
-    q: 'What would it mean for your life if you voted and actually knew — for certain — that your vote matched what you believe?',
+    q: 'When you encounter a political issue you have not thought about before, what is your default move?',
+    key: 'info_processing',
     options: [
-      { label: 'It would make voting feel meaningful instead of performative.', value: 'meaningful' },
-      { label: 'It would give me confidence I do not currently have at the ballot box.', value: 'confidence' },
+      { label: 'I research it independently before forming any opinion.', value: 'research' },
+      { label: 'I listen to trusted people in my community or network first.', value: 'community' },
+      { label: 'I default to my general political leanings and move on.', value: 'partisan' },
+      { label: 'I avoid it — most political content feels too loaded to engage with honestly.', value: 'avoidance' },
+    ],
+  },
+  {
+    q: 'When you evaluate a candidate, what do you trust most?',
+    key: 'trust_signal',
+    options: [
+      { label: 'Their actual voting record — what they did when it counted, not what they say now.', value: 'record' },
+      { label: 'The organizations and donors who fund their campaigns.', value: 'funding' },
+      { label: 'Their stated platform and policy positions.', value: 'platform' },
+      { label: 'How they perform when questioned directly under pressure.', value: 'performance' },
+    ],
+  },
+  {
+    q: 'What would it mean for your life if you voted and knew — with confidence — that your vote matched what you actually believe?',
+    key: 'alignment_meaning',
+    options: [
+      { label: 'It would make voting feel like a deliberate act instead of a performance.', value: 'meaningful' },
+      { label: 'It would give me confidence I have not had at the ballot box before.', value: 'confidence' },
       { label: 'It would break the cycle of voting out of fear instead of belief.', value: 'cycle' },
-      { label: 'Honestly — it would change how I feel about democracy.', value: 'democracy' },
+      { label: 'Honestly — it would change how I feel about whether democracy can work.', value: 'democracy' },
     ],
   },
 ]
 
 const CIVIC_PROFILES = {
   confident: {
-    title: 'You are already doing the work. GroundedVote makes it faster and cleaner.',
-    desc: 'You research. You think. But even careful voters can be influenced by framing, sourcing, and omission. The bias-audited pipeline gives your existing process a more reliable foundation.',
-    next: 'Join the notification list to be first to use it when it launches.',
+    title: 'You are already doing the work. GroundedVote makes it faster, cleaner, and auditable.',
+    desc: 'You research. You think. But even careful voters are shaped by framing, sourcing, and omission. The bias-audited pipeline gives your existing process a more reliable foundation — and surfaces the candidates your research might have missed.',
+    next: 'Join the notification list to be first in when we launch.',
   },
   partial: {
-    title: "You know your values. You just don't have a tool that matches them to policy.",
-    desc: 'That is not a failure of effort. That is a failure of available infrastructure. GroundedVote is built specifically for this gap — people with clear values who lack a reliable way to connect them to candidates.',
+    title: "You know your values. You just don't have a tool that connects them to policy with enough depth.",
+    desc: 'That is not a failure of effort. It is a failure of available infrastructure. GroundedVote was built specifically for this gap — people with clear values who lack a reliable, unbiased way to see which candidates actually match them.',
     next: 'Join the list. You are exactly who this was built for.',
   },
   low: {
-    title: 'You are voting your identity, not your beliefs. You already know this.',
-    desc: 'The information environment is designed to make this inevitable. When every channel is built to activate tribal response, careful deliberation requires a counter-architecture. That is what GroundedVote builds.',
+    title: 'You are voting your identity, not your beliefs. You already sense this.',
+    desc: 'The information environment is designed to make this inevitable. When every channel is built to activate tribal response, careful deliberation requires a counter-architecture. That is what GroundedVote builds — a system that bypasses the framing and returns you to your own positions.',
     next: 'Join the list. The alternative exists now.',
   },
   disengaged: {
     title: 'You did not disengage. You were failed by the information system.',
-    desc: 'This is not apathy. You showed up to make a decision and the tools were not there. GroundedVote was built first for people in exactly this position — accessible to someone who has never followed an election closely, built to hold their attention.',
+    desc: 'This is not apathy. You showed up to make a decision and the tools were not there. GroundedVote was built first for people in exactly this position — accessible to someone who has never followed an election closely, built to hold attention and return something real.',
     next: 'Join the list. This was built for you first.',
   },
 }
 
-// Weighted profile scoring — uses all 4 answers
 function deriveProfile(answers) {
   const scores = { confident: 0, partial: 0, low: 0, disengaged: 0 }
 
-  // Q1 carries most weight (direct confidence signal)
+  // Q1 — voting confidence (weight 4 — primary signal)
   const q1 = answers[0]?.value
-  if (q1 === 'confident') scores.confident += 3
-  else if (q1 === 'partial') scores.partial += 3
-  else if (q1 === 'low') scores.low += 3
-  else if (q1 === 'disengaged') scores.disengaged += 3
+  if (q1 === 'confident') scores.confident += 4
+  else if (q1 === 'partial') scores.partial += 4
+  else if (q1 === 'low') scores.low += 4
+  else if (q1 === 'disengaged') scores.disengaged += 4
 
-  // Q2 — research = confident, community/emotional/network = partial or low
-  const q2 = answers[1]?.value
-  if (q2 === 'research') scores.confident += 1
-  else if (q2 === 'community') scores.low += 1
-  else if (q2 === 'emotional') scores.partial += 1
-  else if (q2 === 'network') scores.partial += 1
+  // Q2 + Q3 — issue priorities — extracted separately, not scored for profile
 
-  // Q3 — trust signals
-  const q3 = answers[2]?.value
-  if (q3 === 'transparent' || q3 === 'nonpartisan') scores.confident += 1
-  else if (q3 === 'autonomy') scores.partial += 1
-  else if (q3 === 'proof') scores.disengaged += 1
-
-  // Q4 — what alignment would mean
+  // Q4 — info processing (weight 2)
   const q4 = answers[3]?.value
-  if (q4 === 'meaningful') scores.partial += 1
-  else if (q4 === 'confidence') scores.low += 1
-  else if (q4 === 'cycle') scores.low += 1
-  else if (q4 === 'democracy') scores.disengaged += 1
+  if (q4 === 'research') scores.confident += 2
+  else if (q4 === 'community') scores.partial += 2
+  else if (q4 === 'partisan') scores.low += 2
+  else if (q4 === 'avoidance') scores.disengaged += 2
 
-  return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0]
+  // Q5 — trust signal (weight 1)
+  const q5 = answers[4]?.value
+  if (q5 === 'record') scores.confident += 1
+  else if (q5 === 'funding') scores.partial += 1
+  else if (q5 === 'platform') scores.partial += 1
+  else if (q5 === 'performance') scores.low += 1
+
+  // Q6 — alignment meaning (weight 1)
+  const q6 = answers[5]?.value
+  if (q6 === 'meaningful') scores.partial += 1
+  else if (q6 === 'confidence') scores.low += 1
+  else if (q6 === 'cycle') scores.low += 1
+  else if (q6 === 'democracy') scores.disengaged += 1
+
+  const profileKey = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0]
+
+  // Extract issue priorities from Q2 and Q3
+  const issuePriorities = [
+    answers[1]?.value,
+    answers[2]?.value,
+  ].filter(Boolean)
+
+  return { profileKey, issuePriorities }
 }
 
 function NotifyForm() {
@@ -120,7 +168,6 @@ function NotifyForm() {
   const [loading, setLoading] = useState(false)
   const [stateCode, setStateCode] = useState(null)
 
-  // Read ?state=XX from URL on mount — set by Coming Soon pages
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const s = params.get('state')
@@ -196,6 +243,7 @@ function CivicQuiz() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState(null)
+  const [issuePriorities, setIssuePriorities] = useState([])
   const [heroVisible, setHeroVisible] = useState(false)
 
   useEffect(() => { setTimeout(() => setHeroVisible(true), 100) }, [])
@@ -210,8 +258,9 @@ function CivicQuiz() {
     if (step < CIVIC_QUIZ.length) {
       setStep(step + 1)
     } else {
-      const profileKey = deriveProfile(newAnswers)
+      const { profileKey, issuePriorities: derived } = deriveProfile(newAnswers)
       setProfile(CIVIC_PROFILES[profileKey] || CIVIC_PROFILES.partial)
+      setIssuePriorities(derived)
       setStep(CIVIC_QUIZ.length + 1)
     }
   }
@@ -223,7 +272,7 @@ function CivicQuiz() {
       await fetch('/api/quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, answers, profile }),
+        body: JSON.stringify({ email, answers, profile, issuePriorities }),
       })
     } catch {}
     setLoading(false)
@@ -258,14 +307,14 @@ function CivicQuiz() {
         <div style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 1s ease 700ms' }}>
           <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(232,168,32,0.2)', borderRadius: 12, padding: 40 }}>
             <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Before We Build This For You</p>
-            <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, lineHeight: 1.3, marginBottom: 12 }}>Four questions about how you currently vote.</h3>
+            <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, lineHeight: 1.3, marginBottom: 12 }}>Six questions about how you currently vote.</h3>
             <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 32 }}>
-              No wrong answers. This tells us which part of the GroundedVote methodology matters most for your situation — and sends you a personalized civic profile.
+              Two of these questions establish your issue priorities — and pre-weight your alignment score when you take the full quiz. No wrong answers.
             </p>
             <button onClick={() => setStep(1)} style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '16px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%' }}>
               Begin the civic mirror →
             </button>
-            <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Takes about 2 minutes. Results sent to your email.</p>
+            <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Takes about 3 minutes. Results sent to your email.</p>
           </div>
         </div>
       </div>
@@ -281,7 +330,13 @@ function CivicQuiz() {
             <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < step ? '#E8A820' : 'rgba(232,168,32,0.15)', transition: 'background-color 0.4s' }} />
           ))}
         </div>
-        <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Question {step} of {CIVIC_QUIZ.length}</p>
+        <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>Question {step} of {CIVIC_QUIZ.length}</p>
+        {question.note && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '8px 12px', backgroundColor: 'rgba(232,168,32,0.08)', borderRadius: 6, border: '1px solid rgba(232,168,32,0.2)' }}>
+            <span style={{ color: '#E8A820', fontSize: 16 }}>◎</span>
+            <p style={{ color: 'rgba(232,168,32,0.85)', fontSize: 12, fontWeight: 600, letterSpacing: '0.02em', margin: 0 }}>{question.note}</p>
+          </div>
+        )}
         <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 300, lineHeight: 1.45, marginBottom: 40, letterSpacing: '-0.01em' }}>{question.q}</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
           {question.options.map(opt => (
@@ -325,7 +380,7 @@ function CivicQuiz() {
       <div style={{ maxWidth: 520, margin: '0 auto', width: '100%' }}>
         <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Almost there</p>
         <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>Where should your civic profile go?</h2>
-        <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 16, lineHeight: 1.65, marginBottom: 36 }}>Your results, what they tell you about how you currently vote, and what GroundedVote will give you that you do not have now.</p>
+        <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 16, lineHeight: 1.65, marginBottom: 36 }}>Your results, what they tell you about how you currently vote, and how GroundedVote will pre-weight your alignment quiz based on your stated priorities.</p>
         <form onSubmit={handleEmail} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input
             required
@@ -351,12 +406,25 @@ function CivicQuiz() {
         <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Your Civic Profile</p>
         <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 500, lineHeight: 1.3, marginBottom: 24 }}>{profile.title}</h2>
         <p style={{ color: 'rgba(245,240,232,0.65)', fontSize: 17, lineHeight: 1.75, marginBottom: 20, maxWidth: 600 }}>{profile.desc}</p>
-        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 40, borderLeft: '2px solid rgba(232,168,32,0.4)', paddingLeft: 16 }}>{profile.next}</p>
+        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 32, borderLeft: '2px solid rgba(232,168,32,0.4)', paddingLeft: 16 }}>{profile.next}</p>
+
+        {issuePriorities.length > 0 && (
+          <div style={{ marginBottom: 40, padding: '20px 24px', backgroundColor: 'rgba(232,168,32,0.06)', borderRadius: 8, border: '1px solid rgba(232,168,32,0.2)' }}>
+            <p style={{ color: 'rgba(232,168,32,0.7)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 10 }}>Your Issue Priorities</p>
+            <p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 500, marginBottom: 6 }}>
+              {issuePriorities.map(k => ISSUE_LABELS[k] || k).join(' · ')}
+            </p>
+            <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 13, lineHeight: 1.6 }}>
+              When you take the full alignment quiz at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a>, questions in these areas will carry 2.5× weight in your match score — so the result reflects what you actually care about most.
+            </p>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <a href="#notify" style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Join the notification list</a>
+          <a href="/align" style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Take the alignment quiz →</a>
           <a href="/methodology" style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.7)', padding: '14px 32px', borderRadius: 6, fontWeight: 600, fontSize: 14, textDecoration: 'none', border: '1px solid rgba(232,168,32,0.2)' }}>Read the methodology</a>
         </div>
-        <div style={{ marginTop: 60, paddingTop: 40, borderTop: '1px solid rgba(232,168,32,0.15)' }}>
+        <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid rgba(232,168,32,0.15)' }}>
           <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13 }}>Your results have been sent to your email. Scroll down to learn more about how GroundedVote works.</p>
         </div>
       </div>
@@ -467,7 +535,7 @@ export default function Home() {
           {[
             { num: '01', phase: 'Candidate Data Collection', desc: 'Position data collected from official government records, voting history, verified campaign platforms, and third-party aggregators. Source hierarchy strictly enforced. Official records weighted highest.' },
             { num: '02', phase: 'Bias-Audited Question Generation', desc: 'A three-pass multi-model AI pipeline generates policy questions and scores each for loaded language, false equivalence, and asymmetric framing. Questions above the threshold are rewritten. The audit trail is public.' },
-            { num: '03', phase: 'Civic Alignment', desc: 'You answer a weighted issue quiz calibrated to real population impact. The result: a civic mirror showing which candidates most closely match your actual beliefs — with full methodology transparency.' },
+            { num: '03', phase: 'Civic Alignment', desc: 'You answer a weighted issue quiz calibrated to real population impact. Questions in your stated priority areas carry additional weight. The result: a civic mirror showing which candidates most closely match your actual beliefs.' },
           ].map((step, i) => (
             <Reveal key={step.num} delay={i * 100}>
               <div style={{ borderTop: '1px solid rgba(232,168,32,0.15)', padding: '40px 0', display: 'grid', gridTemplateColumns: '60px 280px 1fr', gap: 32, alignItems: 'start' }}>
