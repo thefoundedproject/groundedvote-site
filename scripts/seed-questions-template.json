@@ -161,7 +161,7 @@
     },
     {
       "id": "democracy_01",
-      "topic": "DEMOCRACY",
+      "topic": "VOTING_RIGHTS",
       "subtopic": "Voter Registration",
       "issueKey": "democracy",
       "questionText": "Would you support federal legislation requiring all states to automatically register eligible citizens to vote when they interact with government agencies?",
