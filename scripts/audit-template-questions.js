@@ -11,6 +11,7 @@
  * Usage:
  *   node scripts/audit-template-questions.js
  *   node scripts/audit-template-questions.js --dry-run       (score only, no DB writes)
+ *   node scripts/audit-template-questions.js --rescore       (also rescore APPROVED with biasScore=0)
  *   node scripts/audit-template-questions.js --topic ECONOMY (filter by topic)
  *   node scripts/audit-template-questions.js --limit 50      (process N at a time)
  */
@@ -27,14 +28,15 @@ const APPROVE_THRESHOLD = 60
 // How many questions to send in one GPT-4o call (keep under context limits)
 const BATCH_SIZE = 10
 
-// ââ CLI FLAGS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ââ CLI FLAGS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const args = process.argv.slice(2)
 const dryRun = args.includes('--dry-run')
+const rescore = args.includes('--rescore')
 const topicFilter = args.includes('--topic') ? args[args.indexOf('--topic') + 1] : null
 const limitArg = args.includes('--limit') ? parseInt(args[args.indexOf('--limit') + 1], 10) : null
 
-// ââ PASS 2: BIAS SCORING âââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ââ PASS 2: BIAS SCORING ââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 async function scoreQuestions(questions) {
   const texts = questions.map(q => q.questionText)
@@ -50,23 +52,24 @@ Score each of the following questions on four dimensions from 0-100 (0 = no bias
 Questions to score:
 ${texts.map((t, i) => `${i + 1}. "${t}"`).join('\n')}
 
-Return a JSON array of objects with this shape:
+Respond with ONLY a JSON array (no markdown, no explanation) like this:
 [{ "index": 0, "loaded_language": 12, "false_equivalence": 5, "asymmetric_framing": 8, "cultural_assumption": 3, "total": 28 }, ...]
 
-Where "total" is the sum of the four scores. Lower total = more neutral.
-Return only the JSON array, no other text.`
+Where "total" is the sum of the four dimension scores. One object per question, in order.`
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const response = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [{ role: 'user', content: prompt }],
-        response_format: { type: 'json_object' },
         temperature: 0,
       })
 
-      const parsed = JSON.parse(response.choices[0].message.content)
-      return Array.isArray(parsed) ? parsed : parsed.scores || parsed.questions || Object.values(parsed)[0]
+      const raw = response.choices[0].message.content.trim()
+      // Strip any markdown code fences if present
+      const jsonStr = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
+      const parsed = JSON.parse(jsonStr)
+      return Array.isArray(parsed) ? parsed : Object.values(parsed).find(v => Array.isArray(v)) ?? []
     } catch (err) {
       const isTransient = err.status === 429 || err.status === 503 || err.status === 502
       if (attempt === 2 || !isTransient) throw err
@@ -76,25 +79,37 @@ Return only the JSON array, no other text.`
   }
 }
 
-// ââ MAIN ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ââ MAIN ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 async function main() {
   console.log('GroundedVote â Template Question Lite Audit (Pass 2 only)')
   console.log(`Threshold: APPROVE if total bias score < ${APPROVE_THRESHOLD}/400`)
   if (dryRun) console.log('DRY RUN â no database writes')
+  if (rescore) console.log('RESCORE MODE â also processing APPROVED questions with biasScore=0')
   if (topicFilter) console.log(`Topic filter: ${topicFilter}`)
   console.log('')
 
-  const where = {
-    auditStatus: 'PENDING',
-    positionId: null,
-    ...(topicFilter && { topic: topicFilter }),
-  }
+  // Base filter: positionless questions (template questions)
+  // --rescore also catches APPROVED ones that were bulk-approved with biasScore=0
+  const where = rescore
+    ? {
+        positionId: null,
+        OR: [
+          { auditStatus: 'PENDING' },
+          { auditStatus: 'APPROVED', biasScore: 0 },
+        ],
+        ...(topicFilter && { topic: topicFilter }),
+      }
+    : {
+        auditStatus: 'PENDING',
+        positionId: null,
+        ...(topicFilter && { topic: topicFilter }),
+      }
 
   const total = await prisma.question.count({ where })
   const limit = limitArg ?? total
 
-  console.log(`Found ${total} PENDING template questions. Processing ${limit}...`)
+  console.log(`Found ${total} template questions to process. Running ${limit}...`)
   console.log('')
 
   const questions = await prisma.question.findMany({
@@ -163,7 +178,7 @@ async function main() {
   }
 
   console.log('')
-  console.log('ââââââââââââââââââââââââââââââââââââ')
+  console.log('âââââââââââââââââââââââââââââââââââââ')
   console.log(`Processed : ${questions.length}`)
   console.log(`Approved  : ${approved}`)
   console.log(`Failed    : ${failed}`)
