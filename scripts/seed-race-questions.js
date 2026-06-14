@@ -2,11 +2,11 @@
 /**
  * seed-race-questions.js
  * Seeds the 15-question policy template into the database for a given raceId.
- * Questions are created as unapproved — run through the bias audit pipeline before going live.
+ * Questions are created as PENDING — run through the bias audit pipeline before going live.
  *
  * Usage:
  *   node scripts/seed-race-questions.js <raceId>
- *   node scripts/seed-race-questions.js <raceId> --approve   (skip audit, mark approved directly)
+ *   node scripts/seed-race-questions.js <raceId> --approve   (skip audit, mark APPROVED directly)
  *   node scripts/seed-race-questions.js --list-races          (show all raceIds)
  *
  * Example:
@@ -22,17 +22,9 @@ const template = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'seed-questions-template.json'), 'utf-8')
 )
 
-const LIKERT_OPTIONS = [
-  { label: 'Strongly Oppose', value: 1 },
-  { label: 'Oppose',          value: 2 },
-  { label: 'Neutral',         value: 3 },
-  { label: 'Support',         value: 4 },
-  { label: 'Strongly Support', value: 5 },
-]
-
 async function listRaces() {
   const races = await prisma.race.findMany({
-    select: { id: true, name: true, state: true, chamber: true, status: true },
+    select: { id: true, label: true, state: true, chamber: true, district: true, year: true },
     orderBy: [{ state: 'asc' }, { chamber: 'asc' }],
   })
   if (!races.length) {
@@ -42,7 +34,7 @@ async function listRaces() {
   console.log('\nAvailable races:')
   console.log('─'.repeat(72))
   races.forEach(r => {
-    console.log(`  ${r.id.padEnd(36)} ${r.state} · ${r.chamber} · ${r.status}`)
+    console.log(`  ${r.id.padEnd(36)} ${r.label} · ${r.state} · ${r.chamber}`)
   })
   console.log()
 }
@@ -63,7 +55,7 @@ async function seedRaceQuestions(raceId, forceApprove = false) {
     process.exit(1)
   }
 
-  console.log(`\nSeeding questions for: ${race.name} (${race.state} · ${race.chamber})`)
+  console.log(`\nSeeding questions for: ${race.label} (${race.state} · ${race.chamber})`)
   console.log(`Race ID: ${raceId}`)
   console.log(`Approve immediately: ${forceApprove ? 'yes' : 'no — needs bias audit'}`)
   console.log('─'.repeat(72))
@@ -86,36 +78,14 @@ async function seedRaceQuestions(raceId, forceApprove = false) {
     }
 
     try {
-      // Prisma schema may vary — adjust field names to match your actual Question model.
-      // Common fields: raceId, topic, questionText, approved, biasScore, options (JSON)
       const question = await prisma.question.create({
         data: {
           raceId,
           topic:        q.topic,
           questionText: q.questionText,
-          approved:     forceApprove,
+          weight:       1.0,
+          auditStatus:  forceApprove ? 'APPROVED' : 'PENDING',
           biasScore:    forceApprove ? 0.0 : null,
-
-          // Store issueKey and metadata — adjust to match your schema.
-          // If your schema doesn't have these fields, move them into a JSON `metadata` column.
-          ...(prisma.question.fields?.issueKey      ? { issueKey: q.issueKey }           : {}),
-          ...(prisma.question.fields?.subtopic      ? { subtopic: q.subtopic }           : {}),
-          ...(prisma.question.fields?.candidateDataField ? { candidateDataField: q.candidateDataField } : {}),
-
-          // If your schema has a `metadata` JSON field:
-          metadata: {
-            issueKey:           q.issueKey,
-            subtopic:           q.subtopic,
-            rationale:          q.rationale,
-            biasRisk:           q.biasRisk,
-            candidateDataField: q.candidateDataField,
-            auditNote:          q.auditNote ?? null,
-            seededFrom:         `seed-questions-template.json v${template.version}`,
-            seededAt:           new Date().toISOString(),
-          },
-
-          // Likert options — stored as JSON if your schema supports it
-          options: LIKERT_OPTIONS,
         },
       })
 
