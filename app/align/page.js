@@ -381,7 +381,7 @@ function ComingSoonBlock({ stateName, stateCode }) {
 }
 
 // ─── QUIZ QUESTIONS (with importance weighting) ───────────────────────────────
-function QuizQuestions({ race, sessionId, questions, onComplete }) {
+function QuizQuestions({ race, sessionId, questions, issuePriorities, onComplete }) {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState({})     // {questionId: 1-5}
   const [importance, setImportance] = useState({}) // {questionId: 1-3}
@@ -422,6 +422,7 @@ function QuizQuestions({ race, sessionId, questions, onComplete }) {
               answerValue,
               importance: importance[questionId] ?? 2,
             })),
+            issuePriorities,
           }),
         })
         const data = await res.json()
@@ -611,7 +612,7 @@ function Results({ scores, topIssues, race, sessionId, onRetake }) {
   }
 
   const getCandidatePhoto = (c) => {
-    if (c.candidate?.imageUrl) return c.candidate.imageUrl
+    if (c.candidate?.photoUrl) return c.candidate.photoUrl
     if (c.candidate?.bioguideId) {
       const first = c.candidate.bioguideId[0].toUpperCase()
       return `https://bioguide.congress.gov/bioguide/photo/${first}/${c.candidate.bioguideId}.jpg`
@@ -1031,6 +1032,14 @@ export default function AlignPage() {
   const [results, setResults] = useState(null)
   const [sessionError, setSessionError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [issuePriorities, setIssuePriorities] = useState([])
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('gv_priorities')
+      if (saved) setIssuePriorities(JSON.parse(saved))
+    } catch {}
+  }, [])
 
   const handleStateSelected = (code, name) => {
     setSelectedState({ code, name })
@@ -1105,6 +1114,7 @@ export default function AlignPage() {
           race={selectedRace}
           sessionId={sessionId}
           questions={questions}
+          issuePriorities={issuePriorities}
           onComplete={handleComplete}
         />
       )}
