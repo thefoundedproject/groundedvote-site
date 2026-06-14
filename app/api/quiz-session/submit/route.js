@@ -5,8 +5,9 @@ import { apiError } from '@/lib/api-error'
 
 export async function POST(request) {
   try {
-    const { sessionId, answers } = await request.json()
+    const { sessionId, answers, issuePriorities } = await request.json()
     // answers: [{ questionId, answerValue, importance? }]
+    // issuePriorities: string[] from baseline quiz, e.g. ['economy','healthcare']
 
     if (!sessionId || !answers?.length) {
       return Response.json({ error: 'sessionId and answers required' }, { status: 400 })
@@ -42,8 +43,12 @@ export async function POST(request) {
       data: { completedAt: new Date() },
     })
 
-    // Compute weighted alignment (importance-aware)
-    const { scores, topIssues } = await computeAlignment(sessionId, importanceMap)
+    // Compute weighted alignment (importance-aware + issue priority pre-weighting)
+    const { scores, topIssues } = await computeAlignment(
+      sessionId,
+      importanceMap,
+      Array.isArray(issuePriorities) ? issuePriorities : []
+    )
 
     // Track completion
     await trackEvent(EVENTS.QUIZ_COMPLETED, {
