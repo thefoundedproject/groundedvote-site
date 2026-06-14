@@ -251,6 +251,7 @@ if (step < CIVIC_QUIZ.length) {
 setStep(step + 1)
 } else {
 const { profileKey, issuePriorities: derived } = deriveProfile(newAnswers)
+try { localStorage.setItem('gv_priorities', JSON.stringify(derived)) } catch {}
 setProfile(CIVIC_PROFILES[profileKey] || CIVIC_PROFILES.partial)
 setIssuePriorities(derived)
 setStep(CIVIC_QUIZ.length + 1)
