@@ -92,7 +92,7 @@ return (
 <nav
 style={{
 backgroundColor: '#0F1B1F',
-borderBottom: '1px solid rgba(232,168,32,0.1)',
+borderBottom: '1px solid rgba(232,168,32,0.15)',
 }}
 className="fixed top-0 left-0 right-0 z-50 px-6 py-4"
 >
@@ -101,10 +101,10 @@ className="fixed top-0 left-0 right-0 z-50 px-6 py-4"
 <span style={{ color: '#F5F0E8', fontWeight: 200 }}>Grounded</span><span style={{ color: '#E8A820', fontWeight: 700 }}>Vote</span>
 </a>
 <div className="hidden md:flex items-center gap-10">
-<a href="/methodology" className="text-gray-400 hover:text-white text-sm transition-colors" style={{ letterSpacing: '0.02em' }}>Methodology</a>
-<a href="/races" className="text-gray-400 hover:text-white text-sm transition-colors" style={{ letterSpacing: '0.02em' }}>Races</a>
-<a href="/audit" className="text-gray-400 hover:text-white text-sm transition-colors" style={{ letterSpacing: '0.02em' }}>Audit Trail</a>
-<a href="/about" className="text-gray-400 hover:text-white text-sm transition-colors" style={{ letterSpacing: '0.02em' }}>About</a>
+<a href="/methodology" className="text-white hover:text-amber-400 text-sm font-medium transition-colors" style={{ letterSpacing: '0.04em' }}>Methodology</a>
+<a href="/races" className="text-white hover:text-amber-400 text-sm font-medium transition-colors" style={{ letterSpacing: '0.04em' }}>Races</a>
+<a href="/audit" className="text-white hover:text-amber-400 text-sm font-medium transition-colors" style={{ letterSpacing: '0.04em' }}>Audit Trail</a>
+<a href="/about" className="text-white hover:text-amber-400 text-sm font-medium transition-colors" style={{ letterSpacing: '0.04em' }}>About</a>
 <a
 href="/#quiz"
 style={{
@@ -140,13 +140,13 @@ onClick={() => setMenuOpen(!menuOpen)}
 {/* Mobile menu */}
 {menuOpen && (
 <div style={{ backgroundColor: '#0F1B1F', borderTop: '1px solid rgba(232,168,32,0.15)' }} className="md:hidden px-6 py-4 flex flex-col gap-4 mt-2">
-<a href="/how-it-works" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">How It Works</a>
-<a href="/methodology" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Methodology</a>
-<a href="/about" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">About</a>
-<a href="/contact" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Contact</a>
-<a href="/races" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Races</a>
-<a href="/audit" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Audit Trail</a>
-<a href="/support" onClick={() => setMenuOpen(false)} className="text-gray-300 hover:text-white text-sm transition-colors py-2">Support</a>
+<a href="/how-it-works" onClick={() => setMenuOpen(false)} className="text-white text-sm transition-colors py-2">How It Works</a>
+<a href="/methodology" onClick={() => setMenuOpen(false)} className="text-white text-sm transition-colors py-2">Methodology</a>
+<a href="/about" onClick={() => setMenuOpen(false)} className="text-white text-sm transition-colors py-2">About</a>
+<a href="/contact" onClick={() => setMenuOpen(false)} className="text-white text-sm transition-colors py-2">Contact</a>
+<a href="/races" onClick={() => setMenuOpen(false)} className="text-white text-sm transition-colors py-2">Races</a>
+<a href="/audit" onClick={() => setMenuOpen(false)} className="text-white text-sm transition-colors py-2">Audit Trail</a>
+<a href="/support" onClick={() => setMenuOpen(false)} className="text-white text-sm transition-colors py-2">Support</a>
 <a href="/align" onClick={() => setMenuOpen(false)} style={{ backgroundColor: '#E8A820', color: '#0F1B1F', borderRadius: 2, textDecoration: 'none' }} className="px-4 py-3 text-sm font-bold text-center hover:opacity-90 transition-opacity mt-2 block">
 Find My Match
 </a>
@@ -158,7 +158,7 @@ Find My Match
 
 function Footer() {
 return (
-<footer style={{ backgroundColor: '#0F1B1F' }} className="text-gray-400 py-16 px-6 mt-24">
+<footer style={{ backgroundColor: '#0F1B1F' }} className="text-gray-300 py-16 px-6 mt-24">
 <div className="max-w-6xl mx-auto">
 <div className="grid md:grid-cols-4 gap-10 mb-12">
 <div className="md:col-span-2">
@@ -193,9 +193,9 @@ A nonpartisan civic alignment engine. Know what you actually believe. See who ac
 </ul>
 </div>
 </div>
-<div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between gap-4">
-<p className="text-xs">© 2026 GroundedVote · An initiative of RhetoricalPoints LLC. All rights reserved.</p>
-<p className="text-xs">GroundedVote is nonpartisan. No party. No tribe. No fear.</p>
+<div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between gap-4">
+<p className="text-xs text-gray-400">© 2026 GroundedVote · An initiative of RhetoricalPoints LLC. All rights reserved.</p>
+<p className="text-xs text-gray-400">GroundedVote is nonpartisan. No party. No tribe. No fear.</p>
 </div>
 </div>
 </footer>
