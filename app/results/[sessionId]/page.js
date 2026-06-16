@@ -47,7 +47,7 @@ async function getResult(sessionId) {
   const candidateIds = scores.map(s => s.candidateId)
   const candidates = await prisma.candidate.findMany({
     where: { id: { in: candidateIds } },
-    select: { id: true, firstName: true, lastName: true, party: true, bioguideId: true, photoUrl: true, isIncumbent: true },
+    select: { id: true, firstName: true, lastName: true, party: true, bioguideId: true, photoUrl: true, incumbent: true },
   })
   const candMap = Object.fromEntries(candidates.map(c => [c.id, c]))
 
