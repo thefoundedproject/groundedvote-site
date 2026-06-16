@@ -30,7 +30,7 @@ async function getStateData(code) {
   const races = await prisma.race.findMany({
     where: { state: code, year: 2026 },
     include: {
-      candidates: { select: { id: true, firstName: true, lastName: true, party: true, incumbent: true, photoUrl: true, bioguideId: true } },
+      candidates: { select: { id: true, firstName: true, lastName: true, party: true, incumbent: true, bioguideId: true } },
       _count: { select: { questions: { where: { auditStatus: 'APPROVED' } } } },
     },
     orderBy: { chamber: 'asc' },
