@@ -103,7 +103,7 @@ export default async function CandidatePage({ params }) {
               </h1>
               <p style={{ color: S.muted, fontSize: 14, margin: 0 }}>
                 {c.race?.label ?? 'Unknown Race'} · {c.race?.year ?? '2026'}
-                {c.isIncumbent && <span style={{ marginLeft: 10, color: S.teal, fontSize: 12, fontWeight: 700 }}>INCUMBENT</span>}
+                {c.incumbent && <span style={{ marginLeft: 10, color: S.teal, fontSize: 12, fontWeight: 700 }}>INCUMBENT</span>}
               </p>
             </div>
           </div>
