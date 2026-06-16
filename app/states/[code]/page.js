@@ -30,7 +30,7 @@ async function getStateData(code) {
   const races = await prisma.race.findMany({
     where: { state: code, year: 2026 },
     include: {
-      candidates: { select: { id: true, firstName: true, lastName: true, party: true, isIncumbent: true, photoUrl: true, bioguideId: true } },
+      candidates: { select: { id: true, firstName: true, lastName: true, party: true, incumbent: true, photoUrl: true, bioguideId: true } },
       _count: { select: { questions: { where: { auditStatus: 'APPROVED' } } } },
     },
     orderBy: { chamber: 'asc' },
@@ -135,7 +135,7 @@ export default async function StatePage({ params }) {
                               href={`/candidates/${c.id}`}
                               style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: `1px solid ${S.border}`, borderRadius: 20, padding: '5px 14px', fontSize: 12, color: S.muted, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
                             >
-                              {c.isIncumbent && <span style={{ color: S.teal, fontSize: 9, fontWeight: 700 }}>★</span>}
+                              {c.incumbent && <span style={{ color: S.teal, fontSize: 9, fontWeight: 700 }}>★</span>}
                               {c.firstName} {c.lastName}
                             </Link>
                           ))}
