@@ -149,7 +149,7 @@ function NotifyForm() {
   if (submitted) {
     return (
       <div style={{ padding: '20px 0' }}>
-        <p style={{ color: '#D8AB69', fontWeight: 700, fontSize: 15 }}>You are on the list.</p>
+        <p style={{ color: '#E8A820', fontWeight: 700, fontSize: 15 }}>You are on the list.</p>
         <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 13, marginTop: 6 }}>
           {stateCode
             ? `We will email you as soon as ${stateCode} races go live on GroundedVote.`
@@ -176,12 +176,12 @@ function NotifyForm() {
         value={email}
         onChange={e => setEmail(e.target.value)}
         placeholder="your@email.com"
-        style={{ padding: '14px 18px', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(216,171,105,0.3)', borderRadius: 6, fontSize: 15, color: 'white', outline: 'none' }}
+        style={{ padding: '14px 18px', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(232,168,32,0.3)', borderRadius: 6, fontSize: 15, color: 'white', outline: 'none' }}
       />
       <button
         type="submit"
         disabled={loading}
-        style={{ backgroundColor: '#D8AB69', color: '#0F1B1F', padding: '14px', borderRadius: 6, fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1, fontFamily: 'inherit' }}
+        style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px', borderRadius: 6, fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1, fontFamily: 'inherit' }}
       >
         {loading ? 'Saving...' : stateCode ? `Notify me when ${stateCode} is live` : 'Notify me at launch'}
       </button>
@@ -233,17 +233,28 @@ function CivicQuiz() {
   // HERO STATE
   if (step === 0) return (
     <div id="quiz" style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 24px', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 50%, rgba(216,171,105,0.05), transparent 60%)', pointerEvents: 'none' }} />
+      {/* Film grain */}
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.055, pointerEvents: 'none' }} aria-hidden="true">
+          <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" /><feColorMatrix type="saturate" values="0" /></filter>
+          <rect width="100%" height="100%" filter="url(#grain)" />
+        </svg>
+        {/* 50-star starfield — one per U.S. state */}
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} aria-hidden="true">
+          {[[4,12,.12],[8,67,.09],[11,34,.15],[15,85,.07],[19,23,.11],[22,54,.13],[26,78,.08],[29,11,.10],[33,45,.14],[36,91,.09],[40,28,.12],[43,63,.07],[47,17,.11],[51,82,.13],[54,39,.15],[58,72,.08],[62,5,.10],[65,56,.12],[69,88,.09],[72,22,.14],[76,47,.07],[79,74,.11],[83,33,.13],[86,61,.10],[90,8,.15],[93,46,.08],[96,79,.12],[3,52,.09],[7,93,.11],[14,6,.14],[18,71,.07],[24,38,.12],[31,59,.10],[38,81,.13],[44,24,.09],[50,68,.15],[57,14,.08],[63,43,.11],[70,96,.12],[77,31,.09],[84,57,.14],[91,22,.07],[97,73,.11],[6,41,.13],[21,87,.10],[35,16,.12],[48,53,.08],[66,35,.14],[82,69,.09],[95,50,.11]].map(([x,y,o],i) => (
+            <text key={i} x={`${x}%`} y={`${y}%`} fontSize={i%3===0?8:i%3===1?6:10} fill="white" opacity={o} textAnchor="middle">★</text>
+          ))}
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 50%, rgba(232,168,32,0.05), transparent 60%)', pointerEvents: 'none' }} />
       <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 80, alignItems: 'center' }}>
         <div>
-          <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.8s 200ms' }}>GroundedVote</p>
+          <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.8s 200ms' }}>GroundedVote</p>
           <div style={{ overflow: 'hidden' }}>
             <div style={{ fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 300, color: '#F5F0E8', lineHeight: 1.1, letterSpacing: '-0.025em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 400ms' }}>
               Most Americans vote
             </div>
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 300, color: '#D8AB69', lineHeight: 1.1, letterSpacing: '-0.025em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 560ms' }}>
+            <div style={{ fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 300, color: '#E8A820', lineHeight: 1.1, letterSpacing: '-0.025em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 560ms' }}>
               on fear.
             </div>
           </div>
@@ -256,13 +267,13 @@ function CivicQuiz() {
         </div>
 
         <div style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 1s ease 700ms' }}>
-          <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(216,171,105,0.2)', borderRadius: 12, padding: 40 }}>
-            <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Start Here</p>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(232,168,32,0.2)', borderRadius: 12, padding: 40 }}>
+            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Start Here</p>
             <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, lineHeight: 1.3, marginBottom: 12 }}>Four quick questions about how you vote right now.</h3>
             <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 32 }}>
               No wrong answers. No judgment. This takes two minutes and tells you exactly where you stand — and what GroundedVote can do for you.
             </p>
-            <button onClick={() => setStep(1)} style={{ backgroundColor: '#D8AB69', color: '#0F1B1F', padding: '16px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%' }}>
+            <button onClick={() => setStep(1)} style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '16px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%' }}>
               Begin the civic mirror →
             </button>
             <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Takes about 2 minutes. Results sent to your email.</p>
@@ -278,10 +289,10 @@ function CivicQuiz() {
       <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
         <div style={{ display: 'flex', gap: 6, marginBottom: 48 }}>
           {CIVIC_QUIZ.map((_, i) => (
-            <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < step ? '#D8AB69' : 'rgba(216,171,105,0.15)', transition: 'background-color 0.4s' }} />
+            <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < step ? '#E8A820' : 'rgba(232,168,32,0.15)', transition: 'background-color 0.4s' }} />
           ))}
         </div>
-        <p style={{ color: 'rgba(216,171,105,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Question {step} of {CIVIC_QUIZ.length}</p>
+        <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Question {step} of {CIVIC_QUIZ.length}</p>
         <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 300, lineHeight: 1.45, marginBottom: 40, letterSpacing: '-0.01em' }}>{question.q}</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 40 }}>
           {question.options.map(opt => (
@@ -291,9 +302,9 @@ function CivicQuiz() {
               style={{
                 textAlign: 'left', padding: '18px 22px', borderRadius: 8, fontSize: 15, lineHeight: 1.55,
                 cursor: 'pointer', transition: 'all 0.15s',
-                backgroundColor: selected === opt.value ? '#D8AB69' : 'rgba(255,255,255,0.05)',
+                backgroundColor: selected === opt.value ? '#E8A820' : 'rgba(255,255,255,0.05)',
                 color: selected === opt.value ? '#0F1B1F' : '#F5F0E8',
-                border: `1.5px solid ${selected === opt.value ? '#D8AB69' : 'rgba(216,171,105,0.15)'}`,
+                border: `1.5px solid ${selected === opt.value ? '#E8A820' : 'rgba(232,168,32,0.15)'}`,
                 fontWeight: selected === opt.value ? 600 : 400,
               }}
             >
@@ -309,7 +320,7 @@ function CivicQuiz() {
             <button
               onClick={handleNext}
               disabled={!selected}
-              style={{ backgroundColor: selected ? '#D8AB69' : 'rgba(216,171,105,0.2)', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s' }}
+              style={{ backgroundColor: selected ? '#E8A820' : 'rgba(232,168,32,0.2)', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s' }}
             >
               {step === CIVIC_QUIZ.length ? 'See my civic profile →' : 'Continue →'}
             </button>
@@ -323,7 +334,7 @@ function CivicQuiz() {
   if (step === CIVIC_QUIZ.length + 1) return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
       <div style={{ maxWidth: 520, margin: '0 auto', width: '100%' }}>
-        <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Almost there</p>
+        <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Almost there</p>
         <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>Where should your civic profile go?</h2>
         <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 16, lineHeight: 1.65, marginBottom: 36 }}>Your results, what they tell you about how you currently vote, and what GroundedVote will give you that you do not have now.</p>
         <form onSubmit={handleEmail} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -333,9 +344,9 @@ function CivicQuiz() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="your@email.com"
-            style={{ padding: '18px 20px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(216,171,105,0.25)', borderRadius: 6, fontSize: 16, color: 'white', outline: 'none' }}
+            style={{ padding: '18px 20px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(232,168,32,0.25)', borderRadius: 6, fontSize: 16, color: 'white', outline: 'none' }}
           />
-          <button type="submit" disabled={loading} style={{ backgroundColor: '#D8AB69', color: '#0F1B1F', padding: '18px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
+          <button type="submit" disabled={loading} style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '18px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
             {loading ? 'Sending...' : 'Send my civic profile'}
           </button>
         </form>
@@ -348,15 +359,15 @@ function CivicQuiz() {
   if (step === CIVIC_QUIZ.length + 2 && profile) return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0F1B1F', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto', width: '100%' }}>
-        <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Your Civic Profile</p>
+        <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Your Civic Profile</p>
         <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 500, lineHeight: 1.3, marginBottom: 24 }}>{profile.title}</h2>
         <p style={{ color: 'rgba(245,240,232,0.65)', fontSize: 17, lineHeight: 1.75, marginBottom: 20, maxWidth: 600 }}>{profile.desc}</p>
-        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 40, borderLeft: '2px solid rgba(216,171,105,0.4)', paddingLeft: 16 }}>{profile.next}</p>
+        <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 40, borderLeft: '2px solid rgba(232,168,32,0.4)', paddingLeft: 16 }}>{profile.next}</p>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <a href="#notify" style={{ backgroundColor: '#D8AB69', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Join the notification list</a>
-          <a href="/methodology" style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.7)', padding: '14px 32px', borderRadius: 6, fontWeight: 600, fontSize: 14, textDecoration: 'none', border: '1px solid rgba(216,171,105,0.2)' }}>Read the methodology</a>
+          <a href="#notify" style={{ backgroundColor: '#E8A820', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Join the notification list</a>
+          <a href="/methodology" style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.7)', padding: '14px 32px', borderRadius: 6, fontWeight: 600, fontSize: 14, textDecoration: 'none', border: '1px solid rgba(232,168,32,0.2)' }}>Read the methodology</a>
         </div>
-        <div style={{ marginTop: 60, paddingTop: 40, borderTop: '1px solid rgba(216,171,105,0.15)' }}>
+        <div style={{ marginTop: 60, paddingTop: 40, borderTop: '1px solid rgba(232,168,32,0.15)' }}>
           <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13 }}>Your results have been sent to your email. Scroll down to learn more about how GroundedVote works.</p>
         </div>
       </div>
@@ -381,7 +392,7 @@ export default function Home() {
       <section style={{ backgroundColor: '#F5F0E8', padding: '120px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <Reveal>
-            <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Problem</p>
+            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Problem</p>
             <h2 style={{ color: '#0F1B1F', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 12 }}>
               You're not checked out.
             </h2>
@@ -406,7 +417,7 @@ export default function Home() {
               <p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 300, lineHeight: 1.6, maxWidth: 680 }}>
                 &ldquo;It was never your fault. The system was built to keep you confused, afraid, and loyal to a team — not your own beliefs. GroundedVote gives you a way back in.&rdquo;
               </p>
-              <p style={{ color: 'rgba(216,171,105,0.6)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 16 }}>GroundedVote · 2026</p>
+              <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 16 }}>GroundedVote · 2026</p>
             </div>
           </Reveal>
         </div>
@@ -415,7 +426,7 @@ export default function Home() {
       <section style={{ backgroundColor: '#0F1B1F', padding: '80px 24px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <Reveal>
-            <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 40, textAlign: 'center' }}>How It Works</p>
+            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 40, textAlign: 'center' }}>How It Works</p>
           </Reveal>
           <Reveal delay={100}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, position: 'relative' }}>
@@ -424,12 +435,12 @@ export default function Home() {
                 { num: '02', title: 'We check every question for spin', sub: 'Three AI models · Loaded language flagged · Rigged framing caught · Only the neutral version reaches you', icon: '◎' },
                 { num: '03', title: 'You answer. We show you who matches.', sub: 'No party labels · No trick questions · Your real beliefs · Your actual match', icon: '◉' },
               ].map((phase, i) => (
-                <div key={phase.num} style={{ padding: '40px 28px', backgroundColor: i === 1 ? 'rgba(216,171,105,0.08)' : 'transparent', borderLeft: i > 0 ? '1px solid rgba(216,171,105,0.15)' : 'none', textAlign: 'center', position: 'relative' }}>
+                <div key={phase.num} style={{ padding: '40px 28px', backgroundColor: i === 1 ? 'rgba(232,168,32,0.08)' : 'transparent', borderLeft: i > 0 ? '1px solid rgba(232,168,32,0.15)' : 'none', textAlign: 'center', position: 'relative' }}>
                   {i > 0 && (
-                    <div style={{ position: 'absolute', left: -16, top: '50%', transform: 'translateY(-50%)', color: '#D8AB69', fontSize: 20, fontWeight: 300 }}>→</div>
+                    <div style={{ position: 'absolute', left: -16, top: '50%', transform: 'translateY(-50%)', color: '#E8A820', fontSize: 20, fontWeight: 300 }}>→</div>
                   )}
-                  <p style={{ color: 'rgba(216,171,105,0.4)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', marginBottom: 16 }}>{phase.num}</p>
-                  <p style={{ color: '#D8AB69', fontSize: 28, marginBottom: 16 }}>{phase.icon}</p>
+                  <p style={{ color: 'rgba(232,168,32,0.4)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', marginBottom: 16 }}>{phase.num}</p>
+                  <p style={{ color: '#E8A820', fontSize: 28, marginBottom: 16 }}>{phase.icon}</p>
                   <p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>{phase.title}</p>
                   <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 12, lineHeight: 1.65 }}>{phase.sub}</p>
                 </div>
@@ -441,13 +452,13 @@ export default function Home() {
               <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13, lineHeight: 1.6, maxWidth: 480, margin: '0 auto' }}>
                 Every question is publicly audited. Every bias score is archived. You can read the full methodology before you answer anything.
               </p>
-              <a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#D8AB69', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(216,171,105,0.4)', paddingBottom: 2 }}>Read the full methodology →</a>
+              <a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#E8A820', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(232,168,32,0.4)', paddingBottom: 2 }}>Read the full methodology →</a>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <section style={{ backgroundColor: '#D8AB69', padding: '60px 24px' }}>
+      <section style={{ backgroundColor: '#E8A820', padding: '60px 24px' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ color: '#0F1B1F', fontSize: 'clamp(20px, 3.5vw, 34px)', fontWeight: 300, lineHeight: 1.4 }}>
             You can't make a real choice without real information. That's what this is.
@@ -458,7 +469,7 @@ export default function Home() {
       <section style={{ backgroundColor: '#0F1B1F', padding: '120px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <Reveal>
-            <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Method</p>
+            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Method</p>
             <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.02em', marginBottom: 64 }}>
               Here's exactly<br />what we do.
             </h2>
@@ -470,8 +481,8 @@ export default function Home() {
             { num: '03', phase: 'You answer honestly. We do the math.', desc: 'No party labels. No trick questions. You tell us what you believe about the issues that affect your life. We show you which candidates actually match.' },
           ].map((step, i) => (
             <Reveal key={step.num} delay={i * 100}>
-              <div style={{ borderTop: '1px solid rgba(216,171,105,0.15)', padding: '40px 0', display: 'grid', gridTemplateColumns: '60px 280px 1fr', gap: 32, alignItems: 'start' }}>
-                <span style={{ color: 'rgba(216,171,105,0.4)', fontSize: 12, fontWeight: 700, paddingTop: 2 }}>{step.num}</span>
+              <div style={{ borderTop: '1px solid rgba(232,168,32,0.15)', padding: '40px 0', display: 'grid', gridTemplateColumns: '60px 280px 1fr', gap: 32, alignItems: 'start' }}>
+                <span style={{ color: 'rgba(232,168,32,0.4)', fontSize: 12, fontWeight: 700, paddingTop: 2 }}>{step.num}</span>
                 <p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 600, lineHeight: 1.4 }}>{step.phase}</p>
                 <p style={{ color: 'rgba(245,240,232,0.55)', fontSize: 15, lineHeight: 1.7 }}>{step.desc}</p>
               </div>
@@ -480,7 +491,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section style={{ backgroundColor: '#D8AB69', padding: '100px 24px' }} id="notify">
+      <section style={{ backgroundColor: '#E8A820', padding: '100px 24px' }} id="notify">
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 64, alignItems: 'center' }}>
           <Reveal>
             <p style={{ color: 'rgba(15,27,31,0.5)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Built For You First</p>
@@ -496,7 +507,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={150}>
             <div style={{ backgroundColor: '#0F1B1F', borderRadius: 12, padding: 40 }}>
-              <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Launch Notification</p>
+              <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Launch Notification</p>
               <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, marginBottom: 8 }}>The quiz launches before the 2026 election cycle.</h3>
               <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 24 }}>Join the list. Be notified when the full platform is live. Share it with one person who needs it.</p>
               <NotifyForm />
@@ -511,7 +522,7 @@ export default function Home() {
             <p style={{ color: '#0F1B1F', fontSize: 18, fontWeight: 400, marginBottom: 4 }}>Funders, civic partners, and academic reviewers.</p>
             <p style={{ color: 'rgba(15,27,31,0.5)', fontSize: 14 }}>The methodology white paper is available for review.</p>
           </div>
-          <a href="/contact" style={{ backgroundColor: '#0F1B1F', color: '#D8AB69', padding: '14px 32px', borderRadius: 6, fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Contact the team</a>
+          <a href="/contact" style={{ backgroundColor: '#0F1B1F', color: '#E8A820', padding: '14px 32px', borderRadius: 6, fontSize: 13, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Contact the team</a>
         </div>
       </section>
     </>
