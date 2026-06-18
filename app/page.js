@@ -1,12 +1,12 @@
 /**
- * Copyright Â© 2025 The Founded Project LLC
+ * Copyright \u00A9 2025 The Founded Project LLC
  * All rights reserved. Proprietary and confidential.
  *
  * This source code is the exclusive property of The Founded Project LLC
  * and may not be copied, modified, distributed, or used without explicit
  * written permission from The Founded Project LLC.
  *
- * GroundedVoteâ¢ â A Civic Alignment Engine
+ * GroundedVote\u2122 \u2014 A Civic Alignment Engine
  * https://groundedvote.com
  */
 
@@ -30,7 +30,7 @@ function Reveal({ children, delay = 0 }) {
   return <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(20px)', transition: `all 0.75s ease ${delay}ms` }}>{children}</div>
 }
 
-// Small American flag SVG â civic symbol, not partisan
+// Small American flag SVG \u2014 civic symbol, not partisan
 function USFlag({ size = 22 }) {
   const h = Math.round(size * (15 / 22))
   const stripe = h / 13
@@ -47,7 +47,7 @@ function USFlag({ size = 22 }) {
   )
 }
 
-// Maps issueKey â display label for results page
+// Maps issueKey \u2192 display label for results page
 const ISSUE_LABELS = {
   economy: 'Economic Policy',
   healthcare: 'Healthcare',
@@ -64,9 +64,9 @@ const CIVIC_QUIZ = [
     q: 'In the last election you voted in, how confident were you that your vote matched what you actually believe?',
     key: 'voting_confidence',
     options: [
-      { label: 'Very confident â I researched candidates and positions thoroughly.', value: 'confident' },
-      { label: 'Somewhat confident â I had a general sense but not much depth.', value: 'partial' },
-      { label: 'Not confident â I voted based on party or general feeling.', value: 'low' },
+      { label: 'Very confident \u2014 I researched candidates and positions thoroughly.', value: 'confident' },
+      { label: 'Somewhat confident \u2014 I had a general sense but not much depth.', value: 'partial' },
+      { label: 'Not confident \u2014 I voted based on party or general feeling.', value: 'low' },
       { label: 'I did not vote. I did not feel like I had enough information.', value: 'disengaged' },
     ],
   },
@@ -75,10 +75,10 @@ const CIVIC_QUIZ = [
     key: 'primary_issue',
     note: 'Your top two choices will shape how your results are scored.',
     options: [
-      { label: 'Economic policy â wages, jobs, cost of living, trade.', value: 'economy' },
-      { label: 'Healthcare â coverage, drug prices, Medicare, Medicaid.', value: 'healthcare' },
-      { label: 'Environment and climate â emissions, energy policy, public lands.', value: 'environment' },
-      { label: 'Immigration â pathways to citizenship, enforcement, border policy.', value: 'immigration' },
+      { label: 'Economic policy \u2014 wages, jobs, cost of living, trade.', value: 'economy' },
+      { label: 'Healthcare \u2014 coverage, drug prices, Medicare, Medicaid.', value: 'healthcare' },
+      { label: 'Environment and climate \u2014 emissions, energy policy, public lands.', value: 'environment' },
+      { label: 'Immigration \u2014 pathways to citizenship, enforcement, border policy.', value: 'immigration' },
     ],
   },
   {
@@ -86,10 +86,10 @@ const CIVIC_QUIZ = [
     key: 'secondary_issue',
     note: 'These two issues will count extra in your final match score.',
     options: [
-      { label: 'Gun policy â background checks, firearm regulation, public safety.', value: 'guns' },
-      { label: 'Taxes and federal spending â rates, deficits, size of government.', value: 'taxes' },
-      { label: 'Foreign policy â defense budget, military commitments, foreign aid.', value: 'foreign_policy' },
-      { label: 'Voting rights and democratic process â access, elections, accountability.', value: 'democracy' },
+      { label: 'Gun policy \u2014 background checks, firearm regulation, public safety.', value: 'guns' },
+      { label: 'Taxes and federal spending \u2014 rates, deficits, size of government.', value: 'taxes' },
+      { label: 'Foreign policy \u2014 defense budget, military commitments, foreign aid.', value: 'foreign_policy' },
+      { label: 'Voting rights and democratic process \u2014 access, elections, accountability.', value: 'democracy' },
     ],
   },
   {
@@ -99,27 +99,27 @@ const CIVIC_QUIZ = [
       { label: 'I research it independently before forming any opinion.', value: 'research' },
       { label: 'I listen to trusted people in my community or network first.', value: 'community' },
       { label: 'I default to my general political leanings and move on.', value: 'partisan' },
-      { label: 'I avoid it â most political content feels too loaded to engage with honestly.', value: 'avoidance' },
+      { label: 'I avoid it \u2014 most political content feels too loaded to engage with honestly.', value: 'avoidance' },
     ],
   },
   {
     q: 'When you evaluate a candidate, what do you trust most?',
     key: 'trust_signal',
     options: [
-      { label: 'Their actual voting record â what they did when it counted, not what they say now.', value: 'record' },
+      { label: 'Their actual voting record \u2014 what they did when it counted, not what they say now.', value: 'record' },
       { label: 'The organizations and donors who fund their campaigns.', value: 'funding' },
       { label: 'Their stated platform and policy positions.', value: 'platform' },
       { label: 'How they perform when questioned directly under pressure.', value: 'performance' },
     ],
   },
   {
-    q: 'What would it mean for your life if you voted and knew â with confidence â that your vote matched what you actually believe?',
+    q: 'What would it mean for your life if you voted and knew \u2014 with confidence \u2014 that your vote matched what you actually believe?',
     key: 'alignment_meaning',
     options: [
       { label: 'It would make voting feel like a deliberate act instead of a performance.', value: 'meaningful' },
       { label: 'It would give me confidence I have not had at the ballot box before.', value: 'confidence' },
       { label: 'It would break the cycle of voting out of fear instead of belief.', value: 'cycle' },
-      { label: 'Honestly â it would change how I feel about whether democracy can work.', value: 'democracy' },
+      { label: 'Honestly \u2014 it would change how I feel about whether democracy can work.', value: 'democracy' },
     ],
   },
 ]
@@ -127,7 +127,7 @@ const CIVIC_QUIZ = [
 const CIVIC_PROFILES = {
   confident: {
     title: 'You already do the research. GroundedVote makes it faster, cleaner, and easier to verify.',
-    desc: 'You put in the work. But even careful voters can be shaped by how information is framed â or by what gets left out. The bias-reviewed questions give your process a more reliable foundation, and may surface candidates you have not yet considered.',
+    desc: 'You put in the work. But even careful voters can be shaped by how information is framed \u2014 or by what gets left out. The bias-reviewed questions give your process a more reliable foundation, and may surface candidates you have not yet considered.',
     next: 'Join the notification list to be first in when we launch.',
   },
   partial: {
@@ -137,12 +137,12 @@ const CIVIC_PROFILES = {
   },
   low: {
     title: 'You are voting your party, not your beliefs. You probably already sense this.',
-    desc: 'The information system is designed to make this the easiest path. When every channel is built to keep you in your lane, making your own call is hard. GroundedVote cuts through the noise and shows you which candidates match what you actually think â not what your party told you to think.',
+    desc: 'The information system is designed to make this the easiest path. When every channel is built to keep you in your lane, making your own call is hard. GroundedVote cuts through the noise and shows you which candidates match what you actually think \u2014 not what your party told you to think.',
     next: 'Join the list. The alternative exists now.',
   },
   disengaged: {
     title: 'You did not disengage. The tools were not there for you.',
-    desc: 'This is not apathy. You showed up wanting to make a real decision and found nothing useful waiting for you. GroundedVote was built first for people in this exact spot â clear enough for someone who has never closely followed an election, and useful enough that most people want to pass it on.',
+    desc: 'This is not apathy. You showed up wanting to make a real decision and found nothing useful waiting for you. GroundedVote was built first for people in this exact spot \u2014 clear enough for someone who has never closely followed an election, and useful enough that most people want to pass it on.',
     next: 'Join the list. This was built for you first.',
   },
 }
@@ -150,30 +150,30 @@ const CIVIC_PROFILES = {
 function deriveProfile(answers) {
   const scores = { confident: 0, partial: 0, low: 0, disengaged: 0 }
 
-  // Q1 â voting confidence (weight 4 â primary signal)
+  // Q1 \u2014 voting confidence (weight 4 \u2014 primary signal)
   const q1 = answers[0]?.value
   if (q1 === 'confident') scores.confident += 4
   else if (q1 === 'partial') scores.partial += 4
   else if (q1 === 'low') scores.low += 4
   else if (q1 === 'disengaged') scores.disengaged += 4
 
-  // Q2 + Q3 â issue priorities â extracted separately, not scored for profile
+  // Q2 + Q3 \u2014 issue priorities \u2014 extracted separately, not scored for profile
 
-  // Q4 â info processing (weight 2)
+  // Q4 \u2014 info processing (weight 2)
   const q4 = answers[3]?.value
   if (q4 === 'research') scores.confident += 2
   else if (q4 === 'community') scores.partial += 2
   else if (q4 === 'partisan') scores.low += 2
   else if (q4 === 'avoidance') scores.disengaged += 2
 
-  // Q5 â trust signal (weight 1)
+  // Q5 \u2014 trust signal (weight 1)
   const q5 = answers[4]?.value
   if (q5 === 'record') scores.confident += 1
   else if (q5 === 'funding') scores.partial += 1
   else if (q5 === 'platform') scores.partial += 1
   else if (q5 === 'performance') scores.low += 1
 
-  // Q6 â alignment meaning (weight 1)
+  // Q6 \u2014 alignment meaning (weight 1)
   const q6 = answers[5]?.value
   if (q6 === 'meaningful') scores.partial += 1
   else if (q6 === 'confidence') scores.low += 1
@@ -239,7 +239,7 @@ function NotifyForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {stateCode && (
         <div style={{ backgroundColor: 'rgba(94,207,166,0.12)', border: '1px solid rgba(94,207,166,0.25)', borderRadius: 6, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: '#5ECFA6', fontSize: 18 }}>ð</span>
+          <span style={{ color: '#5ECFA6', fontSize: 18 }}>o</span>
           <p style={{ color: '#5ECFA6', fontSize: 13, fontWeight: 600, margin: 0 }}>
             Notifying you when <strong>{stateCode}</strong> races go live
           </p>
@@ -314,7 +314,7 @@ function CivicQuiz() {
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 50%, rgba(232,168,32,0.10), transparent 60%)', pointerEvents: 'none' }} />
       <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 80, alignItems: 'center' }}>
         <div>
-          {/* Brand label with American flag â civic engagement is patriotic */}
+          {/* Brand label with American flag \u2014 civic engagement is patriotic */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.8s 200ms' }}>
             <USFlag size={22} />
             <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>GroundedVote</p>
@@ -330,7 +330,7 @@ function CivicQuiz() {
             </div>
           </div>
           <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 17, lineHeight: 1.75, maxWidth: 440, marginTop: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 900ms' }}>
-            We take real candidate positions and turn them into clear, unbiased questions. You answer based on what you actually think. Then you see which candidates line up with your beliefs â not your party label.
+            We take real candidate positions and turn them into clear, unbiased questions. You answer based on what you actually think. Then you see which candidates line up with your beliefs &mdash; not your party label.
           </p>
           <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 14, lineHeight: 1.7, maxWidth: 400, marginTop: 12, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 1.1s' }}>
             Every question is reviewed for fairness before you see it. No spin. No hidden agenda.
@@ -345,7 +345,7 @@ function CivicQuiz() {
               Two questions ask what issues matter most to you. We use your answers to make your results more accurate. No wrong answers.
             </p>
             <button onClick={() => setStep(1)} style={{ backgroundColor: '#E8A820', color: '#0C1A2E', padding: '16px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%' }}>
-              Start the quiz â
+              Start the quiz &rarr;
             </button>
             <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Takes about 3 minutes. Results sent to your email.</p>
           </div>
@@ -364,10 +364,10 @@ function CivicQuiz() {
           ))}
         </div>
         <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>Question {step} of {CIVIC_QUIZ.length}</p>
-        {/* Issue salience note â shown on Q2 and Q3 */}
+        {/* Issue salience note \u2014 shown on Q2 and Q3 */}
         {question.note && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '8px 12px', backgroundColor: 'rgba(232,168,32,0.08)', borderRadius: 6, border: '1px solid rgba(232,168,32,0.2)' }}>
-            <span style={{ color: '#E8A820', fontSize: 16 }}>â</span>
+            <span style={{ color: '#E8A820', fontSize: 16 }}>&#9678;</span>
             <p style={{ color: 'rgba(232,168,32,0.85)', fontSize: 12, fontWeight: 600, letterSpacing: '0.02em', margin: 0 }}>{question.note}</p>
           </div>
         )}
@@ -388,19 +388,19 @@ function CivicQuiz() {
             >
               {opt.label}
             </button>
-           ))}
+          ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {step > 1 && (
-            <button onClick={() => { setStep(step - 1); setSelected(null) }} style={{ background: 'none', border: 'none', color: 'rgba(245,240,232,0.4)', fontSize: 13, cursor: 'pointer', padding: 0 }}>â Back</button>
+            <button onClick={() => { setStep(step - 1); setSelected(null) }} style={{ background: 'none', border: 'none', color: 'rgba(245,240,232,0.4)', fontSize: 13, cursor: 'pointer', padding: 0 }}>&larr; Back</button>
           )}
           <div style={{ marginLeft: 'auto' }}>
             <button
               onClick={handleNext}
               disabled={!selected}
-              style={{ backgroundColor: selected ? '#E8A820' : 'rgba(232,168,32,0.2)', color: '#0C1A2E', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s'}}
+              style={{ backgroundColor: selected ? '#E8A820' : 'rgba(232,168,32,0.2)', color: '#0C1A2E', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s' }}
             >
-              {step === CIVIC_QUIZ.length ? 'See my civic profile â' : 'Continue â'}
+              {step === CIVIC_QUIZ.length ? 'See my civic profile \u2192' : 'Continue \u2192'}
             </button>
           </div>
         </div>
@@ -442,21 +442,21 @@ function CivicQuiz() {
         <p style={{ color: 'rgba(245,240,232,0.65)', fontSize: 17, lineHeight: 1.75, marginBottom: 20, maxWidth: 600 }}>{profile.desc}</p>
         <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 32, borderLeft: '2px solid rgba(232,168,32,0.4)', paddingLeft: 16 }}>{profile.next}</p>
 
-        {/* Issue priority summary â feeds into /align weighting */}
+        {/* Issue priority summary \u2014 feeds into /align weighting */}
         {issuePriorities.length > 0 && (
           <div style={{ marginBottom: 40, padding: '20px 24px', backgroundColor: 'rgba(232,168,32,0.06)', borderRadius: 8, border: '1px solid rgba(232,168,32,0.2)' }}>
             <p style={{ color: 'rgba(232,168,32,0.7)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 10 }}>Your Issue Priorities</p>
             <p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 500, marginBottom: 6 }}>
-              {issuePriorities.map(k => ISSUE_LABELS[k] || k).join(' Â· ')}
+              {issuePriorities.map(k => ISSUE_LABELS[k] || k).join(' \u00B7 ')}
             </p>
             <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 13, lineHeight: 1.6 }}>
-              When you take the full alignment quiz at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a>, questions in these areas will carry extra weight in your match score â so your results reflect what you actually care about most.
+              When you take the full alignment quiz at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a>, questions in these areas will carry extra weight in your match score &mdash; so your results reflect what you actually care about most.
             </p>
           </div>
         )}
 
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <a href="/align" style={{ backgroundColor: '#E8A820', color: '#0C1A2E', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Take the alignment quiz â</a>
+          <a href="/align" style={{ backgroundColor: '#E8A820', color: '#0C1A2E', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Take the alignment quiz &rarr;</a>
           <a href="/methodology" style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(245,240,232,0.7)', padding: '14px 32px', borderRadius: 6, fontWeight: 600, fontSize: 14, textDecoration: 'none', border: '1px solid rgba(232,168,32,0.2)' }}>Read the methodology</a>
         </div>
         <div style={{ marginTop: 48, paddingTop: 32, borderTop: '1px solid rgba(232,168,32,0.15)' }}>
@@ -509,7 +509,7 @@ export default function Home() {
               <p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 300, lineHeight: 1.6, maxWidth: 680 }}>
                 &ldquo;Voters are not confused because they are not smart enough. They are confused because the system was built to keep them that way.&rdquo;
               </p>
-              <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 16 }}>GroundedVote Founding Framework Â· 2026</p>
+              <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 16 }}>GroundedVote Founding Framework &middot; 2026</p>
             </div>
           </Reveal>
         </div>
@@ -523,13 +523,13 @@ export default function Home() {
           <Reveal delay={100}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, position: 'relative' }}>
               {[
-                { num: '01', title: 'Candidate Data', sub: 'Official government records Â· Voting history Â· Verified campaign platforms Â· Public statements', icon: 'â' },
-                { num: '02', title: 'Bias Review', sub: 'Three AI models check each question Â· Loaded language removed Â· Rewritten if it does not pass', icon: 'â' },
-                { num: '03', title: 'Civic Mirror', sub: 'Short quiz Â· Issues you care about count more Â· See who actually matches what you believe', icon: 'â' },
+                { num: '01', title: 'Candidate Data', sub: 'Official government records \u00B7 Voting history \u00B7 Verified campaign platforms \u00B7 Public statements', icon: '\u25C8' },
+                { num: '02', title: 'Bias Review', sub: 'Three AI models check each question \u00B7 Loaded language removed \u00B7 Rewritten if it does not pass', icon: '\u25CE' },
+                { num: '03', title: 'Civic Mirror', sub: 'Short quiz \u00B7 Issues you care about count more \u00B7 See who actually matches what you believe', icon: '\u25C9' },
               ].map((phase, i) => (
                 <div key={phase.num} style={{ padding: '40px 28px', backgroundColor: i === 1 ? 'rgba(232,168,32,0.08)' : 'transparent', borderLeft: i > 0 ? '1px solid rgba(232,168,32,0.15)' : 'none', textAlign: 'center', position: 'relative' }}>
                   {i > 0 && (
-                    <div style={{ position: 'absolute', left: -16, top: '50%', transform: 'translateY(-50%)', color: '#E8A820', fontSize: 20, fontWeight: 300 }}>â</div>
+                    <div style={{ position: 'absolute', left: -16, top: '50%', transform: 'translateY(-50%)', color: '#E8A820', fontSize: 20, fontWeight: 300 }}>&rarr;</div>
                   )}
                   <p style={{ color: 'rgba(232,168,32,0.4)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', marginBottom: 16 }}>{phase.num}</p>
                   <p style={{ color: '#E8A820', fontSize: 28, marginBottom: 16 }}>{phase.icon}</p>
@@ -544,7 +544,7 @@ export default function Home() {
               <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13, lineHeight: 1.6, maxWidth: 480, margin: '0 auto' }}>
                 Every question is publicly reviewed. Every bias score is on record. You can read the full methodology before you answer anything.
               </p>
-              <a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#E8A820', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(232,168,32,0.4)', paddingBottom: 2 }}>Read the full methodology â</a>
+              <a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#E8A820', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(232,168,32,0.4)', paddingBottom: 2 }}>Read the full methodology &rarr;</a>
             </div>
           </Reveal>
         </div>
@@ -573,7 +573,7 @@ export default function Home() {
           {[
             { num: '01', phase: 'Candidate Data Collection', desc: 'We pull from official government records, voting histories, and verified campaign platforms. The more official the source, the more weight it carries. No guessing from press releases.' },
             { num: '02', phase: 'Bias Review', desc: 'Three AI models review every question for one-sided language or unbalanced framing. Any question that does not pass gets rewritten. The full review log is available to the public.' },
-            { num: '03', phase: 'Civic Alignment', desc: 'You answer a short quiz about real policy issues. Questions in the areas you told us matter most to you count for more. At the end, you see which candidates actually line up with what you believe â not what your party told you to believe.' },
+            { num: '03', phase: 'Civic Alignment', desc: 'You answer a short quiz about real policy issues. Questions in the areas you told us matter most to you count for more. At the end, you see which candidates actually line up with what you believe \u2014 not what your party told you to believe.' },
           ].map((step, i) => (
             <Reveal key={step.num} delay={i * 100}>
               <div style={{ borderTop: '1px solid rgba(232,168,32,0.15)', padding: '40px 0', display: 'grid', gridTemplateColumns: '60px 280px 1fr', gap: 32, alignItems: 'start' }}>
