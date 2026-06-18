@@ -30,6 +30,23 @@ function Reveal({ children, delay = 0 }) {
   return <div ref={ref} style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(20px)', transition: `all 0.75s ease ${delay}ms` }}>{children}</div>
 }
 
+// Small American flag SVG â civic symbol, not partisan
+function USFlag({ size = 22 }) {
+  const h = Math.round(size * (15 / 22))
+  const stripe = h / 13
+  const cantonH = stripe * 7
+  const cantonW = size * 0.4
+  return (
+    <svg width={size} height={h} viewBox={`0 0 ${size} ${h}`} xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, opacity: 0.82, display: 'block' }}>
+      <rect width={size} height={h} fill="#B22234"/>
+      {[1, 3, 5, 7, 9, 11].map(n => (
+        <rect key={n} y={n * stripe} width={size} height={stripe} fill="#FFFFFF"/>
+      ))}
+      <rect width={cantonW} height={cantonH} fill="#3C3B6E"/>
+    </svg>
+  )
+}
+
 // Maps issueKey â display label for results page
 const ISSUE_LABELS = {
   economy: 'Economic Policy',
@@ -56,7 +73,7 @@ const CIVIC_QUIZ = [
   {
     q: 'Which issue area matters most to you heading into the 2026 elections?',
     key: 'primary_issue',
-    note: 'Your top two choices pre-weight your alignment score when you take the full quiz.',
+    note: 'Your top two choices will shape how your results are scored.',
     options: [
       { label: 'Economic policy â wages, jobs, cost of living, trade.', value: 'economy' },
       { label: 'Healthcare â coverage, drug prices, Medicare, Medicaid.', value: 'healthcare' },
@@ -67,7 +84,7 @@ const CIVIC_QUIZ = [
   {
     q: 'Which of these is your second priority?',
     key: 'secondary_issue',
-    note: 'These two priorities apply 2.5Ã weight to matching questions in your alignment results.',
+    note: 'These two issues will count extra in your final match score.',
     options: [
       { label: 'Gun policy â background checks, firearm regulation, public safety.', value: 'guns' },
       { label: 'Taxes and federal spending â rates, deficits, size of government.', value: 'taxes' },
@@ -109,23 +126,23 @@ const CIVIC_QUIZ = [
 
 const CIVIC_PROFILES = {
   confident: {
-    title: 'You are already doing the work. GroundedVote makes it faster, cleaner, and auditable.',
-    desc: 'You research. You think. But even careful voters are shaped by framing, sourcing, and omission. The bias-audited pipeline gives your existing process a more reliable foundation â and surfaces the candidates your research might have missed.',
+    title: 'You already do the research. GroundedVote makes it faster, cleaner, and easier to verify.',
+    desc: 'You put in the work. But even careful voters can be shaped by how information is framed â or by what gets left out. The bias-reviewed questions give your process a more reliable foundation, and may surface candidates you have not yet considered.',
     next: 'Join the notification list to be first in when we launch.',
   },
   partial: {
-    title: "You know your values. You just don't have a tool that connects them to policy with enough depth.",
-    desc: 'That is not a failure of effort. It is a failure of available infrastructure. GroundedVote was built specifically for this gap â people with clear values who lack a reliable, unbiased way to see which candidates actually match them.',
+    title: "You know what you care about. You just haven't had a tool that connects it to real candidate records.",
+    desc: "That is not a personal failure. It is a failure of available tools. GroundedVote was built for people with clear values who want a fair, unbiased way to see which candidates actually match what they believe.",
     next: 'Join the list. You are exactly who this was built for.',
   },
   low: {
-    title: 'You are voting your identity, not your beliefs. You already sense this.',
-    desc: 'The information environment is designed to make this inevitable. When every channel is built to activate tribal response, careful deliberation requires a counter-architecture. That is what GroundedVote builds â a system that bypasses the framing and returns you to your own positions.',
+    title: 'You are voting your party, not your beliefs. You probably already sense this.',
+    desc: 'The information system is designed to make this the easiest path. When every channel is built to keep you in your lane, making your own call is hard. GroundedVote cuts through the noise and shows you which candidates match what you actually think â not what your party told you to think.',
     next: 'Join the list. The alternative exists now.',
   },
   disengaged: {
-    title: 'You did not disengage. You were failed by the information system.',
-    desc: 'This is not apathy. You showed up to make a decision and the tools were not there. GroundedVote was built first for people in exactly this position â accessible to someone who has never followed an election closely, built to hold attention and return something real.',
+    title: 'You did not disengage. The tools were not there for you.',
+    desc: 'This is not apathy. You showed up wanting to make a real decision and found nothing useful waiting for you. GroundedVote was built first for people in this exact spot â clear enough for someone who has never closely followed an election, and useful enough that most people want to pass it on.',
     next: 'Join the list. This was built for you first.',
   },
 }
@@ -297,7 +314,11 @@ function CivicQuiz() {
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 30% 50%, rgba(232,168,32,0.10), transparent 60%)', pointerEvents: 'none' }} />
       <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 80, alignItems: 'center' }}>
         <div>
-          <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.8s 200ms' }}>GroundedVote</p>
+          {/* Brand label with American flag â civic engagement is patriotic */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 0.8s 200ms' }}>
+            <USFlag size={22} />
+            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>GroundedVote</p>
+          </div>
           <div style={{ overflow: 'hidden' }}>
             <div style={{ fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 300, color: '#F5F0E8', lineHeight: 1.1, letterSpacing: '-0.025em', opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(100%)', transition: 'all 0.9s ease 400ms' }}>
               Most Americans vote
@@ -309,22 +330,22 @@ function CivicQuiz() {
             </div>
           </div>
           <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 17, lineHeight: 1.75, maxWidth: 440, marginTop: 32, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 900ms' }}>
-            We generate neutral policy questions from actual candidate positions. You answer honestly. Then you see which candidates match what you already believe.
+            We take real candidate positions and turn them into clear, unbiased questions. You answer based on what you actually think. Then you see which candidates line up with your beliefs â not your party label.
           </p>
           <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 14, lineHeight: 1.7, maxWidth: 400, marginTop: 12, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 1.1s' }}>
-            Every question goes through a bias audit before it reaches you. No loaded language. No political framing.
+            Every question is reviewed for fairness before you see it. No spin. No hidden agenda.
           </p>
         </div>
 
         <div style={{ opacity: heroVisible ? 1 : 0, transition: 'opacity 1s ease 700ms' }}>
           <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(232,168,32,0.2)', borderRadius: 12, padding: 40 }}>
-            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Before We Build This For You</p>
+            <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Take the Quiz First</p>
             <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, lineHeight: 1.3, marginBottom: 12 }}>Six questions about how you currently vote.</h3>
             <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 32 }}>
-              Two of these questions establish your issue priorities â and pre-weight your alignment score when you take the full quiz. No wrong answers.
+              Two questions ask what issues matter most to you. We use your answers to make your results more accurate. No wrong answers.
             </p>
             <button onClick={() => setStep(1)} style={{ backgroundColor: '#E8A820', color: '#0C1A2E', padding: '16px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%' }}>
-              Begin the civic mirror â
+              Start the quiz â
             </button>
             <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 11, textAlign: 'center', marginTop: 12 }}>Takes about 3 minutes. Results sent to your email.</p>
           </div>
@@ -367,7 +388,7 @@ function CivicQuiz() {
             >
               {opt.label}
             </button>
-          ))}
+           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {step > 1 && (
@@ -377,7 +398,7 @@ function CivicQuiz() {
             <button
               onClick={handleNext}
               disabled={!selected}
-              style={{ backgroundColor: selected ? '#E8A820' : 'rgba(232,168,32,0.2)', color: '#0C1A2E', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s' }}
+              style={{ backgroundColor: selected ? '#E8A820' : 'rgba(232,168,32,0.2)', color: '#0C1A2E', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: selected ? 'pointer' : 'default', opacity: selected ? 1 : 0.5, transition: 'all 0.15s'}}
             >
               {step === CIVIC_QUIZ.length ? 'See my civic profile â' : 'Continue â'}
             </button>
@@ -391,9 +412,9 @@ function CivicQuiz() {
   if (step === CIVIC_QUIZ.length + 1) return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0C1A2E', display: 'flex', alignItems: 'center', padding: '60px 24px' }}>
       <div style={{ maxWidth: 520, margin: '0 auto', width: '100%' }}>
-        <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Almost there</p>
-        <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>Where should your civic profile go?</h2>
-        <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 16, lineHeight: 1.65, marginBottom: 36 }}>Your results, what they tell you about how you currently vote, and how GroundedVote will pre-weight your alignment quiz based on your stated priorities.</p>
+        <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>One more step</p>
+        <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>Where should we send your results?</h2>
+        <p style={{ color: 'rgba(245,240,232,0.5)', fontSize: 16, lineHeight: 1.65, marginBottom: 36 }}>We will email your profile along with a link to the full quiz when it launches. Takes about 3 minutes total.</p>
         <form onSubmit={handleEmail} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <input
             required
@@ -404,7 +425,7 @@ function CivicQuiz() {
             style={{ padding: '18px 20px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(232,168,32,0.25)', borderRadius: 6, fontSize: 16, color: 'white', outline: 'none' }}
           />
           <button type="submit" disabled={loading} style={{ backgroundColor: '#E8A820', color: '#0C1A2E', padding: '18px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Sending...' : 'Send my civic profile'}
+            {loading ? 'Sending...' : 'Send my results'}
           </button>
         </form>
         <p style={{ color: 'rgba(245,240,232,0.25)', fontSize: 12, marginTop: 12 }}>No spam. Unsubscribe anytime. Your answers are never sold or shared.</p>
@@ -429,7 +450,7 @@ function CivicQuiz() {
               {issuePriorities.map(k => ISSUE_LABELS[k] || k).join(' Â· ')}
             </p>
             <p style={{ color: 'rgba(245,240,232,0.4)', fontSize: 13, lineHeight: 1.6 }}>
-              When you take the full alignment quiz at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a>, questions in these areas will carry 2.5Ã weight in your match score â so the result reflects what you actually care about most.
+              When you take the full alignment quiz at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a>, questions in these areas will carry extra weight in your match score â so your results reflect what you actually care about most.
             </p>
           </div>
         )}
@@ -450,10 +471,10 @@ function CivicQuiz() {
 
 export default function Home() {
   const forces = [
-    { name: 'Identity Signaling', desc: 'Voting has become a performance of group membership. People increasingly vote against who they fear, not toward what they believe.' },
-    { name: 'Fear Activation', desc: 'When fear is high, deliberation shrinks. Threat-based messaging is designed to keep the aperture narrow. It works.' },
-    { name: 'Party Loyalty', desc: 'For most voters, the party label is enough. Policy goes unread. The party decides what you believe before you look.' },
-    { name: 'Media Distortion', desc: 'The issues that drive clicks are rarely the issues that shape daily life. Culture war content generates revenue. Policy literacy does not.' },
+    { name: 'Identity Signaling', desc: 'Voting has become about showing what side you are on. People end up voting against who they dislike instead of for what they actually believe.' },
+    { name: 'Fear Activation', desc: 'When people feel scared, they stop thinking clearly. A lot of political ads and news coverage are built to do exactly that.' },
+    { name: 'Party Loyalty', desc: 'For most voters, the party name is all they need. Nobody reads the policies. The party tells you what to think before you ever look it up.' },
+    { name: 'Media Distortion', desc: 'The stories that get attention online are rarely about the things that actually affect your life. Outrage gets clicks. Facts about policy do not.' },
   ]
 
   return (
@@ -465,10 +486,10 @@ export default function Home() {
           <Reveal>
             <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>The Problem</p>
             <h2 style={{ color: '#0C1A2E', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 12 }}>
-              Voter disengagement is not<br />a motivation problem.
+              Low voter turnout is not<br />a motivation problem.
             </h2>
             <h2 style={{ color: '#0C1A2E', fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 300, letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 48 }}>
-              It is an <em>information architecture</em> problem.
+              It is a problem with the <em>information people are given.</em>
             </h2>
           </Reveal>
 
@@ -486,7 +507,7 @@ export default function Home() {
           <Reveal delay={320}>
             <div style={{ backgroundColor: '#0C1A2E', padding: '40px 40px', borderRadius: 8, marginTop: 2 }}>
               <p style={{ color: '#F5F0E8', fontSize: 18, fontWeight: 300, lineHeight: 1.6, maxWidth: 680 }}>
-                &ldquo;The problem is not that voters are irrational. The problem is that the information environment systematically rewards tribal activation over policy alignment.&rdquo;
+                &ldquo;Voters are not confused because they are not smart enough. They are confused because the system was built to keep them that way.&rdquo;
               </p>
               <p style={{ color: 'rgba(232,168,32,0.6)', fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 16 }}>GroundedVote Founding Framework Â· 2026</p>
             </div>
@@ -502,9 +523,9 @@ export default function Home() {
           <Reveal delay={100}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, position: 'relative' }}>
               {[
-                { num: '01', title: 'Candidate Data', sub: 'Official records Â· Voting history Â· Campaign platforms Â· Verified public statements', icon: 'â' },
-                { num: '02', title: 'Bias Audit', sub: 'Three AI models Â· Loaded language scored Â· Asymmetric framing flagged Â· Neutral variants selected', icon: 'â' },
-                { num: '03', title: 'Civic Mirror', sub: 'Weighted issue quiz Â· Real population impact Â· Your match revealed Â· Full transparency', icon: 'â' },
+                { num: '01', title: 'Candidate Data', sub: 'Official government records Â· Voting history Â· Verified campaign platforms Â· Public statements', icon: 'â' },
+                { num: '02', title: 'Bias Review', sub: 'Three AI models check each question Â· Loaded language removed Â· Rewritten if it does not pass', icon: 'â' },
+                { num: '03', title: 'Civic Mirror', sub: 'Short quiz Â· Issues you care about count more Â· See who actually matches what you believe', icon: 'â' },
               ].map((phase, i) => (
                 <div key={phase.num} style={{ padding: '40px 28px', backgroundColor: i === 1 ? 'rgba(232,168,32,0.08)' : 'transparent', borderLeft: i > 0 ? '1px solid rgba(232,168,32,0.15)' : 'none', textAlign: 'center', position: 'relative' }}>
                   {i > 0 && (
@@ -521,7 +542,7 @@ export default function Home() {
           <Reveal delay={300}>
             <div style={{ textAlign: 'center', marginTop: 48 }}>
               <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13, lineHeight: 1.6, maxWidth: 480, margin: '0 auto' }}>
-                Every question is publicly audited. Every bias score is archived. You can read the full methodology before you answer anything.
+                Every question is publicly reviewed. Every bias score is on record. You can read the full methodology before you answer anything.
               </p>
               <a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#E8A820', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(232,168,32,0.4)', paddingBottom: 2 }}>Read the full methodology â</a>
             </div>
@@ -531,8 +552,11 @@ export default function Home() {
 
       <section style={{ backgroundColor: '#E8A820', padding: '60px 24px' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ color: '#0C1A2E', fontSize: 'clamp(20px, 3.5vw, 34px)', fontWeight: 300, lineHeight: 1.4 }}>
+          <p style={{ color: '#0C1A2E', fontSize: 'clamp(20px, 3.5vw, 34px)', fontWeight: 300, lineHeight: 1.4, marginBottom: 10 }}>
             Democracy works when the information does.
+          </p>
+          <p style={{ color: 'rgba(12,26,46,0.55)', fontSize: 15, fontStyle: 'italic' }}>
+            Knowing who you are actually voting for is one of the most American things you can do.
           </p>
         </div>
       </section>
@@ -547,9 +571,9 @@ export default function Home() {
           </Reveal>
 
           {[
-            { num: '01', phase: 'Candidate Data Collection', desc: 'Position data collected from official government records, voting history, verified campaign platforms, and third-party aggregators. Source hierarchy strictly enforced. Official records weighted highest.' },
-            { num: '02', phase: 'Bias-Audited Question Generation', desc: 'A three-pass multi-model AI pipeline generates policy questions and scores each for loaded language, false equivalence, and asymmetric framing. Questions above the threshold are rewritten. The audit trail is public.' },
-            { num: '03', phase: 'Civic Alignment', desc: 'You answer a weighted issue quiz calibrated to real population impact. Questions in your stated priority areas carry additional weight. The result: a civic mirror showing which candidates most closely match your actual beliefs.' },
+            { num: '01', phase: 'Candidate Data Collection', desc: 'We pull from official government records, voting histories, and verified campaign platforms. The more official the source, the more weight it carries. No guessing from press releases.' },
+            { num: '02', phase: 'Bias Review', desc: 'Three AI models review every question for one-sided language or unbalanced framing. Any question that does not pass gets rewritten. The full review log is available to the public.' },
+            { num: '03', phase: 'Civic Alignment', desc: 'You answer a short quiz about real policy issues. Questions in the areas you told us matter most to you count for more. At the end, you see which candidates actually line up with what you believe â not what your party told you to believe.' },
           ].map((step, i) => (
             <Reveal key={step.num} delay={i * 100}>
               <div style={{ borderTop: '1px solid rgba(232,168,32,0.15)', padding: '40px 0', display: 'grid', gridTemplateColumns: '60px 280px 1fr', gap: 32, alignItems: 'start' }}>
@@ -567,20 +591,20 @@ export default function Home() {
           <Reveal>
             <p style={{ color: 'rgba(12,26,46,0.5)', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Built For Them First</p>
             <h2 style={{ color: '#0C1A2E', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 300, lineHeight: 1.2, letterSpacing: '-0.02em', marginBottom: 20 }}>
-              The people this system harms most did not choose to be shut out.
+              The people who need this most never had the right tools.
             </h2>
             <p style={{ color: 'rgba(12,26,46,0.7)', fontSize: 16, lineHeight: 1.75 }}>
-              First-generation voters. Low-income voters. Communities where local journalism died years ago. People who tried civic participation and got nothing back for it. They were shut out by design, not by apathy.
+              First-time voters. People in communities where local news disappeared years ago. People who wanted to vote with confidence but did not know where to start. None of that is their fault.
             </p>
             <p style={{ color: 'rgba(12,26,46,0.7)', fontSize: 16, lineHeight: 1.75, marginTop: 16 }}>
-              GroundedVote was built for them first. It works for someone who has never followed an election closely. When they finish, they want to share it.
+              GroundedVote works even if you have never closely followed an election. You finish in under five minutes. And most people want to pass it on to someone they know.
             </p>
           </Reveal>
           <Reveal delay={150}>
             <div style={{ backgroundColor: '#0C1A2E', borderRadius: 12, padding: 40 }}>
               <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Launch Notification</p>
               <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, marginBottom: 8 }}>The quiz launches before the 2026 election cycle.</h3>
-              <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 24 }}>Join the list. Be notified when the full platform is live. Share it with one person who needs it.</p>
+              <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 24 }}>Sign up to be notified when the full platform is live. Then share it with one person who needs it.</p>
               <NotifyForm />
             </div>
           </Reveal>
