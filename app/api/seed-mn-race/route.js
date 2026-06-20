@@ -1,7 +1,7 @@
 // © 2025 The Founded Project LLC — All rights reserved.
 // TEMPORARY one-shot seed route — remove after running once.
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 const SECRET = 'gv-seed-mn-2026';
 
