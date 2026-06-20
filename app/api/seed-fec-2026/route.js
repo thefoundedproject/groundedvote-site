@@ -5,46 +5,45 @@ import { prisma } from '@/lib/prisma';
 
 const SECRET = 'gv-fec-seed-2026';
 
-// Confirmed 2026 general election candidates for races FEC rate-limited missed.
-// Sources: Ballotpedia, Cook Political Report, official campaign sites — June 2026.
+// Confirmed 2026 general election candidates. Sources: Ballotpedia, Cook Political Report — June 2026.
 const MANUAL_SEEDS = [
-  { state: 'CA', district: 13, candidates: [
+  { state: 'CA', district: '13', candidates: [
     { firstName: 'Adam', lastName: 'Gray', party: 'DEMOCRAT', incumbent: true },
     { firstName: 'Kevin', lastName: 'Lincoln', party: 'REPUBLICAN', incumbent: false },
   ]},
-  { state: 'CA', district: 27, candidates: [
+  { state: 'CA', district: '27', candidates: [
     { firstName: 'George', lastName: 'Whitesides', party: 'DEMOCRAT', incumbent: true },
     { firstName: 'Jason', lastName: 'Gibbs', party: 'REPUBLICAN', incumbent: false },
   ]},
-  { state: 'OR', district: 5, candidates: [
+  { state: 'OR', district: '5', candidates: [
     { firstName: 'Janelle', lastName: 'Bynum', party: 'DEMOCRAT', incumbent: true },
     { firstName: 'Patti', lastName: 'Adair', party: 'REPUBLICAN', incumbent: false },
   ]},
-  { state: 'PA', district: 7, candidates: [
+  { state: 'PA', district: '7', candidates: [
     { firstName: 'Ryan', lastName: 'Mackenzie', party: 'REPUBLICAN', incumbent: true },
     { firstName: 'Bob', lastName: 'Brooks', party: 'DEMOCRAT', incumbent: false },
   ]},
-  { state: 'PA', district: 8, candidates: [
+  { state: 'PA', district: '8', candidates: [
     { firstName: 'Rob', lastName: 'Bresnahan', party: 'REPUBLICAN', incumbent: true },
     { firstName: 'Paige', lastName: 'Cognetti', party: 'DEMOCRAT', incumbent: false },
   ]},
-  { state: 'TX', district: 28, candidates: [
+  { state: 'TX', district: '28', candidates: [
     { firstName: 'Henry', lastName: 'Cuellar', party: 'DEMOCRAT', incumbent: true },
     { firstName: 'Tano', lastName: 'Tijerina', party: 'REPUBLICAN', incumbent: false },
   ]},
-  { state: 'VA', district: 2, candidates: [
+  { state: 'VA', district: '2', candidates: [
     { firstName: 'Jennifer', lastName: 'Kiggans', party: 'REPUBLICAN', incumbent: true },
     { firstName: 'Elaine', lastName: 'Luria', party: 'DEMOCRAT', incumbent: false },
   ]},
-  { state: 'VA', district: 7, candidates: [
+  { state: 'VA', district: '7', candidates: [
     { firstName: 'Eugene', lastName: 'Vindman', party: 'DEMOCRAT', incumbent: true },
     { firstName: 'Tara', lastName: 'Durant', party: 'REPUBLICAN', incumbent: false },
   ]},
-  { state: 'WA', district: 3, candidates: [
+  { state: 'WA', district: '3', candidates: [
     { firstName: 'Marie', lastName: 'Gluesenkamp Perez', party: 'DEMOCRAT', incumbent: true },
     { firstName: 'John', lastName: 'Braun', party: 'REPUBLICAN', incumbent: false },
   ]},
-  { state: 'WI', district: 3, candidates: [
+  { state: 'WI', district: '3', candidates: [
     { firstName: 'Derrick', lastName: 'Van Orden', party: 'REPUBLICAN', incumbent: true },
     { firstName: 'Rebecca', lastName: 'Cooke', party: 'DEMOCRAT', incumbent: false },
   ]},
@@ -57,7 +56,6 @@ export async function GET(request) {
 
   for (const seed of MANUAL_SEEDS) {
     try {
-      // Get all races for this state/district, pick the one with most candidates
       const races = await prisma.race.findMany({
         where: { state: seed.state, chamber: 'HOUSE', district: seed.district, year: 2026 },
         include: { candidates: { select: { firstName: true, lastName: true } } },
