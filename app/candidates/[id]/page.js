@@ -249,7 +249,7 @@ export default async function CandidatePage({ params }) {
         {/* &#9472;&#9472; DATA QUALITY &#9472;&#9472; */}
         {totalAnswers > 0 && (
           <section style={{ marginBottom: 48, padding: '16px 20px', borderRadius: 10,
-            backgroundColor: S.bgCard, border: `1px solid ${S.bor${S.border}`,
+            backgroundColor: S.bgCard, border: `1px solid ${S.border}`,
             display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center' }}>
             <div>
               <div style={{ color: S.text, fontSize: 22, fontWeight: 700 }}>{totalAnswers}</div>
