@@ -24,7 +24,7 @@ async function getAllCandidates() {
   const candidates = await prisma.candidate.findMany({
     include: {
       race: { select: { id: true, label: true, state: true, stateFull: true, chamber: true, year: true } },
-      _count: { select: { answers: true } },
+      _count: { select: { positions: true } },
     },
     orderBy: [{ race: { state: 'asc' } }, { party: 'asc' }, { lastName: 'asc' }],
   })
