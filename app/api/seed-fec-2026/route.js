@@ -6,8 +6,8 @@ import { prisma } from '@/lib/prisma';
 const SECRET = 'gv-fec-seed-2026';
 const FEC_KEY = process.env.FEC_API_KEY || 'DEMO_KEY';
 const FEC_BASE = 'https://api.open.fec.gov/v1/candidates';
-
 const PARTY_MAP = { REP: 'REPUBLICAN', DEM: 'DEMOCRAT', DFL: 'DEMOCRAT', IND: 'INDEPENDENT', GRN: 'GREEN', LIB: 'LIBERTARIAN' };
+const MIN_CANDIDATES = 2;
 
 function parseName(fecName) {
   const comma = fecName.indexOf(',');
@@ -30,11 +30,8 @@ async function fetchFec(state, office, district) {
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   if (searchParams.get('token') !== SECRET) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-
   const log = [], errors = [];
   const races = await prisma.race.findMany({ where: { year: 2026 }, include: { candidates: { select: { firstName: true, lastName: true } } } });
-
-  // Per state+chamber+district, pick race with most candidates
   const raceMap = new Map();
   for (const race of races) {
     const key = `${race.state}-${race.chamber}-${race.district ?? 'null'}`;
@@ -43,19 +40,21 @@ export async function GET(request) {
   }
   const unique = [...raceMap.values()];
   log.push(`Processing ${unique.length} unique races`);
-
   const senateByState = new Map(), houseByState = new Map();
   for (const race of unique) {
     const map = race.chamber === 'SENATE' ? senateByState : houseByState;
     if (!map.has(race.state)) map.set(race.state, []);
     map.get(race.state).push(race);
   }
-
   for (const [state, stateRaces] of senateByState) {
+    const race = stateRaces.sort((a,b) => b.candidates.length - a.candidates.length)[0];
+    if (race.candidates.length >= MIN_CANDIDATES) {
+      log.push(`${state} Senate: skip — ${race.candidates.length} candidates already seeded`);
+      continue;
+    }
     try {
-      await new Promise(r => setTimeout(r, 400));
+      await new Promise(r => setTimeout(r, 1500));
       const fec = (await fetchFec(state, 'S', null)).filter(c => ['REP','DEM','DFL'].includes(c.party));
-      const race = stateRaces.sort((a,b) => b.candidates.length - a.candidates.length)[0];
       const seen = new Set(race.candidates.map(c => `${c.firstName} ${c.lastName}`.toLowerCase()));
       log.push(`${state} Senate: ${fec.length} REP/DEM from FEC`);
       for (const fc of fec) {
@@ -69,13 +68,15 @@ export async function GET(request) {
       }
     } catch(err) { errors.push(`${state} Senate: ${err.message}`); }
   }
-
   for (const [state, stateRaces] of houseByState) {
     try {
-      await new Promise(r => setTimeout(r, 400));
+      const needsFec = stateRaces.filter(r => r.candidates.length < MIN_CANDIDATES);
+      if (needsFec.length === 0) { log.push(`${state} House: skip — all races already populated`); continue; }
+      await new Promise(r => setTimeout(r, 1500));
       const fecAll = await fetchFec(state, 'H', null);
-      log.push(`${state} House: ${fecAll.length} total FEC`);
+      log.push(`${state} House: ${fecAll.length} total FEC, ${needsFec.length} races need seeding`);
       for (const race of stateRaces) {
+        if (race.candidates.length >= MIN_CANDIDATES) { log.push(`  skip ${state}-${race.district}: ${race.candidates.length} candidates`); continue; }
         const distStr = String(race.district).padStart(2, '0');
         const fec = fecAll.filter(c => c.district === distStr && ['REP','DEM','DFL'].includes(c.party));
         const seen = new Set(race.candidates.map(c => `${c.firstName} ${c.lastName}`.toLowerCase()));
@@ -91,6 +92,5 @@ export async function GET(request) {
       }
     } catch(err) { errors.push(`${state} House: ${err.message}`); }
   }
-
   return NextResponse.json({ success: true, log, errors });
 }
