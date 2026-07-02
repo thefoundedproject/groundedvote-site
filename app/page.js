@@ -310,7 +310,7 @@ function CivicQuiz() {
 
   // HERO STATE
   if (step === 0) return (
-    <div id="quiz" style={{ minHeight: '100vh', backgroundColor: '#0C1A2E', backgroundImage: 'url(/hero-capitol.png)', backgroundSize: 'cover', backgroundPosition: 'center 75%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 24px', position: 'relative', overflow: 'hidden' }}>
+    <div id="quiz" style={{ minHeight: '100vh', backgroundColor: '#0C1A2E', backgroundImage: 'url(/hero-community.png)', backgroundSize: 'cover', backgroundPosition: 'center 75%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 24px', position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(rgba(12,26,46,0.72), rgba(12,26,46,0.55)), radial-gradient(ellipse at 30% 50%, rgba(232,168,32,0.10), transparent 60%)', pointerEvents: 'none' }} />
       <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 80, alignItems: 'center', position: 'relative', zIndex: 1 }}>
         <div>
