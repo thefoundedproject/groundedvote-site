@@ -57,7 +57,7 @@ export async function GET(request) {
         const matches = cleanHtml.match(congressPattern) || []
 
         for (const match of matches.slice(0, 30)) {
-          const clean = match.replace(/<[^>]+>/g, '').replace(/\s/+/g, ' ').trim()
+          const clean = match.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
           if (clean.length < 15) continue
 
           // Check if any state name appears
