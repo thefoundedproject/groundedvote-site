@@ -8,7 +8,7 @@ export async function GET() {
     const raceCount = await prisma.race.count();
     const candidateCount = await prisma.candidate.count();
     const positionCount = await prisma.position.count();
-    const questionCount = await prisma.question.count({ where: { approved: true } });
+    const questionCount = await prisma.question.count({ where: { auditStatus: 'APPROVED' } });
     const quizSessionCount = await prisma.quizSession.count();
     const awarenessLeadCount = await prisma.awarenessLead.count();
     const quizStarted = await prisma.quizEvent.count({ where: { event: 'STARTED' } });
@@ -19,7 +19,7 @@ export async function GET() {
     const races = await prisma.race.findMany({
       include: {
         candidates: { select: { id: true } },
-        questions: { where: { approved: true }, select: { id: true } },
+        questions: { where: { auditStatus: 'APPROVED' }, select: { id: true } },
       },
       orderBy: [{ state: 'asc' }, { chamber: 'asc' }],
     });
