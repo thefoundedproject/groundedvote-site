@@ -6,10 +6,6 @@ export const revalidate = 300
 
 const ACTIVE_STATES = ['AZ','CA','CO','GA','IA','ME','MI','MN','MT','NC','NH','NM','NV','NY','OH','OR','PA','TX','VA','WA','WI']
 
-export async function generateStaticParams() {
-  const races = await prisma.race.findMany({ select: { state: true }, distinct: ['state'] })
-  return races.map(r => ({ code: r.state.toLowerCase() }))
-}
 
 export async function generateMetadata({ params }) {
   const code = params.code.toUpperCase()
