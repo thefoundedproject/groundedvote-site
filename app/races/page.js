@@ -6,6 +6,7 @@ export const metadata = {
   description: 'Browse all competitive Senate and House races covered by GroundedVote for 2026. Filter by chamber, status, or state. Find your race and take the alignment quiz.',
 }
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 300
 
 const S = {
