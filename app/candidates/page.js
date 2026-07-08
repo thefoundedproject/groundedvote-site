@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { getCandidatePhotoUrl, getCandidateInitials } from '@/lib/candidate-photo'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 300
 export const metadata = {
   title: 'Candidates | GroundedVote',
