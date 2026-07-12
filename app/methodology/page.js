@@ -129,7 +129,7 @@ export default function Methodology() {
           <p style={{ color: S.teal, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Public Audit Trail</p>
           <p style={{ color: S.muted, fontSize: 13, lineHeight: 1.65, margin: 0 }}>
             Every question's full audit record — all four variants, their bias scores, the selection reasoning, and which model made each decision — is publicly accessible at{' '}
-            <a href="/audit" style={{ color: S.teal, textDecoration: 'none', fontWeight: 600 }}>/audit</a>.
+            <a href="/audit-trail" style={{ color: S.teal, textDecoration: 'none', fontWeight: 600 }}>/audit</a>.
             No account required.
           </p>
         </div>

@@ -164,7 +164,7 @@ export default async function StatePage({ params }) {
           </p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             <Link href="/methodology" style={{ color: S.gold, fontSize: 14, textDecoration: 'none' }}>Full methodology →</Link>
-            <Link href="/audit" style={{ color: S.gold, fontSize: 14, textDecoration: 'none' }}>Public audit trail →</Link>
+            <Link href="/audit-trail" style={{ color: S.gold, fontSize: 14, textDecoration: 'none' }}>Public audit trail →</Link>
           </div>
         </div>
       </section>

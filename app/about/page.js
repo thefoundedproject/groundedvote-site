@@ -59,7 +59,7 @@ export default function About() {
             <a href="/methodology" style={{ backgroundColor: 'rgba(216,171,105,0.1)', color: S.gold, padding: '11px 22px', borderRadius: 6, fontSize: 13, fontWeight: 700, textDecoration: 'none', border: `1px solid ${S.border}` }}>
               Read the full methodology →
             </a>
-            <a href="/audit" style={{ backgroundColor: 'rgba(255,255,255,0.04)', color: S.muted, padding: '11px 22px', borderRadius: 6, fontSize: 13, fontWeight: 600, textDecoration: 'none', border: `1px solid ${S.border}` }}>
+            <a href="/audit-trail" style={{ backgroundColor: 'rgba(255,255,255,0.04)', color: S.muted, padding: '11px 22px', borderRadius: 6, fontSize: 13, fontWeight: 600, textDecoration: 'none', border: `1px solid ${S.border}` }}>
               View the audit trail →
             </a>
           </div>

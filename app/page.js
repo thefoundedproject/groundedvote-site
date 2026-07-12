@@ -602,9 +602,9 @@ export default function Home() {
           </Reveal>
           <Reveal delay={150}>
             <div style={{ backgroundColor: '#0C1A2E', borderRadius: 12, padding: 40 }}>
-              <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Launch Notification</p>
-              <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, marginBottom: 8 }}>The quiz launches before the 2026 election cycle.</h3>
-              <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 24 }}>Sign up to be notified when the full platform is live. Then share it with one person who needs it.</p>
+              <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Live Now</p>
+              <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, marginBottom: 8 }}>The alignment quiz is live for 2026 races.</h3>
+              <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 24 }}>Enter your address at <a href="/align" style={{ color: '#E8A820', textDecoration: 'none' }}>/align</a> to see the races on your ballot. Sign up below and we will tell you when new states and races come online. Then share it with one person who needs it.</p>
               <NotifyForm />
             </div>
           </Reveal>
