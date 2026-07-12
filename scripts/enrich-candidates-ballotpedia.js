@@ -10,7 +10,6 @@
 //   node scripts/enrich-candidates-ballotpedia.js --dry-run
 
 import { PrismaClient } from '@prisma/client'
-import fetch from 'node-fetch'
 
 const prisma = new PrismaClient()
 const DRY_RUN = process.argv.includes('--dry-run')
