@@ -197,12 +197,12 @@ function RecordVsRhetoric({ candidate, candidateName }) {
         <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
           <div style={{ color: S.gold, fontSize: 44, fontWeight: 800, lineHeight: 1 }}>{Math.round(score)}%</div>
           <p style={{ color: S.text, fontSize: 15, lineHeight: 1.6, margin: 0, flex: 1, minWidth: 240 }}>
-            Of {candidateName}&apos;s stated positions that could be checked against their congressional voting record, {bd.consistent} of {judged} held up as consistent.
-            {bd.unclear > 0 && ` ${bd.unclear} had too little voting evidence to judge either way.`}
+            Of {candidateName}&apos;s stated positions that could be checked against their congressional legislative record, {bd.consistent} of {judged} held up as consistent.
+            {bd.unclear > 0 && ` ${bd.unclear} had too little legislative evidence to judge either way.`}
           </p>
         </div>
         <p style={{ color: S.muted, fontSize: 12, lineHeight: 1.6, margin: 0 }}>
-          Comparison of stated positions with recent recorded votes (Congress.gov), assessed by AI and shown with its working. Draw your own conclusion.
+          Comparison of stated positions with bills they sponsored and cosponsored (Congress.gov), assessed by AI and shown with its working. Draw your own conclusion.
         </p>
       </div>
 
