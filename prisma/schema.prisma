@@ -267,12 +267,85 @@ model CandidateAnswer {
   @@index([candidateId, evidenceType])
 }
 
+// ─── USERS ────────────────────────────────────────────────────────────────────
+// Account system (email + password). Sessions are JWT via NextAuth —
+// no Account/Session tables needed for the credentials provider.
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  emailVerified DateTime? // null until the verification link is clicked
+  researchOptIn Boolean   @default(false) // explicit standalone consent at signup
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  civicMirror     CivicMirrorResult?
+  issuePriorities IssuePriority[]
+  quizSessions    QuizSession[]
+  authTokens      AuthToken[]
+
+  @@index([email])
+}
+
+// Single-use tokens for email verification and password reset.
+// Only the SHA-256 hash is stored — the raw token exists in the email link.
+model AuthToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  type      String    // "verify" | "reset"
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, type])
+}
+
+// ─── CIVIC MIRROR (Quiz 1) ────────────────────────────────────────────────────
+// Baseline political fingerprint captured at onboarding.
+model CivicMirrorResult {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  answers   Json     // raw Quiz 1 answers
+  profile   Json     // derived fingerprint: profileKey + conviction factor
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Issue salience weights derived from Quiz 1 (primary/secondary choices).
+// Feeds Quiz 2 answer weighting alongside the conviction factor.
+model IssuePriority {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  issue  String // e.g. "economy", "healthcare" — Quiz 1 issue keys
+  weight Float  // 0.0–1.0
+
+  @@unique([userId, issue])
+}
+
+// ─── PRE-QUIZ STATED PREFERENCE ───────────────────────────────────────────────
+// The "before" in the before/after reveal. Optional — null candidateId
+// and rawText mean the user skipped.
+model PreQuizVote {
+  id          String      @id @default(cuid())
+  sessionId   String      @unique
+  session     QuizSession @relation(fields: [sessionId], references: [id])
+  candidateId String?     // matched candidate, if the free text resolved to one
+  rawText     String?     // what the user typed before matching
+  createdAt   DateTime    @default(now())
+}
+
 // ─── QUIZ SESSIONS ────────────────────────────────────────────────────────────
 // Tracks a user going through the real alignment quiz for a race
 model QuizSession {
   id          String    @id @default(cuid())
   raceId      String
   race        Race      @relation(fields: [raceId], references: [id])
+  userId      String?   // null for anonymous sessions (pre-auth legacy)
+  user        User?     @relation(fields: [userId], references: [id])
   email       String?   // captured at end, optional
   completed   Boolean   @default(false)
   createdAt   DateTime  @default(now())
@@ -280,8 +353,10 @@ model QuizSession {
 
   userAnswers UserAnswer[]
   result      QuizResult?
+  preQuizVote PreQuizVote?
 
   @@index([raceId])
+  @@index([userId])
 }
 
 // ─── USER ANSWERS ─────────────────────────────────────────────────────────────
