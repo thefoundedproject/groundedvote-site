@@ -396,7 +396,12 @@ function QuizQuestions({ race, sessionId, questions, onComplete }) {
   const currentImportance = importance[question?.id] ?? 2 // default: somewhat important
 
   const handleAnswer = (value) => {
-    setAnswers(prev => ({ ...prev, [question.id]: value }))
+    setAnswers(prev => {
+      const next = { ...prev, [question.id]: value }
+      // Local backup: if the network drops mid-quiz, answers survive a reload
+      try { localStorage.setItem(`gv-quiz-${sessionId}`, JSON.stringify(next)) } catch {}
+      return next
+    })
     setShowImportance(true)
   }
 
@@ -585,7 +590,48 @@ const ANSWER_LABELS_SHORT = { 1: 'Strongly Oppose', 2: 'Oppose', 3: 'Neutral', 4
 const ANSWER_DOT_COLOR = { 1: '#E57373', 2: '#FF9C6E', 3: '#6b8e96', 4: '#7EC8E3', 5: '#5ECFA6' }
 
 // ─── RESULTS ──────────────────────────────────────────────────────────────────
-function Results({ scores, topIssues, race, sessionId, onRetake }) {
+// The before/after reveal — compares the user's pre-quiz stated preference
+// with what their answers showed. Rendered only when the pre-question was
+// answered (named a candidate or typed a name).
+function BeforeAfterReveal({ preVote, scores }) {
+  if (!preVote || !scores?.length) return null
+
+  const top = scores[0]
+  const topName = `${top.candidate.firstName} ${top.candidate.lastName}`
+  const topScore = Math.round(top.alignmentScore)
+
+  let heading, body
+  if (preVote.candidateId) {
+    const preEntry = scores.find(s => s.candidateId === preVote.candidateId)
+    const preName = preVote.name ?? (preEntry ? `${preEntry.candidate.firstName} ${preEntry.candidate.lastName}` : 'your pick')
+    const preScore = preEntry ? Math.round(preEntry.alignmentScore) : null
+
+    if (preVote.candidateId === top.candidateId) {
+      heading = 'Your answers agree with you.'
+      body = `Before the quiz, you said you would vote for ${preName}. Your answers point the same way: ${topName} is your closest match at ${topScore}%.`
+    } else {
+      heading = 'Your answers point somewhere else.'
+      body = `Before the quiz, you said you would vote for ${preName}${preScore !== null ? `, who matched ${preScore}% of your answers` : ''}. Your closest match is ${topName} at ${topScore}%. The compare view below shows where the gap comes from, issue by issue.`
+    }
+  } else if (preVote.rawText) {
+    heading = 'What you said, next to what you showed.'
+    body = `Before the quiz, you wrote "${preVote.rawText}". Your answers put ${topName} closest at ${topScore}%. Worth a look at how those two compare.`
+  } else {
+    return null
+  }
+
+  return (
+    <div style={{ backgroundColor: 'rgba(216,171,105,0.06)', border: `1px solid ${C.goldDim}`, borderRadius: 10, padding: '22px 26px', marginBottom: 36 }}>
+      <p style={{ color: C.gold, fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 10 }}>
+        Before · After
+      </p>
+      <p style={{ color: C.text, fontSize: 17, fontWeight: 600, margin: '0 0 8px' }}>{heading}</p>
+      <p style={{ color: C.textMuted, fontSize: 14, lineHeight: 1.7, margin: 0 }}>{body}</p>
+    </div>
+  )
+}
+
+function Results({ scores, topIssues, race, sessionId, preVote, onRetake }) {
   const [emailVal, setEmailVal] = useState('')
   const [emailSent, setEmailSent] = useState(false)
   const [emailSending, setEmailSending] = useState(false)
@@ -686,6 +732,8 @@ function Results({ scores, topIssues, race, sessionId, onRetake }) {
         <p style={{ color: C.textMuted, fontSize: 14, marginBottom: 36 }}>
           Weighted by your stated issue priorities — no party labels shown.
         </p>
+
+        <BeforeAfterReveal preVote={preVote} scores={scores} />
 
         {/* View toggle */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 40 }}>
@@ -1021,13 +1069,143 @@ function Results({ scores, topIssues, race, sessionId, onRetake }) {
 }
 
 // ─── MAIN PAGE ORCHESTRATOR ───────────────────────────────────────────────────
+// ─── WELCOME (orientation before the quiz) ───────────────────────────────────
+function WelcomeScreen({ race, questionCount, onBegin }) {
+  const points = [
+    `You are about to answer ${questionCount} questions drawn from what the candidates in this race have said and done.`,
+    'Every question was reviewed by three AI models for biased language before it reached you. Questions that failed that review were rewritten until they passed.',
+    'You can mark any question as very important to you. Those questions count more in your score.',
+    'One optional question comes first: who would you vote for today? Your answer stays private, and it comes back at the end alongside your results. You can skip it.',
+  ]
+  return (
+    <section style={{ minHeight: '100vh', backgroundColor: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
+      <div style={{ maxWidth: 620, width: '100%' }}>
+        <p style={{ color: C.gold, fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>
+          {race.label}
+        </p>
+        <h1 style={{ color: C.text, fontSize: 28, fontWeight: 300, lineHeight: 1.3, marginBottom: 28 }}>
+          Here is how this works.
+        </h1>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 36 }}>
+          {points.map((p, i) => (
+            <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+              <span style={{ color: C.gold, fontSize: 13, fontWeight: 700, marginTop: 2, flexShrink: 0 }}>{String(i + 1).padStart(2, '0')}</span>
+              <p style={{ color: C.textMuted, fontSize: 15, lineHeight: 1.7, margin: 0 }}>{p}</p>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={onBegin}
+          style={{ backgroundColor: C.gold, color: C.bg, padding: '15px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          Ready when you are →
+        </button>
+      </div>
+    </section>
+  )
+}
+
+// ─── PRE-QUIZ STATED PREFERENCE ──────────────────────────────────────────────
+function PreVoteQuestion({ candidates, sessionId, onDone }) {
+  const [otherMode, setOtherMode] = useState(false)
+  const [otherText, setOtherText] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const record = async (payload, resultForReveal) => {
+    setSaving(true)
+    // Best effort — the quiz continues even if this write fails
+    try {
+      await fetch('/api/quiz-session/pre-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, ...payload }),
+      })
+    } catch {}
+    onDone(resultForReveal)
+  }
+
+  return (
+    <section style={{ minHeight: '100vh', backgroundColor: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
+      <div style={{ maxWidth: 620, width: '100%' }}>
+        <p style={{ color: C.gold, fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>
+          Before you start · Optional
+        </p>
+        <h1 style={{ color: C.text, fontSize: 26, fontWeight: 300, lineHeight: 1.35, marginBottom: 10 }}>
+          If the election were tomorrow, who would you vote for?
+        </h1>
+        <p style={{ color: C.textMuted, fontSize: 14, lineHeight: 1.65, marginBottom: 28 }}>
+          Your answer stays private. It comes back at the end, next to what your answers actually show.
+        </p>
+
+        {!otherMode && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+            {candidates.map(c => (
+              <button
+                key={c.id}
+                disabled={saving}
+                onClick={() => record({ candidateId: c.id }, { candidateId: c.id, name: c.name })}
+                style={{ textAlign: 'left', padding: '15px 18px', backgroundColor: C.bgCard, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: C.text, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                {c.name}
+              </button>
+            ))}
+            <button
+              disabled={saving}
+              onClick={() => setOtherMode(true)}
+              style={{ textAlign: 'left', padding: '15px 18px', backgroundColor: C.bgCard, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: C.textMuted, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Someone else
+            </button>
+          </div>
+        )}
+
+        {otherMode && (
+          <div style={{ marginBottom: 24 }}>
+            <input
+              autoFocus
+              value={otherText}
+              onChange={e => setOtherText(e.target.value)}
+              placeholder="Type a name"
+              style={{ width: '100%', padding: '14px 16px', backgroundColor: 'rgba(255,255,255,0.08)', border: `1px solid ${C.goldDim}`, borderRadius: 6, fontSize: 15, color: 'white', outline: 'none', boxSizing: 'border-box', marginBottom: 12 }}
+            />
+            <button
+              disabled={saving || !otherText.trim()}
+              onClick={() => record({ rawText: otherText.trim() }, { rawText: otherText.trim() })}
+              style={{ backgroundColor: C.gold, color: C.bg, padding: '13px 28px', borderRadius: 6, fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'inherit', opacity: otherText.trim() ? 1 : 0.4, marginRight: 12 }}
+            >
+              That&apos;s my answer
+            </button>
+            <button
+              disabled={saving}
+              onClick={() => setOtherMode(false)}
+              style={{ background: 'none', border: 'none', color: C.textMuted, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Back to the list
+            </button>
+          </div>
+        )}
+
+        <button
+          disabled={saving}
+          onClick={() => record({}, null)}
+          style={{ background: 'none', border: 'none', color: C.textFaint, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}
+        >
+          Skip this question
+        </button>
+      </div>
+    </section>
+  )
+}
+
 export default function AlignPage() {
-  // stage: 'entry' | 'races' | 'quiz' | 'results'
+  // stage: 'entry' | 'races' | 'welcome' | 'prevote' | 'quiz' | 'results'
   const [stage, setStage] = useState('entry')
   const [selectedState, setSelectedState] = useState(null)   // {code, name}
   const [selectedRace, setSelectedRace] = useState(null)
   const [sessionId, setSessionId] = useState(null)
   const [questions, setQuestions] = useState([])
+  const [candidates, setCandidates] = useState([])
+  const [preVote, setPreVote] = useState(null)               // {candidateId?, name?, rawText?} | null
   const [results, setResults] = useState(null)
   const [sessionError, setSessionError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -1048,15 +1226,23 @@ export default function AlignPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Could not start quiz')
-      setSelectedRace(race)
+      setSelectedRace(race.label ? race : { id: race.id, label: data.raceLabel })
       setSessionId(data.sessionId)
       setQuestions(data.questions)
-      setStage('quiz')
+      setCandidates(data.candidates ?? [])
+      setStage('welcome')
     } catch (err) {
       setSessionError(err.message)
     }
     setLoading(false)
   }
+
+  // Deep link: /align?race=<raceId> jumps straight to that race's welcome screen
+  useEffect(() => {
+    const raceId = new URLSearchParams(window.location.search).get('race')
+    if (raceId) handleRaceSelect({ id: raceId })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleComplete = (data) => {
     setResults(data)
@@ -1100,6 +1286,20 @@ export default function AlignPage() {
           onBack={() => setStage('entry')}
         />
       )}
+      {stage === 'welcome' && selectedRace && (
+        <WelcomeScreen
+          race={selectedRace}
+          questionCount={questions.length}
+          onBegin={() => setStage(candidates.length > 0 ? 'prevote' : 'quiz')}
+        />
+      )}
+      {stage === 'prevote' && (
+        <PreVoteQuestion
+          candidates={candidates}
+          sessionId={sessionId}
+          onDone={(pv) => { setPreVote(pv); setStage('quiz') }}
+        />
+      )}
       {stage === 'quiz' && selectedRace && (
         <QuizQuestions
           race={selectedRace}
@@ -1114,6 +1314,7 @@ export default function AlignPage() {
           topIssues={results.topIssues}
           race={selectedRace}
           sessionId={sessionId}
+          preVote={preVote}
           onRetake={handleRetake}
         />
       )}

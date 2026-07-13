@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { applyRateLimit } from '@/lib/rate-limit'
 import { trackEvent, EVENTS } from '@/lib/analytics'
+import { getSessionUser } from '@/lib/auth'
 
 // POST /api/quiz-session — start a new session for a race
 export async function POST(request) {
@@ -22,6 +23,10 @@ export async function POST(request) {
             candidateAnswers: { select: { candidateId: true, answerValue: true } },
           },
         },
+        candidates: {
+          where: { status: 'ACTIVE' },
+          select: { id: true, firstName: true, lastName: true },
+        },
       },
     })
 
@@ -30,8 +35,11 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No approved questions for this race yet. Check back soon.' }, { status: 503 })
     }
 
+    // Attach the signed-in user when there is one, so Civic Mirror
+    // weighting applies and results persist to their account.
+    const user = await getSessionUser()
     const session = await prisma.quizSession.create({
-      data: { raceId },
+      data: { raceId, userId: user?.id ?? null },
     })
 
     // Track funnel event
@@ -44,6 +52,11 @@ export async function POST(request) {
     return NextResponse.json({
       sessionId: session.id,
       raceLabel: race.label,
+      // Names only — party is never shown inside the quiz flow
+      candidates: race.candidates.map(c => ({
+        id: c.id,
+        name: `${c.firstName} ${c.lastName}`,
+      })),
       questions: race.questions.map(q => ({
         id: q.id,
         topic: q.topic,

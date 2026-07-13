@@ -41,6 +41,7 @@ async function getResult(sessionId) {
     include: {
       race:   { select: { id: true, label: true, state: true, stateFull: true, chamber: true, year: true } },
       result: true,
+      preQuizVote: true,
     },
   })
   if (!session?.result) return null
@@ -61,7 +62,39 @@ async function getResult(sessionId) {
     .filter(s => s.candidate)
     .sort((a, b) => b.alignmentScore - a.alignmentScore)
 
-  return { race: session.race, scores: hydratedScores, sessionId }
+  return { race: session.race, scores: hydratedScores, sessionId, preQuizVote: session.preQuizVote }
+}
+
+// Before/after reveal copy for the pre-quiz stated preference.
+// Returns null when the question was skipped or never asked.
+function buildReveal(preQuizVote, scores) {
+  if (!preQuizVote || !scores.length) return null
+  const top = scores[0]
+  const topName = `${top.candidate.firstName} ${top.candidate.lastName}`
+  const topScore = Math.round(top.alignmentScore)
+
+  if (preQuizVote.candidateId) {
+    const preEntry = scores.find(s => s.candidateId === preQuizVote.candidateId)
+    const preName = preEntry ? `${preEntry.candidate.firstName} ${preEntry.candidate.lastName}` : 'your pick'
+    const preScore = preEntry ? Math.round(preEntry.alignmentScore) : null
+    if (preQuizVote.candidateId === top.candidateId) {
+      return {
+        heading: 'Your answers agree with you.',
+        body: `Before the quiz, you said you would vote for ${preName}. Your answers point the same way: ${topName} is your closest match at ${topScore}%.`,
+      }
+    }
+    return {
+      heading: 'Your answers point somewhere else.',
+      body: `Before the quiz, you said you would vote for ${preName}${preScore !== null ? `, who matched ${preScore}% of your answers` : ''}. Your closest match is ${topName} at ${topScore}%. The issue-by-issue view shows where the gap comes from.`,
+    }
+  }
+  if (preQuizVote.rawText) {
+    return {
+      heading: 'What you said, next to what you showed.',
+      body: `Before the quiz, you wrote "${preQuizVote.rawText}". Your answers put ${topName} closest at ${topScore}%.`,
+    }
+  }
+  return null
 }
 
 const MATCH_LABEL = s => s >= 80 ? 'Strong Match' : s >= 60 ? 'Good Match' : s >= 40 ? 'Partial Match' : 'Low Match'
@@ -83,7 +116,8 @@ export default async function ResultPage({ params }) {
   const result = await getResult(params.sessionId)
   if (!result) notFound()
 
-  const { race, scores } = result
+  const { race, scores, preQuizVote } = result
+  const reveal   = buildReveal(preQuizVote, scores)
   const top      = scores[0]
   const topScore = Math.round(top.alignmentScore)
   const topName  = `${top.candidate.firstName} ${top.candidate.lastName}`
@@ -120,6 +154,17 @@ export default async function ResultPage({ params }) {
               <p style={{ color: S.muted, fontSize: 14 }}>{race?.label ?? 'Unknown Race'} · {MATCH_LABEL(topScore)}</p>
             </div>
           </div>
+
+          {/* Before/after reveal */}
+          {reveal && (
+            <div style={{ backgroundColor: 'rgba(216,171,105,0.06)', border: `1px solid rgba(216,171,105,0.3)`, borderRadius: 10, padding: '20px 24px', margin: '0 auto 28px', maxWidth: 480, textAlign: 'left' }}>
+              <p style={{ color: S.gold, fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 8 }}>
+                Before · After
+              </p>
+              <p style={{ color: S.text, fontSize: 16, fontWeight: 600, margin: '0 0 6px' }}>{reveal.heading}</p>
+              <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.7, margin: 0 }}>{reveal.body}</p>
+            </div>
+          )}
 
           {/* Share / CTA */}
           <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.75, maxWidth: 440, margin: '0 auto 28px' }}>

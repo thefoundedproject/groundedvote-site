@@ -115,7 +115,7 @@ export default function RaceList({ races }) {
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
                             <StatusBadge qCount={race._count.questions} candidateCount={race.candidates.length} />
                             {isReady && (
-                              <a href="/align" style={{ backgroundColor: S.gold, color: '#0F1B1F', padding: '8px 16px', borderRadius: 5, fontSize: 12, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                              <a href={`/races/${race.id}/quiz`} style={{ backgroundColor: S.gold, color: '#0F1B1F', padding: '8px 16px', borderRadius: 5, fontSize: 12, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                                 Take quiz →
                               </a>
                             )}
