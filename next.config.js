@@ -8,6 +8,9 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
 
+  // instrumentation.js starts the enrichment worker on boot (ENRICHMENT_WORKER=on)
+  experimental: { instrumentationHook: true },
+
   async redirects() {
     return [
       // Legacy/external links — the quiz flow starts at address entry
