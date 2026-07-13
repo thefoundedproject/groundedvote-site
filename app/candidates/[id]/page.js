@@ -89,7 +89,7 @@ async function getCandidate(id) {
     where: { id },
     include: {
       race: { select: { id: true, label: true, state: true, stateFull: true, chamber: true, year: true } },
-      answers: {
+      quizAnswers: {
         include: { question: { select: { questionText: true, topic: true, weight: true } } },
         orderBy: { question: { weight: 'desc' } },
       },
@@ -154,6 +154,81 @@ function PartyBadge({ party, color }) {
       {party === 'D' ? 'Democrat' : party === 'R' ? 'Republican'
         : party === 'I' ? 'Independent' : party}
     </span>
+  )
+}
+
+// Link a claim to the RhetoricalPoints fact-checker (its /check page
+// accepts ?q= and runs the claim on arrival). Clean URL handoff — the
+// two platforms stay independent.
+function factCheckUrl(claim) {
+  return `https://rhetoricalpoints.com/check?q=${encodeURIComponent(claim)}`
+}
+
+// ─── record vs. rhetoric section ──────────────────────────────────────────────
+// Plain-language consistency between stated positions and the voting
+// record. No editorial judgment — counts, notes, and sources only.
+function RecordVsRhetoric({ candidate, candidateName }) {
+  const score = candidate.rhetoricConsistencyScore
+  const bd = candidate.rhetoricBreakdown
+
+  // Nothing to show for candidates with no congressional record
+  if (!candidate.bioguideId) return null
+
+  if (score === null || score === undefined || !bd) {
+    return (
+      <section style={{ marginBottom: 48, padding: '20px 24px', borderRadius: 10, backgroundColor: S.bgCard, border: `1px solid ${S.border}` }}>
+        <h2 style={{ color: S.gold, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
+          Record vs. Rhetoric
+        </h2>
+        <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
+          {candidateName} has a congressional voting record. The comparison between their stated positions and that record is still being computed — check back soon.
+        </p>
+      </section>
+    )
+  }
+
+  const judged = bd.consistent + bd.inconsistent
+  return (
+    <section style={{ marginBottom: 48 }}>
+      <h2 style={{ color: S.gold, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 }}>
+        Record vs. Rhetoric
+      </h2>
+      <div style={{ padding: '22px 24px', borderRadius: 10, backgroundColor: S.bgCard, border: `1px solid ${S.border}`, marginBottom: 14 }}>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
+          <div style={{ color: S.gold, fontSize: 44, fontWeight: 800, lineHeight: 1 }}>{Math.round(score)}%</div>
+          <p style={{ color: S.text, fontSize: 15, lineHeight: 1.6, margin: 0, flex: 1, minWidth: 240 }}>
+            Of {candidateName}&apos;s stated positions that could be checked against their congressional voting record, {bd.consistent} of {judged} held up as consistent.
+            {bd.unclear > 0 && ` ${bd.unclear} had too little voting evidence to judge either way.`}
+          </p>
+        </div>
+        <p style={{ color: S.muted, fontSize: 12, lineHeight: 1.6, margin: 0 }}>
+          Comparison of stated positions with recent recorded votes (Congress.gov), assessed by AI and shown with its working. Draw your own conclusion.
+        </p>
+      </div>
+
+      {bd.byTopic?.filter(t => t.notes?.length).map(t => (
+        <div key={t.topic} style={{ marginBottom: 10, padding: '14px 18px', borderRadius: 8, backgroundColor: S.bgCard, border: `1px solid ${S.faint}` }}>
+          <p style={{ color: S.text, fontSize: 13, fontWeight: 700, margin: '0 0 8px' }}>
+            {TOPIC_LABELS[t.topic] ?? t.topic}
+            <span style={{ color: S.muted, fontWeight: 400, marginLeft: 8 }}>
+              {t.consistent} consistent · {t.inconsistent} inconsistent{t.unclear > 0 ? ` · ${t.unclear} unclear` : ''}
+            </span>
+          </p>
+          {t.notes.slice(0, 3).map((n, i) => (
+            <p key={i} style={{ color: S.muted, fontSize: 12, lineHeight: 1.6, margin: '0 0 6px' }}>
+              <span style={{ color: n.consistent === true ? S.teal : n.consistent === false ? '#E57373' : S.muted, fontWeight: 700, marginRight: 6 }}>
+                {n.consistent === true ? '✓' : n.consistent === false ? '✗' : '·'}
+              </span>
+              {n.note}
+              {' '}
+              <a href={factCheckUrl(`${candidateName}: ${n.note}`)} target="_blank" rel="noopener noreferrer" style={{ color: S.gold, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                Fact-check this →
+              </a>
+            </p>
+          ))}
+        </div>
+      ))}
+    </section>
   )
 }
 
@@ -279,7 +354,7 @@ export default async function CandidatePage({ params, searchParams }) {
   const topIssues    = await getUserTopIssues(sessionId)
 
   // Group all answers by topic (used for both sections)
-  const answersByTopic = c.answers.reduce((acc, a) => {
+  const answersByTopic = c.quizAnswers.reduce((acc, a) => {
     const t = a.question?.topic ?? 'OTHER'
     if (!acc[t]) acc[t] = []
     acc[t].push(a)
@@ -293,9 +368,9 @@ export default async function CandidatePage({ params, searchParams }) {
     ? allTopicKeys.filter(t => !featuredTopics.has(t))
     : allTopicKeys
 
-  const totalAnswers   = c.answers.length
+  const totalAnswers   = c.quizAnswers.length
   const avgConfidence  = totalAnswers
-    ? Math.round(c.answers.reduce((s, a) => s + (a.confidence ?? 0), 0) / totalAnswers * 100)
+    ? Math.round(c.quizAnswers.reduce((s, a) => s + (a.confidence ?? 0), 0) / totalAnswers * 100)
     : null
 
   const links = [
@@ -450,6 +525,9 @@ export default async function CandidatePage({ params, searchParams }) {
           </section>
         )}
 
+        {/* ── RECORD VS. RHETORIC ── */}
+        <RecordVsRhetoric candidate={c} candidateName={candidateName} />
+
         {/* ── PERSONALIZED: ON YOUR ISSUES ── */}
         <OnYourIssues
           topIssues={topIssues}
@@ -504,6 +582,10 @@ export default async function CandidatePage({ params, searchParams }) {
                       {ans.sourceNote && (
                         <span style={{ color: S.muted, fontSize: 11, fontStyle: 'italic' }}>
                           {ans.sourceNote}
+                          {' '}
+                          <a href={factCheckUrl(`${candidateName}: ${ans.sourceNote}`)} target="_blank" rel="noopener noreferrer" style={{ color: S.gold, textDecoration: 'none', fontStyle: 'normal', whiteSpace: 'nowrap' }}>
+                            Fact-check this →
+                          </a>
                         </span>
                       )}
                     </div>

@@ -42,7 +42,7 @@ export default function PrivacyPage() {
         </p>
 
         <Section title="The short version">
-          <p>We don't require an account. Your quiz answers are stored by anonymous session ID. Your email is only collected if you ask for results or notifications — and we never sell it. No ads. No tracking pixels. No data brokers.</p>
+          <p>You can use the quiz without an account — anonymous quiz answers are stored by session ID. If you create an account, we store your email, a hashed password, and your quiz history so your results carry across visits. Sharing your data for civic research is a separate, optional choice you make at signup, and you can change it anytime. We never sell your data. No ads. No tracking pixels. No data brokers.</p>
         </Section>
 
         <Section title="What we collect and why">
@@ -62,6 +62,9 @@ export default function PrivacyPage() {
                 <DataRow collected="State / ZIP code" why="Route you to relevant races" stored="Session lifetime" shared="Nobody" />
                 <DataRow collected="IP address (rate limiting)" why="Prevent abuse" stored="60 seconds (in-memory only)" shared="Nobody" />
                 <DataRow collected="Payment info (donors)" why="Process donation via Stripe" stored="Stripe handles this" shared="Stripe only" />
+                <DataRow collected="Account email + hashed password (optional)" why="Sign-in, saved results, weighted scoring" stored="Until you delete your account" shared="Nobody" />
+                <DataRow collected="Onboarding quiz profile (accounts)" why="Weight your ballot quiz by the issues you said matter most" stored="Until you delete your account" shared="Nobody" />
+                <DataRow collected="Anonymized quiz results (opt-in only)" why="Civic research aggregates — never with your name or address" stored="Aggregated; individual rows deletable on request" shared="Researchers and press, aggregate form only" />
               </tbody>
             </table>
           </div>
@@ -75,7 +78,8 @@ export default function PrivacyPage() {
               'Run ad tracking or behavioral profiling',
               'Use your responses to train AI models without consent',
               'Store your full address or precise geolocation',
-              'Require you to create an account or log in',
+              'Require you to create an account to take the quiz',
+              'Include your data in research without your explicit opt-in at signup',
             ].map(item => (
               <li key={item} style={{ marginBottom: 10 }}>{item}</li>
             ))}

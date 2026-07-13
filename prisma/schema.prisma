@@ -75,6 +75,10 @@ model Candidate {
   status         CandidateStatus @default(ACTIVE)
   website        String?
   imageUrl       String?
+  // Record vs. rhetoric: how closely stated positions match the voting
+  // record. Null for candidates with no congressional record to compare.
+  rhetoricConsistencyScore Float?
+  rhetoricBreakdown        Json?   // { computedAt, checked, consistent, inconsistent, unclear, byTopic: [...] }
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
