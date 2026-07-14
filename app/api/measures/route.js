@@ -26,6 +26,7 @@ export async function GET(request) {
       select: {
         id: true, title: true, description: true,
         yesPosition: true, noPosition: true, sourceUrl: true,
+        questionText: true, auditStatus: true,
       },
     })
     return NextResponse.json({ measures }, {

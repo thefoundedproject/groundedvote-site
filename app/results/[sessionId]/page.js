@@ -42,6 +42,9 @@ async function getResult(sessionId) {
       race:   { select: { id: true, label: true, state: true, stateFull: true, chamber: true, year: true } },
       result: true,
       preQuizVote: true,
+      measureAnswers: {
+        include: { measure: { select: { title: true, yesPosition: true, sourceUrl: true } } },
+      },
     },
   })
   if (!session?.result) return null
@@ -62,7 +65,19 @@ async function getResult(sessionId) {
     .filter(s => s.candidate)
     .sort((a, b) => b.alignmentScore - a.alignmentScore)
 
-  return { race: session.race, scores: hydratedScores, sessionId, preQuizVote: session.preQuizVote }
+  return {
+    race: session.race,
+    scores: hydratedScores,
+    sessionId,
+    preQuizVote: session.preQuizVote,
+    measureAnswers: session.measureAnswers ?? [],
+  }
+}
+
+function measureLeaning(v) {
+  if (v >= 4) return { label: 'Your answer leans Yes', color: '#5ECFA6' }
+  if (v <= 2) return { label: 'Your answer leans No', color: '#E57373' }
+  return { label: 'No clear lean', color: 'rgba(245,240,232,0.5)' }
 }
 
 // Before/after reveal copy for the pre-quiz stated preference.
@@ -116,7 +131,7 @@ export default async function ResultPage({ params }) {
   const result = await getResult(params.sessionId)
   if (!result) notFound()
 
-  const { race, scores, preQuizVote } = result
+  const { race, scores, preQuizVote, measureAnswers } = result
   const reveal   = buildReveal(preQuizVote, scores)
   const top      = scores[0]
   const topScore = Math.round(top.alignmentScore)
@@ -251,6 +266,39 @@ export default async function ResultPage({ params }) {
           })}
         </div>
       </section>
+
+      {/* Ballot measure leanings */}
+      {measureAnswers?.length > 0 && (
+        <section style={{ backgroundColor: S.bgDark, padding: 'clamp(32px, 5vh, 60px) 24px' }}>
+          <div style={{ maxWidth: 560, margin: '0 auto' }}>
+            <p style={{ color: S.faint, fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 8 }}>
+              Your Ballot Measures
+            </p>
+            <p style={{ color: S.muted, fontSize: 13, lineHeight: 1.6, marginBottom: 18 }}>
+              A leaning reflects your answer to one audited question per measure. Read the full text before you vote.
+            </p>
+            {measureAnswers.map(ma => {
+              const lean = measureLeaning(ma.answerValue)
+              return (
+                <div key={ma.id} style={{ backgroundColor: S.bgCard, border: `1px solid ${S.border}`, borderRadius: 8, padding: '16px 20px', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
+                    <p style={{ color: S.text, fontSize: 14, fontWeight: 600, margin: 0 }}>{ma.measure.title}</p>
+                    <p style={{ color: lean.color, fontSize: 13, fontWeight: 700, margin: 0 }}>{lean.label}</p>
+                  </div>
+                  {ma.measure.yesPosition && (
+                    <p style={{ color: S.muted, fontSize: 12, lineHeight: 1.6, margin: '0 0 6px' }}>{ma.measure.yesPosition}</p>
+                  )}
+                  {ma.measure.sourceUrl && (
+                    <a href={ma.measure.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: S.gold, fontSize: 12, textDecoration: 'none' }}>
+                      Full text and analysis →
+                    </a>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Methodology note */}
       <section style={{ backgroundColor: S.bg, padding: 'clamp(32px, 5vh, 56px) 24px', textAlign: 'center' }}>

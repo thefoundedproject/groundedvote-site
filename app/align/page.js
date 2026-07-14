@@ -709,7 +709,7 @@ function BeforeAfterReveal({ preVote, scores }) {
   )
 }
 
-function Results({ scores, topIssues, race, sessionId, preVote, onRetake }) {
+function Results({ scores, topIssues, race, sessionId, preVote, measureAnswers, onRetake }) {
   const [emailVal, setEmailVal] = useState('')
   const [emailSent, setEmailSent] = useState(false)
   const [emailSending, setEmailSending] = useState(false)
@@ -812,6 +812,8 @@ function Results({ scores, topIssues, race, sessionId, preVote, onRetake }) {
         </p>
 
         <BeforeAfterReveal preVote={preVote} scores={scores} />
+
+        <MeasureLeanings measureAnswers={measureAnswers} />
 
         {/* View toggle */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 40 }}>
@@ -1275,8 +1277,137 @@ function PreVoteQuestion({ candidates, sessionId, onDone }) {
   )
 }
 
+// ─── BALLOT MEASURE QUESTIONS (after the candidate quiz) ────────────────────
+// One bias-audited question per statewide measure. Optional as a block —
+// a single skip finishes the quiz. Answers save best-effort; results
+// still render if the write fails.
+function MeasureQuestions({ stateCode, sessionId, onDone }) {
+  const [measures, setMeasures] = useState(null) // null = loading
+  const [step, setStep] = useState(0)
+  const [answers, setAnswers] = useState({})     // measureId -> 1-5
+
+  useEffect(() => {
+    fetch(`/api/measures?state=${stateCode}`)
+      .then(r => r.json())
+      .then(data => {
+        const ready = (data.measures || []).filter(m => m.auditStatus === 'APPROVED' && m.questionText)
+        setMeasures(ready)
+      })
+      .catch(() => setMeasures([]))
+  }, [stateCode])
+
+  // Nothing to ask — pass straight through to results
+  useEffect(() => {
+    if (measures && measures.length === 0) onDone([])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [measures])
+
+  if (!measures) {
+    return (
+      <section style={{ minHeight: '100vh', backgroundColor: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: C.textMuted, fontSize: 14 }}>Loading your ballot measures…</p>
+      </section>
+    )
+  }
+  if (measures.length === 0) return null
+
+  const measure = measures[step]
+
+  const finish = async (finalAnswers) => {
+    const list = Object.entries(finalAnswers).map(([measureId, answerValue]) => ({ measureId, answerValue }))
+    if (list.length) {
+      try {
+        await fetch('/api/quiz-session/measures', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, answers: list }),
+        })
+      } catch {}
+    }
+    onDone(measures.filter(m => finalAnswers[m.id]).map(m => ({ ...m, answerValue: finalAnswers[m.id] })))
+  }
+
+  const answer = (value) => {
+    const next = { ...answers, [measure.id]: value }
+    setAnswers(next)
+    if (step < measures.length - 1) setStep(step + 1)
+    else finish(next)
+  }
+
+  return (
+    <section style={{ minHeight: '100vh', backgroundColor: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 24px' }}>
+      <div style={{ maxWidth: 640, width: '100%' }}>
+        <p style={{ color: C.gold, fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>
+          Ballot Measures · {step + 1} of {measures.length}
+        </p>
+        <p style={{ color: C.textMuted, fontSize: 13, marginBottom: 20 }}>{measure.title}</p>
+        <h1 style={{ color: C.text, fontSize: 22, fontWeight: 300, lineHeight: 1.45, marginBottom: 28 }}>
+          {measure.questionText}
+        </h1>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+          {[5, 4, 3, 2, 1].map(v => (
+            <button
+              key={v}
+              onClick={() => answer(v)}
+              style={{ textAlign: 'left', padding: '14px 18px', backgroundColor: C.bgCard, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: C.text, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              {ANSWER_LABELS[v]}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => finish(answers)}
+          style={{ background: 'none', border: 'none', color: C.textFaint, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}
+        >
+          Skip the rest and see my results
+        </button>
+      </div>
+    </section>
+  )
+}
+
+// Leaning label for a 1-5 answer against a yes/no measure question.
+function measureLeaning(v) {
+  if (v >= 4) return { label: 'Your answer leans Yes', color: '#5ECFA6' }
+  if (v <= 2) return { label: 'Your answer leans No', color: '#E57373' }
+  return { label: 'No clear lean', color: 'rgba(245,240,232,0.5)' }
+}
+
+function MeasureLeanings({ measureAnswers }) {
+  if (!measureAnswers?.length) return null
+  return (
+    <div style={{ marginTop: 48 }}>
+      <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>
+        Your Ballot Measures
+      </p>
+      <p style={{ color: C.textMuted, fontSize: 13, lineHeight: 1.6, marginBottom: 16 }}>
+        A leaning reflects your answer to one audited question per measure. Read the full text before you vote.
+      </p>
+      {measureAnswers.map(m => {
+        const lean = measureLeaning(m.answerValue)
+        return (
+          <div key={m.id} style={{ backgroundColor: C.bgCard, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '16px 20px', marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
+              <p style={{ color: C.text, fontSize: 14, fontWeight: 600, margin: 0 }}>{m.title}</p>
+              <p style={{ color: lean.color, fontSize: 13, fontWeight: 700, margin: 0 }}>{lean.label}</p>
+            </div>
+            {m.yesPosition && (
+              <p style={{ color: C.textMuted, fontSize: 12, lineHeight: 1.6, margin: '0 0 8px' }}>{m.yesPosition}</p>
+            )}
+            {m.sourceUrl && (
+              <a href={m.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.gold, fontSize: 12, textDecoration: 'none' }}>
+                Full text and analysis →
+              </a>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function AlignPage() {
-  // stage: 'entry' | 'races' | 'welcome' | 'prevote' | 'quiz' | 'results'
+  // stage: 'entry' | 'races' | 'welcome' | 'prevote' | 'quiz' | 'measures' | 'results'
   const [stage, setStage] = useState('entry')
   const [selectedState, setSelectedState] = useState(null)   // {code, name}
   const [selectedRace, setSelectedRace] = useState(null)
@@ -1284,6 +1415,7 @@ export default function AlignPage() {
   const [questions, setQuestions] = useState([])
   const [candidates, setCandidates] = useState([])
   const [preVote, setPreVote] = useState(null)               // {candidateId?, name?, rawText?} | null
+  const [measureAnswers, setMeasureAnswers] = useState([])
   const [results, setResults] = useState(null)
   const [sessionError, setSessionError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -1304,7 +1436,7 @@ export default function AlignPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Could not start quiz')
-      setSelectedRace(race.label ? race : { id: race.id, label: data.raceLabel })
+      setSelectedRace({ ...(race.label ? race : { id: race.id, label: data.raceLabel }), state: data.raceState })
       setSessionId(data.sessionId)
       setQuestions(data.questions)
       setCandidates(data.candidates ?? [])
@@ -1324,7 +1456,7 @@ export default function AlignPage() {
 
   const handleComplete = (data) => {
     setResults(data)
-    setStage('results')
+    setStage('measures') // MeasureQuestions passes through when none exist
   }
 
   const handleRetake = () => {
@@ -1387,6 +1519,13 @@ export default function AlignPage() {
           onComplete={handleComplete}
         />
       )}
+      {stage === 'measures' && selectedRace && (
+        <MeasureQuestions
+          stateCode={selectedRace.state ?? selectedState?.code ?? ''}
+          sessionId={sessionId}
+          onDone={(ma) => { setMeasureAnswers(ma); setStage('results') }}
+        />
+      )}
       {stage === 'results' && results && (
         <Results
           scores={results.scores}
@@ -1394,6 +1533,7 @@ export default function AlignPage() {
           race={selectedRace}
           sessionId={sessionId}
           preVote={preVote}
+          measureAnswers={measureAnswers}
           onRetake={handleRetake}
         />
       )}

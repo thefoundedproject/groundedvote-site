@@ -355,9 +355,10 @@ model QuizSession {
   createdAt   DateTime  @default(now())
   completedAt DateTime?
 
-  userAnswers UserAnswer[]
-  result      QuizResult?
-  preQuizVote PreQuizVote?
+  userAnswers    UserAnswer[]
+  result         QuizResult?
+  preQuizVote    PreQuizVote?
+  measureAnswers MeasureAnswer[]
 
   @@index([raceId])
   @@index([userId])
@@ -518,11 +519,32 @@ model BallotMeasure {
   noPosition  String?     @db.Text // what a "no" vote means
   year        Int
   sourceUrl   String?     // Ballotpedia page
+  // One bias-audited quiz question per measure. Null until the audit
+  // pipeline has produced and approved it.
+  questionText String?    @db.Text
+  auditStatus  AuditStatus @default(PENDING)
+  biasScore    Float?
+  auditTrail   Json?      // all variants + scores, same transparency as races
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
+  answers MeasureAnswer[]
+
   @@unique([state, title, year])
   @@index([state, year])
+}
+
+// A user's answer to a measure question within a quiz session.
+model MeasureAnswer {
+  id          String        @id @default(cuid())
+  sessionId   String
+  session     QuizSession   @relation(fields: [sessionId], references: [id])
+  measureId   String
+  measure     BallotMeasure @relation(fields: [measureId], references: [id])
+  answerValue Int           // 1-5, same scale as candidate questions
+  createdAt   DateTime      @default(now())
+
+  @@unique([sessionId, measureId])
 }
 
 enum BallotLevel {

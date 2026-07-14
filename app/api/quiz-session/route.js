@@ -52,6 +52,7 @@ export async function POST(request) {
     return NextResponse.json({
       sessionId: session.id,
       raceLabel: race.label,
+      raceState: race.state,
       // Names only — party is never shown inside the quiz flow
       candidates: race.candidates.map(c => ({
         id: c.id,
