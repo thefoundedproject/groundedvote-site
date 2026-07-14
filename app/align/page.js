@@ -241,6 +241,57 @@ function StateCard({ code, name, isActive, onClick }) {
 }
 
 // ─── RACE SELECTOR (after state is picked) ───────────────────────────────────
+// Statewide ballot measures shown under the race list. Display only for
+// now — measure questions join the quiz in a later pass.
+function MeasuresBlock({ stateCode }) {
+  const [measures, setMeasures] = useState([])
+  const [open, setOpen] = useState(null)
+
+  useEffect(() => {
+    fetch(`/api/measures?state=${stateCode}`)
+      .then(r => r.json())
+      .then(data => setMeasures(data.measures || []))
+      .catch(() => {})
+  }, [stateCode])
+
+  if (!measures.length) return null
+
+  return (
+    <div style={{ marginTop: 40 }}>
+      <p style={{ color: C.gold, fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 6 }}>
+        Also on your ballot
+      </p>
+      <p style={{ color: C.textMuted, fontSize: 13, lineHeight: 1.6, marginBottom: 16 }}>
+        {measures.length} statewide measure{measures.length > 1 ? 's' : ''}. Plain-language summaries, sourced from Ballotpedia.
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {measures.map(m => (
+          <div key={m.id} style={{ backgroundColor: C.bgCard, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '14px 18px' }}>
+            <button
+              onClick={() => setOpen(open === m.id ? null : m.id)}
+              style={{ background: 'none', border: 'none', color: C.text, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0, textAlign: 'left', width: '100%' }}
+            >
+              {m.title} <span style={{ color: C.textFaint, fontWeight: 400 }}>{open === m.id ? '−' : '+'}</span>
+            </button>
+            {open === m.id && (
+              <div style={{ marginTop: 10 }}>
+                <p style={{ color: C.textMuted, fontSize: 13, lineHeight: 1.65, margin: '0 0 10px' }}>{m.description}</p>
+                {m.yesPosition && <p style={{ color: C.activeText, fontSize: 12, lineHeight: 1.6, margin: '0 0 6px' }}>{m.yesPosition}</p>}
+                {m.noPosition && <p style={{ color: C.error, fontSize: 12, lineHeight: 1.6, margin: '0 0 10px' }}>{m.noPosition}</p>}
+                {m.sourceUrl && (
+                  <a href={m.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.gold, fontSize: 12, textDecoration: 'none' }}>
+                    Full text and analysis on Ballotpedia →
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function RaceSelector({ stateCode, stateName, onSelect, onBack }) {
   const [races, setRaces] = useState([])
   const [loading, setLoading] = useState(true)
@@ -291,6 +342,7 @@ function RaceSelector({ stateCode, stateName, onSelect, onBack }) {
                 <RaceCard key={race.id} race={race} onClick={() => onSelect(race)} />
               ))}
             </div>
+            <MeasuresBlock stateCode={stateCode} />
           </>
         )}
       </div>

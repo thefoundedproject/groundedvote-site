@@ -504,6 +504,33 @@ model ApiKeyTransaction {
   @@index([apiKeyId, type])
 }
 
+// ─── BALLOT MEASURES ──────────────────────────────────────────────────────────
+// Propositions, referendums, and amendments. Displayed alongside races
+// for the voter's state; quiz scoring for measures lands in a later pass.
+model BallotMeasure {
+  id          String      @id @default(cuid())
+  state       String      // e.g. "AZ"
+  district    String?     // null for statewide
+  level       BallotLevel @default(STATE)
+  title       String      // e.g. "Proposition 139"
+  description String      @db.Text // plain-language summary
+  yesPosition String?     @db.Text // what a "yes" vote means
+  noPosition  String?     @db.Text // what a "no" vote means
+  year        Int
+  sourceUrl   String?     // Ballotpedia page
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([state, title, year])
+  @@index([state, year])
+}
+
+enum BallotLevel {
+  FEDERAL
+  STATE
+  LOCAL
+}
+
 // ─── RESEARCH SNAPSHOTS ───────────────────────────────────────────────────────
 // Point-in-time anonymized aggregates for academic/press partners.
 // Aggregate-only by construction: rows are written by lib/research.js,
