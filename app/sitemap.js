@@ -12,6 +12,7 @@ export default async function sitemap() {
     { url: `${base}/methodology`, priority: 0.7, changeFrequency: 'monthly' },
     { url: `${base}/about`, priority: 0.6, changeFrequency: 'monthly' },
     { url: `${base}/audit-trail`, priority: 0.6, changeFrequency: 'weekly' },
+    { url: `${base}/research`, priority: 0.6, changeFrequency: 'weekly' },
     { url: `${base}/support`, priority: 0.5, changeFrequency: 'monthly' },
   ].map(r => ({ ...r, lastModified: new Date() }))
 

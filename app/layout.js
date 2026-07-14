@@ -258,6 +258,7 @@ function Footer() {
               <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
               <li><a href="/races" className="hover:text-white transition-colors">Races</a></li>
               <li><a href="/audit-trail" className="hover:text-white transition-colors">Audit Trail</a></li>
+              <li><a href="/research" className="hover:text-white transition-colors">Research</a></li>
               <li><a href="/support" className="hover:text-white transition-colors">Support</a></li>
               <li><a href="/terms" className="hover:text-white transition-colors">Terms</a></li>
               <li><a href="/privacy" className="hover:text-white transition-colors">Privacy</a></li>

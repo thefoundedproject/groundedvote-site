@@ -504,6 +504,21 @@ model ApiKeyTransaction {
   @@index([apiKeyId, type])
 }
 
+// ─── RESEARCH SNAPSHOTS ───────────────────────────────────────────────────────
+// Point-in-time anonymized aggregates for academic/press partners.
+// Aggregate-only by construction: rows are written by lib/research.js,
+// which suppresses any cohort under 50 and never stores individual data.
+model ResearchSnapshot {
+  id        String   @id @default(cuid())
+  geography String   // state code, or "US" for national
+  period    String   // e.g. "2026-Q3"
+  data      Json     // output of computeAggregate — aggregated, suppressed
+  createdAt DateTime @default(now())
+
+  @@unique([geography, period])
+  @@index([period])
+}
+
 // ─── QUIZ FUNNEL ANALYTICS ────────────────────────────────────────────────────
 // Lightweight server-side funnel tracking. No PII stored — session IDs only.
 model QuizEvent {
