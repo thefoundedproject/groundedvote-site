@@ -262,7 +262,7 @@ function MeasuresBlock({ stateCode }) {
         Also on your ballot
       </p>
       <p style={{ color: C.textMuted, fontSize: 13, lineHeight: 1.6, marginBottom: 16 }}>
-        {measures.length} statewide measure{measures.length > 1 ? 's' : ''}. Plain-language summaries, sourced from Ballotpedia.
+        {measures.length} statewide measure{measures.length > 1 ? 's' : ''}. Summaries from Wikipedia (CC BY-SA); full analysis linked per measure.
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {measures.map(m => (

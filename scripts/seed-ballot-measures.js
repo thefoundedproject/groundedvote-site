@@ -1,158 +1,180 @@
 // © 2025 The Founded Project LLC — All rights reserved.
 // scripts/seed-ballot-measures.js
 //
-// Seeds 2026 statewide ballot measures from Ballotpedia's public
-// MediaWiki API for every state that has races in the database.
+// Seeds 2026 statewide ballot measures from Wikipedia's
+// "2026 United States ballot measures" page (CC BY-SA; one request,
+// no crawling). Ballotpedia's MediaWiki API sits behind bot protection,
+// so Wikipedia is the open, licensed source; each row keeps the
+// Ballotpedia reference URL from the citation when present.
 //
-//   node scripts/seed-ballot-measures.js            # dry run (report only)
-//   node scripts/seed-ballot-measures.js --apply    # write BallotMeasure rows
-//   node scripts/seed-ballot-measures.js --state AZ # limit to one state
+//   node scripts/seed-ballot-measures.js                 # dry run
+//   node scripts/seed-ballot-measures.js --apply         # write rows
+//   node scripts/seed-ballot-measures.js --wikitext f.json  # parse a saved
+//                                                        # API response (tests)
 //
-// How it reads Ballotpedia:
-//   1. "<State> 2026 ballot measures" list page → wikitext → measure links
-//   2. Each measure page → plain-text extract → description + the standard
-//      'A "yes" vote supports…' / 'A "no" vote opposes…' sentences
-// Measures whose pages can't be parsed are listed at the end — nothing
-// is dropped silently.
+// Only measures marked "On ballot" are seeded. Unparsed rows are listed
+// at the end — nothing is dropped silently.
 
+const fs = require('fs')
 const { PrismaClient } = require('@prisma/client')
 
-const prisma = new PrismaClient()
 const APPLY = process.argv.includes('--apply')
-const STATE_FILTER = (() => {
-  const i = process.argv.indexOf('--state')
-  return i !== -1 ? process.argv[i + 1]?.toUpperCase() : null
+const WIKITEXT_FILE = (() => {
+  const i = process.argv.indexOf('--wikitext')
+  return i !== -1 ? process.argv[i + 1] : null
 })()
 
-const API = 'https://ballotpedia.org/w/api.php'
-const UA = 'GroundedVote/1.0 (civic research; contact@groundedvote.com)'
-const DELAY_MS = 900
+const PAGE = '2026 United States ballot measures'
+const UA = 'GroundedVote/1.0 (https://groundedvote.com; contact@groundedvote.com)'
 const YEAR = 2026
 
-const STATE_NAMES = {
-  AZ: 'Arizona', CA: 'California', CO: 'Colorado', GA: 'Georgia', IA: 'Iowa',
-  ME: 'Maine', MI: 'Michigan', MN: 'Minnesota', MT: 'Montana', NC: 'North Carolina',
-  NH: 'New Hampshire', NM: 'New Mexico', NV: 'Nevada', NY: 'New York', OH: 'Ohio',
-  OR: 'Oregon', PA: 'Pennsylvania', TX: 'Texas', VA: 'Virginia', WA: 'Washington',
-  WI: 'Wisconsin',
+const STATE_CODES = {
+  Alabama: 'AL', Alaska: 'AK', Arizona: 'AZ', Arkansas: 'AR', California: 'CA',
+  Colorado: 'CO', Connecticut: 'CT', Delaware: 'DE', Florida: 'FL', Georgia: 'GA',
+  Hawaii: 'HI', Idaho: 'ID', Illinois: 'IL', Indiana: 'IN', Iowa: 'IA',
+  Kansas: 'KS', Kentucky: 'KY', Louisiana: 'LA', Maine: 'ME', Maryland: 'MD',
+  Massachusetts: 'MA', Michigan: 'MI', Minnesota: 'MN', Mississippi: 'MS',
+  Missouri: 'MO', Montana: 'MT', Nebraska: 'NE', Nevada: 'NV',
+  'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
+  'North Carolina': 'NC', 'North Dakota': 'ND', Ohio: 'OH', Oklahoma: 'OK',
+  Oregon: 'OR', Pennsylvania: 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+  'South Dakota': 'SD', Tennessee: 'TN', Texas: 'TX', Utah: 'UT', Vermont: 'VT',
+  Virginia: 'VA', Washington: 'WA', 'West Virginia': 'WV', Wisconsin: 'WI',
+  Wyoming: 'WY',
 }
 
-const sleep = ms => new Promise(r => setTimeout(r, ms))
+/** Strip wiki markup down to plain text. */
+function plain(s) {
+  return s
+    .replace(/<ref[^>]*\/>/g, '')
+    .replace(/<ref[^>]*>[\s\S]*?<\/ref>/g, '')
+    .replace(/\{\{[^{}]*\}\}/g, '')
+    .replace(/\[\[(?:[^\]|]*\|)?([^\]]+)\]\]/g, '$1')
+    .replace(/'{2,}/g, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
-async function wiki(params) {
-  const url = `${API}?${new URLSearchParams({ format: 'json', origin: '*', ...params })}`
+/** First ballotpedia.org URL inside the raw (unstripped) cell markup. */
+function ballotpediaUrl(raw) {
+  return /https:\/\/ballotpedia\.org\/[^\s|<}\]]+/.exec(raw)?.[0] ?? null
+}
+
+/**
+ * Parse the page wikitext → [{ state, title, description, sourceUrl, status }].
+ * Exported for tests.
+ */
+function parseMeasures(wikitext) {
+  const measures = []
+  const unparsed = []
+
+  // Split into state sections
+  const sections = wikitext.split(/^===\s*/m).slice(1)
+  for (const section of sections) {
+    const headEnd = section.indexOf('===')
+    const stateName = section.slice(0, headEnd).trim()
+    const state = STATE_CODES[stateName]
+    if (!state) continue
+    const body = section.slice(headEnd + 3)
+
+    // Rows of the first wikitable(s) in this section
+    const rows = body.split(/^\|-/m).slice(1)
+    for (const row of rows) {
+      const cells = row
+        .split(/\n\|(?!\})/)          // cells start with "|" at line start
+        .slice(1)                      // first chunk is row styling
+        .map(c => c.replace(/^[^|]*\|(?=[^|])/, s => (s.includes('style=') ? '' : s))) // drop style attrs
+      if (cells.length < 4) continue
+
+      // Layout: Origin | Status | Measure | Description | Date | Yes | No
+      const status = plain(cells[1] ?? '')
+      const title = plain(cells[2] ?? '')
+      const description = plain(cells[3] ?? '')
+      const sourceUrl = ballotpediaUrl(row)
+
+      if (!title || title.length < 8) continue
+      if (!/on ballot/i.test(status)) continue // certified measures only
+      if (!description || description.length < 20) {
+        unparsed.push({ state, title, reason: 'description missing/short' })
+        continue
+      }
+
+      measures.push({
+        state,
+        // "Arizona Designate Drug Cartels … Measure" → drop the state prefix
+        title: title.replace(new RegExp(`^${stateName}\\s+`), '').trim(),
+        description,
+        yesPosition: `A "yes" vote: ${description}`,
+        noPosition: null,
+        sourceUrl,
+      })
+    }
+  }
+  return { measures, unparsed }
+}
+
+async function fetchWikitext() {
+  const url = `https://en.wikipedia.org/w/api.php?${new URLSearchParams({
+    action: 'parse', page: PAGE, prop: 'wikitext', format: 'json',
+  })}`
   const res = await fetch(url, { headers: { 'User-Agent': UA } })
-  if (!res.ok) throw new Error(`Ballotpedia ${res.status} for ${params.page ?? params.titles}`)
-  return res.json()
-}
-
-/** Measure page titles linked from the state's list page. */
-async function listMeasureTitles(stateName) {
-  const data = await wiki({ action: 'parse', page: `${stateName} ${YEAR} ballot measures`, prop: 'wikitext' })
+  if (!res.ok) throw new Error(`Wikipedia ${res.status}`)
+  const data = await res.json()
   const wikitext = data?.parse?.wikitext?.['*']
-  if (!wikitext) return []
-  // Links like [[Arizona Proposition 139, Right to ... Amendment (2026)|...]]
-  const links = [...wikitext.matchAll(/\[\[([^\]|#]+\(2026\))(?:\|[^\]]*)?\]\]/g)].map(m => m[1].trim())
-  // Keep pages that look like measures for this state, drop list/overview pages
-  const unique = [...new Set(links)].filter(t =>
-    t.startsWith(stateName) && !/ballot measures|elections|overview/i.test(t)
-  )
-  return unique
-}
-
-/** Plain-text extract for a measure page → { description, yes, no }. */
-async function measureDetail(pageTitle) {
-  const data = await wiki({
-    action: 'query', titles: pageTitle, prop: 'extracts',
-    explaintext: 'true', exsectionformat: 'plain', exchars: '2400',
-  })
-  const pages = data?.query?.pages
-  const page = pages ? Object.values(pages)[0] : null
-  const text = page?.extract ?? ''
-  if (text.length < 80) return null
-
-  const yes = /A\s+"?yes"?\s+vote\s+([^.]{10,400}\.)/i.exec(text)?.[0] ?? null
-  const no = /A\s+"?no"?\s+vote\s+([^.]{10,400}\.)/i.exec(text)?.[0] ?? null
-  // Description: first paragraph before the yes/no boilerplate
-  const cut = text.search(/A\s+"?yes"?\s+vote/i)
-  const description = (cut > 80 ? text.slice(0, cut) : text.slice(0, 800)).trim()
-
-  return { description, yes, no }
+  if (!wikitext) throw new Error('No wikitext in response')
+  return wikitext
 }
 
 async function main() {
   console.log(APPLY ? '=== APPLY MODE ===' : '=== DRY RUN — pass --apply to write ===')
 
-  const raceStates = await prisma.race.findMany({ select: { state: true }, distinct: ['state'] })
-  let states = raceStates.map(r => r.state).filter(s => STATE_NAMES[s]).sort()
-  if (STATE_FILTER) states = states.filter(s => s === STATE_FILTER)
-  console.log(`States: ${states.join(', ')}`)
+  const wikitext = WIKITEXT_FILE
+    ? JSON.parse(fs.readFileSync(WIKITEXT_FILE, 'utf8')).parse.wikitext['*']
+    : await fetchWikitext()
 
-  const failures = []
-  let found = 0
-  let written = 0
+  const { measures, unparsed } = parseMeasures(wikitext)
 
-  for (const state of states) {
-    const stateName = STATE_NAMES[state]
-    let titles = []
-    try {
-      titles = await listMeasureTitles(stateName)
-    } catch (err) {
-      failures.push({ state, stage: 'list', error: err.message })
-      continue
-    }
-    console.log(`\n${state} — ${titles.length} measure page(s) linked`)
-    await sleep(DELAY_MS)
-
-    for (const title of titles) {
-      let detail = null
-      try {
-        detail = await measureDetail(title)
-      } catch (err) {
-        failures.push({ state, stage: 'detail', title, error: err.message })
-      }
-      await sleep(DELAY_MS)
-      if (!detail) {
-        failures.push({ state, stage: 'parse', title, error: 'extract too short or missing' })
-        continue
-      }
-
-      // Display title: "Proposition 139" out of the full page title
-      const short = title.replace(`${stateName} `, '').replace(/ \(2026\)$/, '').split(',')[0].trim()
-      found++
-      console.log(`  • ${short}${detail.yes ? ' (yes/no parsed)' : ' (yes/no missing)'}`)
-
-      if (APPLY) {
-        await prisma.ballotMeasure.upsert({
-          where: { state_title_year: { state, title: short, year: YEAR } },
-          create: {
-            state,
-            title: short,
-            description: detail.description,
-            yesPosition: detail.yes,
-            noPosition: detail.no,
-            year: YEAR,
-            sourceUrl: `https://ballotpedia.org/${encodeURIComponent(title.replaceAll(' ', '_'))}`,
-          },
-          update: {
-            description: detail.description,
-            yesPosition: detail.yes,
-            noPosition: detail.no,
-            sourceUrl: `https://ballotpedia.org/${encodeURIComponent(title.replaceAll(' ', '_'))}`,
-          },
-        })
-        written++
-      }
-    }
+  // Limit to states we actually cover (races in DB) when a DB is reachable
+  let covered = null
+  const prisma = new PrismaClient()
+  try {
+    const rs = await prisma.race.findMany({ select: { state: true }, distinct: ['state'] })
+    covered = new Set(rs.map(r => r.state))
+  } catch {
+    console.log('(no database reachable — showing all states)')
   }
 
-  console.log(`\nMeasures parsed: ${found}${APPLY ? `, written: ${written}` : ''}`)
-  if (failures.length) {
-    console.log(`\nNot parsed (${failures.length}) — review by hand, nothing dropped silently:`)
-    for (const f of failures) console.log(`  ${f.state} [${f.stage}] ${f.title ?? ''} — ${f.error}`)
+  const inScope = covered ? measures.filter(m => covered.has(m.state)) : measures
+  const byState = {}
+  for (const m of inScope) (byState[m.state] ??= []).push(m)
+
+  for (const [state, list] of Object.entries(byState).sort()) {
+    console.log(`\n${state} — ${list.length} measure(s) on ballot`)
+    for (const m of list) console.log(`  • ${m.title}${m.sourceUrl ? '' : ' (no Ballotpedia ref)'}`)
   }
+  console.log(`\nTotal on-ballot measures parsed: ${measures.length}; in covered states: ${inScope.length}`)
+  if (unparsed.length) {
+    console.log(`Unparsed rows (${unparsed.length}):`)
+    for (const u of unparsed) console.log(`  ${u.state} — ${u.title}: ${u.reason}`)
+  }
+
+  if (APPLY && covered) {
+    let written = 0
+    for (const m of inScope) {
+      await prisma.ballotMeasure.upsert({
+        where: { state_title_year: { state: m.state, title: m.title, year: YEAR } },
+        create: { ...m, year: YEAR },
+        update: { description: m.description, yesPosition: m.yesPosition, sourceUrl: m.sourceUrl },
+      })
+      written++
+    }
+    console.log(`Written: ${written}`)
+  }
+  await prisma.$disconnect()
 }
 
-main()
-  .catch(e => { console.error(e); process.exitCode = 1 })
-  .finally(() => prisma.$disconnect())
+if (require.main === module) {
+  main().catch(e => { console.error(e); process.exitCode = 1 })
+}
+module.exports = { parseMeasures }
