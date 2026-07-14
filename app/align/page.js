@@ -100,7 +100,7 @@ function StateSelector({ onStateSelected }) {
         setGeocodeError("We couldn't locate that address. Try including your city and state (e.g. \"123 Main St, Minneapolis, MN\").")
         return
       }
-      onStateSelected(data.stateCode, data.stateName || data.stateCode)
+      onStateSelected(data.stateCode, data.stateName || data.stateCode, data.district ?? null)
     } catch {
       setGeocodeError('Lookup unavailable. Browse by state below.')
     } finally {
@@ -292,10 +292,17 @@ function MeasuresBlock({ stateCode }) {
   )
 }
 
-function RaceSelector({ stateCode, stateName, onSelect, onBack }) {
+function RaceSelector({ stateCode, stateName, district, onSelect, onBack }) {
   const [races, setRaces] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // With a district (address entry): Senate races and the user's own House
+  // district are their ballot; other House districts move below the fold.
+  const onBallot = district
+    ? races.filter(r => r.chamber === 'SENATE' || r.district === district)
+    : races
+  const elsewhere = district ? races.filter(r => !onBallot.includes(r)) : []
 
   useEffect(() => {
     fetch(`/api/races?state=${stateCode}`)
@@ -335,13 +342,32 @@ function RaceSelector({ stateCode, stateName, onSelect, onBack }) {
         ) : (
           <>
             <p style={{ color: C.textMuted, fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
-              {races.length} race{races.length > 1 ? 's' : ''} available. Select one to begin the bias-audited alignment quiz.
+              {district
+                ? `Based on your address: District ${district}. These races are on your ballot.`
+                : `${races.length} race${races.length > 1 ? 's' : ''} available. Select one to begin the bias-audited alignment quiz.`}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {races.map(race => (
+              {onBallot.map(race => (
                 <RaceCard key={race.id} race={race} onClick={() => onSelect(race)} />
               ))}
             </div>
+            {district && onBallot.length === 0 && (
+              <p style={{ color: C.textMuted, fontSize: 14, lineHeight: 1.6 }}>
+                None of the races on your specific ballot are covered yet. Nearby races in your state are below, and statewide measures apply to you either way.
+              </p>
+            )}
+            {elsewhere.length > 0 && (
+              <>
+                <p style={{ color: C.textFaint, fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', margin: '32px 0 12px' }}>
+                  Elsewhere in {stateName}
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {elsewhere.map(race => (
+                    <RaceCard key={race.id} race={race} onClick={() => onSelect(race)} />
+                  ))}
+                </div>
+              </>
+            )}
             <MeasuresBlock stateCode={stateCode} />
           </>
         )}
@@ -1262,8 +1288,8 @@ export default function AlignPage() {
   const [sessionError, setSessionError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const handleStateSelected = (code, name) => {
-    setSelectedState({ code, name })
+  const handleStateSelected = (code, name, district = null) => {
+    setSelectedState({ code, name, district })
     setStage('races')
   }
 
@@ -1334,6 +1360,7 @@ export default function AlignPage() {
         <RaceSelector
           stateCode={selectedState.code}
           stateName={selectedState.name}
+          district={selectedState.district}
           onSelect={handleRaceSelect}
           onBack={() => setStage('entry')}
         />
