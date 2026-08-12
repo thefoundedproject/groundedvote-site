@@ -78,7 +78,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Nav />
-        <main style={{ paddingTop: 89 }}>{children}</main>
+        <main>{children}</main>
         <Footer />
       </body>
     </html>
@@ -119,29 +119,26 @@ function NavLink({ href, label, onClick }) {
   )
 }
 
-function ElectionBanner() {
-  const [dismissed, setDismissed] = useState(false)
-  if (dismissed) return null
+function ElectionBanner({ onDismiss }) {
   return (
     <div style={{
-      backgroundColor: 'rgba(216,171,105,0.12)',
+      // Solid navy base with the gold tint layered on top — fully opaque,
+      // so scrolling content can never bleed through the fixed header.
+      backgroundColor: '#0F1B1F',
+      backgroundImage: 'linear-gradient(rgba(216,171,105,0.12), rgba(216,171,105,0.12))',
       borderBottom: '1px solid rgba(216,171,105,0.25)',
-      padding: '7px 24px',
+      padding: '7px 40px 7px 16px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 16,
+      gap: '6px 14px',
       flexWrap: 'wrap',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 60,
+      position: 'relative',
+      textAlign: 'center',
     }}>
       <p style={{ color: '#D8AB69', fontSize: 12, fontWeight: 700, margin: 0, letterSpacing: '0.05em' }}>
         🗳 2026 MIDTERM GENERAL ELECTION — NOVEMBER 3, 2026
       </p>
-      <span style={{ color: 'rgba(245,240,232,0.4)', fontSize: 11 }}>·</span>
       <a
         href="https://vote.gov"
         target="_blank"
@@ -151,9 +148,9 @@ function ElectionBanner() {
         Register or check registration at vote.gov →
       </a>
       <button
-        onClick={() => setDismissed(true)}
+        onClick={onDismiss}
         aria-label="Dismiss"
-        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(245,240,232,0.3)', fontSize: 16, lineHeight: 1, padding: '0 4px', marginLeft: 8 }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(245,240,232,0.3)', fontSize: 16, lineHeight: 1, padding: '2px 6px', position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)' }}
       >
         ×
       </button>
@@ -163,19 +160,17 @@ function ElectionBanner() {
 
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [bannerShown, setBannerShown] = useState(true)
+  const [bannerDismissed, setBannerDismissed] = useState(false)
 
+  // One sticky header holds banner + nav: their heights compose naturally,
+  // so the banner can wrap on mobile or be dismissed with no hardcoded
+  // offsets to drift out of sync.
   return (
-    <>
-      <ElectionBanner />
+    <header style={{ position: 'sticky', top: 0, left: 0, right: 0, zIndex: 60 }}>
+      {!bannerDismissed && <ElectionBanner onDismiss={() => setBannerDismissed(true)} />}
       <nav style={{
         backgroundColor: '#0F1B1F',
         borderBottom: '1px solid rgba(216,171,105,0.15)',
-        position: 'fixed',
-        top: bannerShown ? 33 : 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
         padding: '0 24px',
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
@@ -185,7 +180,9 @@ function Nav() {
           </a>
 
           {/* Desktop links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}
+          {/* Visibility lives in classes only — an inline display would
+              override Tailwind's responsive hidden/flex and break mobile */}
+          <div style={{ alignItems: 'center', gap: 24 }}
                className="hidden md:flex">
             {NAV_LINKS.map(l => <NavLink key={l.href} href={l.href} label={l.label} />)}
             <a
@@ -200,7 +197,7 @@ function Nav() {
           <button
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             onClick={() => setMenuOpen(o => !o)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#F5F0E8', padding: 4, display: 'none' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#F5F0E8', padding: 4 }}
             className="md:hidden"
           >
             {menuOpen
@@ -233,7 +230,7 @@ function Nav() {
           </div>
         )}
       </nav>
-    </>
+    </header>
   )
 }
 
