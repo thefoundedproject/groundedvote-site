@@ -24,7 +24,9 @@ export async function POST(request) {
           },
         },
         candidates: {
-          where: { status: 'ACTIVE' },
+          // Everyone still in the race: ACTIVE pre-primary, WON_PRIMARY
+          // after. Only losers and withdrawals drop out.
+          where: { status: { notIn: ['LOST_PRIMARY', 'WITHDREW'] } },
           select: { id: true, firstName: true, lastName: true },
         },
       },

@@ -19,7 +19,10 @@ export async function GET(request) {
     if (state) where.state = state.toUpperCase()
 
     const include = {
-      candidates: { select: { id: true, firstName: true, lastName: true, incumbent: true } },
+      candidates: {
+        where: { status: { notIn: ['LOST_PRIMARY', 'WITHDREW'] } },
+        select: { id: true, firstName: true, lastName: true, incumbent: true },
+      },
       _count: { select: { questions: { where: { auditStatus: 'APPROVED' } } } },
     }
 

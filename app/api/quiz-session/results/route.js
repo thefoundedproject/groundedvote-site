@@ -35,7 +35,7 @@ export async function GET(request) {
           },
           orderBy: { createdAt: 'asc' },
         },
-        race: { include: { candidates: true } },
+        race: { include: { candidates: { where: { status: { notIn: ['LOST_PRIMARY', 'WITHDREW'] } } } } },
       },
     })
 
