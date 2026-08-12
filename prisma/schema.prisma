@@ -17,8 +17,12 @@ model Race {
   id            String      @id @default(cuid())
   state         String      // e.g. "MN"
   stateFull     String      // e.g. "Minnesota"
-  chamber       Chamber
-  district      String?     // null for Senate, "5" for House district 5
+  chamber       Chamber     // for STATE level: HOUSE = lower chamber, SENATE = upper
+  district      String?     // null for statewide, "5" or "64A" otherwise
+  level         BallotLevel @default(FEDERAL)
+  // OCD division for exact address matching (e.g.
+  // "ocd-division/country:us/state:mn/sldl:64a") — set for STATE races
+  ocdDivisionId String?
   year          Int
   label         String      // e.g. "Minnesota Senate 2026"
   raceType      RaceType    @default(GENERAL)
@@ -37,6 +41,8 @@ model Race {
   @@index([state, chamber, year])
   @@index([raceType])
   @@index([cookRating])
+  @@index([level])
+  @@index([ocdDivisionId])
 }
 
 enum Chamber {

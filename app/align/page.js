@@ -100,7 +100,7 @@ function StateSelector({ onStateSelected }) {
         setGeocodeError("We couldn't locate that address. Try including your city and state (e.g. \"123 Main St, Minneapolis, MN\").")
         return
       }
-      onStateSelected(data.stateCode, data.stateName || data.stateCode, data.district ?? null)
+      onStateSelected(data.stateCode, data.stateName || data.stateCode, data.district ?? null, data.divisions ?? null)
     } catch {
       setGeocodeError('Lookup unavailable. Browse by state below.')
     } finally {
@@ -292,8 +292,9 @@ function MeasuresBlock({ stateCode }) {
   )
 }
 
-function RaceSelector({ stateCode, stateName, district, onSelect, onBack }) {
+function RaceSelector({ stateCode, stateName, district, divisions, onSelect, onBack }) {
   const [races, setRaces] = useState([])
+  const [stateRaces, setStateRaces] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -305,12 +306,15 @@ function RaceSelector({ stateCode, stateName, district, onSelect, onBack }) {
   const elsewhere = district ? races.filter(r => !onBallot.includes(r)) : []
 
   useEffect(() => {
-    fetch(`/api/races?state=${stateCode}`)
+    const params = new URLSearchParams({ state: stateCode })
+    if (divisions?.stateLower) params.set('sldl', divisions.stateLower)
+    if (divisions?.stateUpper) params.set('sldu', divisions.stateUpper)
+    fetch(`/api/races?${params}`)
       .then(r => r.json())
-      .then(data => setRaces(data.races || []))
+      .then(data => { setRaces(data.races || []); setStateRaces(data.stateRaces || []) })
       .catch(() => setError('Could not load races. Please try again.'))
       .finally(() => setLoading(false))
-  }, [stateCode])
+  }, [stateCode, divisions])
 
   const isComingSoon = !ACTIVE_STATES.has(stateCode)
 
@@ -355,6 +359,32 @@ function RaceSelector({ stateCode, stateName, district, onSelect, onBack }) {
               <p style={{ color: C.textMuted, fontSize: 14, lineHeight: 1.6 }}>
                 None of the races on your specific ballot are covered yet. Nearby races in your state are below, and statewide measures apply to you either way.
               </p>
+            )}
+            {stateRaces.length > 0 && (
+              <>
+                <p style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', margin: '32px 0 6px' }}>
+                  Your State Legislature
+                </p>
+                <p style={{ color: C.textMuted, fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>
+                  Matched to your address. Quizzes for these races open as questions clear the bias audit.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {stateRaces.map(race => {
+                    const ready = race._count.questions >= 5 && race.candidates.length >= 2
+                    return ready ? (
+                      <RaceCard key={race.id} race={race} onClick={() => onSelect(race)} />
+                    ) : (
+                      <div key={race.id} style={{ backgroundColor: C.bgCard, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '16px 20px' }}>
+                        <p style={{ color: C.text, fontSize: 15, fontWeight: 600, margin: '0 0 4px' }}>{race.label}</p>
+                        <p style={{ color: C.textMuted, fontSize: 12, margin: 0 }}>
+                          {race.candidates.filter(c => c.incumbent).map(c => `${c.firstName} ${c.lastName} (incumbent)`).join(', ') || 'Candidates to be announced'}
+                          {' · '}Quiz coming soon
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
             )}
             {elsewhere.length > 0 && (
               <>
@@ -1420,8 +1450,8 @@ export default function AlignPage() {
   const [sessionError, setSessionError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const handleStateSelected = (code, name, district = null) => {
-    setSelectedState({ code, name, district })
+  const handleStateSelected = (code, name, district = null, divisions = null) => {
+    setSelectedState({ code, name, district, divisions })
     setStage('races')
   }
 
@@ -1493,6 +1523,7 @@ export default function AlignPage() {
           stateCode={selectedState.code}
           stateName={selectedState.name}
           district={selectedState.district}
+          divisions={selectedState.divisions}
           onSelect={handleRaceSelect}
           onBack={() => setStage('entry')}
         />
