@@ -1,0 +1,17 @@
+[
+ {"race": "Georgia Senate 2026", "winners": ["Jon Ossoff", "Mike Collins"], "eliminateOthers": true},
+ {"race": "Michigan Senate 2026", "winners": ["Abdul El-Sayed", "Mike Rogers"], "eliminateOthers": true},
+ {"race": "Minnesota Senate 2026", "winners": ["Michele Tafoya", "Peggy Flanagan"], "eliminateOthers": true},
+ {"race": "Montana Senate 2026", "winners": ["Kurt Alme", "Alani Bankhead", "Seth Bodnar"], "eliminateOthers": true},
+ {"race": "Texas Senate 2026", "winners": ["James Talarico", "Ken Paxton"], "eliminateOthers": true},
+ {"race": "Arizona House District 1 2026", "winners": ["Amish Shah", "Jay Feely"], "eliminateOthers": true},
+ {"race": "Georgia House District 7 2026", "winners": ["Anthony Kozycki", "Rich McCormick"], "eliminateOthers": true},
+ {"race": "Iowa House District 3 2026", "winners": ["Sarah Trone Garriott", "Zach Nunn"], "eliminateOthers": true},
+ {"race": "Maine House District 2 2026", "winners": ["Paul LePage", "Matthew Dunlap"], "eliminateOthers": true},
+ {"race": "Michigan House District 8 2026", "winners": ["Kristen McDonald Rivet", "Tom Smith"], "eliminateOthers": true},
+ {"race": "New York House District 3 2026", "winners": ["Mike LiPetri", "Tom Suozzi"], "eliminateOthers": true},
+ {"race": "New York House District 17 2026", "winners": ["Cait Conley", "Mike Lawler"], "eliminateOthers": true},
+ {"race": "New York House District 18 2026", "winners": ["Pat Ryan", "Jacqueline Auringer"], "eliminateOthers": true},
+ {"race": "Virginia House District 2 2026", "winners": ["Elaine Luria", "Jen Kiggans"], "eliminateOthers": true},
+ {"race": "Virginia House District 7 2026", "winners": ["Eugene Vindman", "Doug Ollivant"], "eliminateOthers": true}
+]
