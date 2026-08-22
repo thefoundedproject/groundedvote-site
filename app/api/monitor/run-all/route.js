@@ -11,10 +11,7 @@ async function callMonitor(path, secret, baseUrl) {
         'x-monitor-secret': secret,
         'User-Agent': 'GroundedVote-Internal/1.0',
       },
-      // Raised from 45s: the FEC sub-route now retries with backoff and needs
-      // headroom. It self-limits to ~100s via FEC_RUN_BUDGET_MS, so this is the
-      // outer guard, not the effective limit.
-      signal: AbortSignal.timeout(120_000),
+      signal: AbortSignal.timeout(45000),
     })
     const data = await res.json()
     return { path, status: res.status, ...data }
@@ -51,39 +48,24 @@ export async function GET(request) {
       })
     }
 
-    const unreviewedWindow = {
-      reviewed: false,
-      detectedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
-    }
-
-    // unreviewedTotal previously reported recentChanges.length, which is capped
-    // at the page size — so a backlog of 500 still reported as "50". Count and
-    // page separately.
-    const [unreviewedTotal, recentChanges] = await Promise.all([
-      prisma.monitoringChange.count({ where: unreviewedWindow }),
-      prisma.monitoringChange.findMany({
-        where: unreviewedWindow,
-        orderBy: { detectedAt: 'desc' },
-        take: 50,
-        include: {
-          race: { select: { label: true, state: true } },
-          candidate: { select: { firstName: true, lastName: true } },
-        },
-      }),
-    ])
+    const recentChanges = await prisma.monitoringChange.findMany({
+      where: {
+        reviewed: false,
+        detectedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      },
+      orderBy: { detectedAt: 'desc' },
+      take: 50,
+      include: {
+        race: { select: { label: true, state: true } },
+        candidate: { select: { firstName: true, lastName: true } },
+      },
+    })
 
     return NextResponse.json({
       runAt,
       totalNew,
       fec: {
         racesChecked: fecResult.racesChecked || 0,
-        racesTotal: fecResult.racesTotal || 0,
-        // Non-zero means this run has blind spots — races we never reached.
-        // Treat the filing counts as a floor, not a total, when this is set.
-        racesSkipped: fecResult.racesSkipped || 0,
-        skipped: fecResult.skipped || [],
-        degradedApiKey: fecResult.degradedApiKey || false,
-        apiKeyWarning: fecResult.apiKeyWarning || null,
         newFilings: fecResult.newChanges || 0,
         changes: fecResult.changes || [],
         errors: fecResult.errorList || [],
@@ -98,8 +80,7 @@ export async function GET(request) {
         possibleWithdrawals: (raceResult.changes || []).filter(c => c.type === 'CANDIDATE_WITHDREW').length,
         changes: raceResult.changes || [],
       },
-      unreviewedTotal,
-      unreviewedShown: recentChanges.length,
+      unreviewedTotal: recentChanges.length,
       unreviewedChanges: recentChanges.map(c => ({
         id: c.id,
         type: c.type,

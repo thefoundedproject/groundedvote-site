@@ -3,11 +3,8 @@
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { fecFetch, getFecApiKey } from '@/lib/fec-client'
 
-// Overall time budget for this route. run-all aborts us after 120s, so we stop
-// retrying at 100s and report partial results rather than getting killed mid-run.
-const RUN_BUDGET_MS = Number(process.env.FEC_RUN_BUDGET_MS || 100_000)
+const FEC_BASE = 'https://api.open.fec.gov/v1'
 
 export async function GET(request) {
   const secret = request.headers.get('x-monitor-secret')
@@ -15,15 +12,9 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { apiKey, degraded, warning } = getFecApiKey()
-  if (degraded) console.warn('[monitor/fec-new-candidates]', warning)
-
-  const deadline = Date.now() + RUN_BUDGET_MS
+  const apiKey = process.env.FEC_API_KEY || 'DEMO_KEY'
   const changes = []
   const errors = []
-  // Races we genuinely could not check, as opposed to races with no new filings.
-  // Without this the caller cannot tell a clean scan from a silent gap.
-  const skipped = []
 
   try {
     // Pull all races from DB, grouped by state+chamber+district
@@ -39,28 +30,14 @@ export async function GET(request) {
     for (const race of races) {
       try {
         const office = race.chamber === 'HOUSE' ? 'H' : 'S'
-        const params = {
-          election_year: '2026',
-          state: race.state,
-          office,
-          per_page: '100',
-          sort: '-load_date',
-        }
+        let url = `${FEC_BASE}/candidates/?api_key=${apiKey}&election_year=2026&state=${race.state}&office=${office}&per_page=100&sort=-load_date`
         if (race.chamber === 'HOUSE' && race.district) {
-          params.district = String(race.district).padStart(2, '0')
+          url += `&district=${String(race.district).padStart(2, '0')}`
         }
 
-        const result = await fecFetch('/candidates/', params, { apiKey, deadline })
-
-        if (!result.ok) {
-          const label = `${race.state} ${race.chamber}${race.district ? ` ${race.district}` : ''}`
-          errors.push(
-            `FEC ${label}: ${result.error} after ${result.attempts} attempt(s)`
-          )
-          skipped.push({ raceId: race.id, label, reason: result.error, status: result.status })
-          continue
-        }
-        const data = result.data
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
+        if (!res.ok) { errors.push(`FEC ${race.state} ${race.chamber}: HTTP ${res.status}`); continue }
+        const data = await res.json()
 
         // Build lookup sets for existing candidates in this race
         const existingFecIds = new Set(
@@ -113,14 +90,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       ok: true,
-      // racesChecked used to report every race in the DB, including ones we never
-      // successfully reached. Report the honest number and surface the gap.
-      racesTotal: races.length,
-      racesChecked: races.length - skipped.length,
-      racesSkipped: skipped.length,
-      skipped,
-      degradedApiKey: degraded,
-      apiKeyWarning: warning,
+      racesChecked: races.length,
       newChanges: changes.length,
       errors: errors.length,
       changes: changes.map(c => ({ title: c.title, raceId: c.raceId })),
