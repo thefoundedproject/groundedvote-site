@@ -18,10 +18,10 @@
 //   node scripts/dedupe-questions.js --threshold 0.4 # looser matching
 //   node scripts/dedupe-questions.js --apply         # archive the losers
 //
-// Pairing rule: same race, same topic, token Jaccard >= threshold (0.4
+// Pairing rule: same race, same topic, token Jaccard >= threshold (0.35
 // default) after dropping quiz boilerplate ("would you support federal
 // legislation ...") but keeping numbers. Calibrated against the live set:
-// real twins score 0.42-0.88, the nearest non-duplicate (top individual
+// real twins score 0.36-0.88, the nearest non-duplicate (top individual
 // rate vs corporate rate) scores 0.31. Keep rule: lower biasScore wins; tie -> more
 // candidateAnswers; tie -> older row. Transitive groups (A~B, B~C) keep
 // one and archive the rest.
@@ -33,7 +33,7 @@ const prisma = new PrismaClient()
 const argv = process.argv.slice(2)
 const APPLY = argv.includes('--apply')
 const arg = (flag, dflt) => { const i = argv.indexOf(flag); return i !== -1 ? argv[i + 1] : dflt }
-const THRESHOLD = Number(arg('--threshold', 0.4))
+const THRESHOLD = Number(arg('--threshold', 0.35))
 const JSON_OUT = arg('--json', null)
 
 // Words that appear in nearly every question and carry no topic signal.
