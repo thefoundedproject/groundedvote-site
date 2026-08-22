@@ -701,17 +701,24 @@ const ANSWER_DOT_COLOR = { 1: '#E57373', 2: '#FF9C6E', 3: '#6b8e96', 4: '#7EC8E3
 // The before/after reveal — compares the user's pre-quiz stated preference
 // with what their answers showed. Rendered only when the pre-question was
 // answered (named a candidate or typed a name).
+// Score entries carry candidateName from the matcher; the server-rendered
+// results page also hydrates a full candidate object. Read either shape —
+// reading candidate.firstName alone crashed the inline results render.
+const scoreName = (s) =>
+  s?.candidateName
+  ?? (s?.candidate ? `${s.candidate.firstName} ${s.candidate.lastName}` : 'your closest match')
+
 function BeforeAfterReveal({ preVote, scores }) {
   if (!preVote || !scores?.length) return null
 
   const top = scores[0]
-  const topName = `${top.candidate.firstName} ${top.candidate.lastName}`
+  const topName = scoreName(top)
   const topScore = Math.round(top.alignmentScore)
 
   let heading, body
   if (preVote.candidateId) {
     const preEntry = scores.find(s => s.candidateId === preVote.candidateId)
-    const preName = preVote.name ?? (preEntry ? `${preEntry.candidate.firstName} ${preEntry.candidate.lastName}` : 'your pick')
+    const preName = preVote.name ?? (preEntry ? scoreName(preEntry) : 'your pick')
     const preScore = preEntry ? Math.round(preEntry.alignmentScore) : null
 
     if (preVote.candidateId === top.candidateId) {
@@ -765,7 +772,7 @@ function Results({ scores, topIssues, race, sessionId, preVote, measureAnswers, 
   }
 
   const getCandidatePhoto = (c) => {
-    if (c.candidate?.photoUrl) return c.candidate.photoUrl
+    if (c.candidate?.imageUrl) return c.candidate.imageUrl
     if (c.candidate?.bioguideId) {
       const first = c.candidate.bioguideId[0].toUpperCase()
       return `https://bioguide.congress.gov/bioguide/photo/${first}/${c.candidate.bioguideId}.jpg`
@@ -776,7 +783,7 @@ function Results({ scores, topIssues, race, sessionId, preVote, measureAnswers, 
 
     const handleCopyShare = () => {
     const top = scores[0]
-    const text = `I'm a ${top.alignmentScore}% match with ${top.candidate.firstName} ${top.candidate.lastName} on the ${race.label}. No party labels — just issues. Find yours: groundedvote.com/align`
+    const text = `I'm a ${top.alignmentScore}% match with ${scoreName(top)} on the ${race.label}. No party labels — just issues. Find yours: groundedvote.com/align`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2500)

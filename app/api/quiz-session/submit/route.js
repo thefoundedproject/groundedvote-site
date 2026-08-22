@@ -53,10 +53,19 @@ export async function POST(request) {
       metadata: { topScore: scores?.[0]?.alignmentScore },
     })
 
-    // Persist result
+    // Persist result (names + scores only — the stored shape stays lean)
     await saveResult(sessionId, { scores, topIssues })
 
-    return Response.json({ scores, topIssues })
+    // Hydrate a candidate object for the inline results screen so photos
+    // and initials render there the same way they do on /results/[id].
+    const candidates = await prisma.candidate.findMany({
+      where: { id: { in: scores.map(s => s.candidateId) } },
+      select: { id: true, firstName: true, lastName: true, bioguideId: true, imageUrl: true },
+    })
+    const candMap = Object.fromEntries(candidates.map(c => [c.id, c]))
+    const hydrated = scores.map(s => ({ ...s, candidate: candMap[s.candidateId] ?? null }))
+
+    return Response.json({ scores: hydrated, topIssues })
   } catch (err) {
     return apiError(err, 'quiz-session:submit')
   }
