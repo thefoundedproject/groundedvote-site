@@ -18,9 +18,11 @@
 //   node scripts/dedupe-questions.js --threshold 0.4 # looser matching
 //   node scripts/dedupe-questions.js --apply         # archive the losers
 //
-// Pairing rule: same race, same topic, token Jaccard >= threshold (0.45
+// Pairing rule: same race, same topic, token Jaccard >= threshold (0.4
 // default) after dropping quiz boilerplate ("would you support federal
-// legislation ..."). Keep rule: lower biasScore wins; tie -> more
+// legislation ...") but keeping numbers. Calibrated against the live set:
+// real twins score 0.42-0.88, the nearest non-duplicate (top individual
+// rate vs corporate rate) scores 0.31. Keep rule: lower biasScore wins; tie -> more
 // candidateAnswers; tie -> older row. Transitive groups (A~B, B~C) keep
 // one and archive the rest.
 
@@ -31,7 +33,7 @@ const prisma = new PrismaClient()
 const argv = process.argv.slice(2)
 const APPLY = argv.includes('--apply')
 const arg = (flag, dflt) => { const i = argv.indexOf(flag); return i !== -1 ? argv[i + 1] : dflt }
-const THRESHOLD = Number(arg('--threshold', 0.45))
+const THRESHOLD = Number(arg('--threshold', 0.4))
 const JSON_OUT = arg('--json', null)
 
 // Words that appear in nearly every question and carry no topic signal.
@@ -40,13 +42,17 @@ const STOP = new Set([
   'national', 'government', 'require', 'requiring', 'allow', 'allowing',
   'should', 'that', 'with', 'from', 'this', 'their', 'which', 'into', 'than',
   'more', 'less', 'over', 'under', 'year', 'years', 'annually', 'percent',
+  'the', 'and', 'for', 'you', 'are', 'per', 'not', 'any', 'its', 'all', 'who',
 ])
 
+// Numbers ("50", "10", "2035", "28") are the strongest signal in policy
+// questions — "top rate to 50% over $10M" vs "corporate rate 21% to 28%"
+// share every word except the numbers. Keep them, plus words of 3+ letters.
 const tokens = (text) => new Set(
   text.toLowerCase()
     .replace(/[^a-z0-9 ]/g, ' ')
     .split(/\s+/)
-    .filter(w => w.length > 3 && !STOP.has(w))
+    .filter(w => /^\d+$/.test(w) || (w.length >= 3 && !STOP.has(w)))
 )
 
 const jaccard = (a, b) => {
