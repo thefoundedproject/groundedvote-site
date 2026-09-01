@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { prisma } from '@/lib/prisma';
+import { handleStripeEvent } from '@/lib/stripe-fulfillment';
 
 // Created on first use — module-scope construction crashes `next build`
 // when STRIPE_SECRET_KEY is absent.
@@ -38,30 +38,11 @@ export async function POST(req) {
   console.log(`[stripe-webhook] Event received: ${event.type} (${event.id})`);
 
   try {
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        console.log(`[stripe-webhook] Checkout completed: ${session.id}`);
-        // TODO: handle post-payment fulfillment here
-        break;
-      }
-
-      case 'payment_intent.succeeded': {
-        const paymentIntent = event.data.object;
-        console.log(`[stripe-webhook] Payment succeeded: ${paymentIntent.id}`);
-        break;
-      }
-
-      case 'payment_intent.payment_failed': {
-        const paymentIntent = event.data.object;
-        console.error(`[stripe-webhook] Payment failed: ${paymentIntent.id}`);
-        break;
-      }
-
-      default:
-        console.log(`[stripe-webhook] Unhandled event type: ${event.type}`);
-    }
+    // Records the payment/subscription and sends the receipt. Idempotent, so a
+    // Stripe redelivery is safe.
+    await handleStripeEvent(event);
   } catch (err) {
+    // 500 → Stripe retries with backoff; the upserts make retries harmless.
     console.error('[stripe-webhook] Handler error:', err);
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }
