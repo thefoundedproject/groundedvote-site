@@ -90,7 +90,7 @@ async function main() {
       }
       await tx.monitoringChange.create({
         data: {
-          type: 'CANDIDATE_CHANGE',
+          type: 'NEW_CANDIDATE_FILED',
           raceId: race.id,
           title: `2026 general-election matchup applied: ${entry.race}`,
           description: `On ballot: ${entry.candidates.map(c => `${c.name} (${c.party})`).join(', ')}. Withdrawn/not running: ${toWithdraw.map(c => `${c.firstName} ${c.lastName}`).join(', ') || 'none'}.`,
