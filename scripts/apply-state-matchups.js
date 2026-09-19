@@ -42,7 +42,7 @@ const samePerson = (a, b) => {
 const matchesListed = (dbName, listed) =>
   samePerson(dbName, listed.name) || (listed.aka ?? []).some(a => samePerson(dbName, a))
 const splitName = name => {
-  const parts = name.replace(/["“”].*?["“”]\s*/g, '').trim().split(/\s+/)
+  const parts = name.replace(/["“”].*?["“”]\s*/g, '').replace(/\([^)]*\)\s*/g, '').trim().split(/\s+/)
   return { firstName: parts.slice(0, -1).join(' '), lastName: parts.at(-1) }
 }
 

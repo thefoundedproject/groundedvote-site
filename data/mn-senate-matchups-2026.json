@@ -1,0 +1,18 @@
+{
+  "_source": "MN Secretary of State candidate filings (candidates.sos.mn.gov, provided by Stephen 2026-09-19) for the Nov 3, 2026 general; SD37's contested DFL primary resolved from Wikipedia's 2026 Minnesota Senate election primary table (Janigo 84.17%). Competitive = 2022 general margin < 10 points from the 2022 election page's general boxes.",
+  "races": [
+    { "race": "Minnesota State Senate District 3 2026", "margin2022": 1.6, "candidates": [ { "name": "Andrea Zupancich", "party": "R" }, { "name": "Grant Hauschild", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 4 2026", "margin2022": 5.7, "candidates": [ { "name": "Austin Peterson", "party": "R" }, { "name": "Rob Kupec", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 7 2026", "margin2022": 7.0, "candidates": [ { "name": "Robert Farnsworth", "party": "R" }, { "name": "Kim McLaughlin", "party": "DFL", "aka": ["Kim Kotonias McLaughlin"] } ] },
+    { "race": "Minnesota State Senate District 14 2026", "margin2022": 4.7, "candidates": [ { "name": "Bernie Perryman", "party": "R" }, { "name": "Aric Putnam", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 32 2026", "margin2022": 6.0, "candidates": [ { "name": "Michael Kreun", "party": "R" }, { "name": "Chris Ford", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 33 2026", "margin2022": 5.6, "candidates": [ { "name": "Karin Housley", "party": "R" }, { "name": "Nat Smith", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 34 2026", "margin2022": 9.8, "candidates": [ { "name": "Karen Attia", "party": "R" }, { "name": "John Hoffman", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 35 2026", "margin2022": 0.5, "candidates": [ { "name": "Jim Abeler", "party": "R" }, { "name": "Angela Nelson", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 36 2026", "margin2022": 5.7, "candidates": [ { "name": "Heidi Heino", "party": "R" }, { "name": "Heather Gustafson", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 37 2026", "margin2022": 9.8, "candidates": [ { "name": "Brady Hoag", "party": "R" }, { "name": "Kristy Janigo", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 41 2026", "margin2022": 0.8, "candidates": [ { "name": "Tom Dippel", "party": "R" }, { "name": "Judy Seeberger", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 48 2026", "margin2022": 8.7, "candidates": [ { "name": "Julia Coleman", "party": "R" }, { "name": "Dan Kessler", "party": "DFL" } ] },
+    { "race": "Minnesota State Senate District 58 2026", "margin2022": 5.7, "candidates": [ { "name": "Bill Lieske", "party": "R" }, { "name": "Mark Legvold", "party": "DFL" } ] }
+  ]
+}

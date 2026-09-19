@@ -154,11 +154,30 @@ async function main() {
 
   let createdTotal = 0
   for (const t of topics) {
-    console.log(`\n[${t.topic}] auditing...`)
-    const variants = await generateVariants(t.statement, t.topic)
-    const scores = await scoreVariants(variants)
-    const best = await selectBestVariant(variants, scores)
-    console.log(`  selected (bias ${best.total}): ${best.text}`)
+    // Reuse the already-audited state question for this topic when one
+    // exists (e.g. Senate races reuse the House run's text): identical
+    // wording across races keeps answers comparable and costs nothing.
+    const existing = await prisma.question.findFirst({
+      where: { topic: t.topic, auditStatus: 'APPROVED', race: { level: 'STATE', state: races[0]?.state } },
+    })
+    let variants = null, scores = null, best
+    if (existing) {
+      best = {
+        text: existing.questionText,
+        total: existing.biasScore,
+        loaded_language: existing.loadedLanguage,
+        false_equivalence: existing.falseEquivalence,
+        asymmetric_framing: existing.asymmetricFraming,
+        cultural_assumption: existing.culturalAssumption,
+      }
+      console.log(`\n[${t.topic}] reusing audited question (bias ${best.total}): ${best.text}`)
+    } else {
+      console.log(`\n[${t.topic}] auditing...`)
+      variants = await generateVariants(t.statement, t.topic)
+      scores = await scoreVariants(variants)
+      best = await selectBestVariant(variants, scores)
+      console.log(`  selected (bias ${best.total}): ${best.text}`)
+    }
 
     let first = true
     for (const race of races) {
@@ -178,7 +197,7 @@ async function main() {
         },
       })
       createdTotal++
-      if (first) {
+      if (first && variants) {
         await prisma.questionVariant.createMany({
           data: variants.map((text, i) => ({
             questionId: q.id,
