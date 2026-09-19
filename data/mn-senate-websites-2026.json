@@ -1,0 +1,31 @@
+{
+  "_source": "MN Secretary of State candidate filings (candidates.sos.mn.gov, provided by Stephen 2026-09-19) — the website column of each candidate's own filing. General-election candidates in the 13 covered districts only.",
+  "sites": [
+    { "race": "Minnesota State Senate District 3 2026", "name": "Andrea Zupancich", "website": "https://www.andreaformn.com" },
+    { "race": "Minnesota State Senate District 3 2026", "name": "Grant Hauschild", "website": "https://grantformn.com" },
+    { "race": "Minnesota State Senate District 4 2026", "name": "Austin Peterson", "website": "https://www.austin4mn.com" },
+    { "race": "Minnesota State Senate District 4 2026", "name": "Rob Kupec", "website": "https://kupec4mnsenate.com" },
+    { "race": "Minnesota State Senate District 7 2026", "name": "Robert Farnsworth", "website": "https://www.robfarnsworth.org" },
+    { "race": "Minnesota State Senate District 7 2026", "name": "Kim McLaughlin", "website": "https://kimforsd7.com" },
+    { "race": "Minnesota State Senate District 14 2026", "name": "Bernie Perryman", "website": "https://bernieperryman.com" },
+    { "race": "Minnesota State Senate District 14 2026", "name": "Aric Putnam", "website": "https://aricformn.com" },
+    { "race": "Minnesota State Senate District 32 2026", "name": "Michael Kreun", "website": "https://michaelformnsenate.com" },
+    { "race": "Minnesota State Senate District 32 2026", "name": "Chris Ford", "website": "https://chrisfordformn.com" },
+    { "race": "Minnesota State Senate District 33 2026", "name": "Karin Housley", "website": "https://housleyforsenate.com" },
+    { "race": "Minnesota State Senate District 33 2026", "name": "Nat Smith", "website": "https://www.natsmithformn.com" },
+    { "race": "Minnesota State Senate District 34 2026", "name": "Karen Attia", "website": "https://attiaforsenate.org" },
+    { "race": "Minnesota State Senate District 34 2026", "name": "John Hoffman", "website": "https://www.johnhoffmanmn.com" },
+    { "race": "Minnesota State Senate District 35 2026", "name": "Jim Abeler", "website": "https://jimabeler.com" },
+    { "race": "Minnesota State Senate District 35 2026", "name": "Angela Nelson", "website": "https://nelsonformn.com" },
+    { "race": "Minnesota State Senate District 36 2026", "name": "Heidi Heino", "website": "https://www.heidiheino.com" },
+    { "race": "Minnesota State Senate District 36 2026", "name": "Heather Gustafson", "website": "https://voteheathergustafson.com" },
+    { "race": "Minnesota State Senate District 37 2026", "name": "Brady Hoag", "website": "https://bradyhoag.com" },
+    { "race": "Minnesota State Senate District 37 2026", "name": "Kristy Janigo", "website": "https://kristyjanigoformn.com" },
+    { "race": "Minnesota State Senate District 41 2026", "name": "Tom Dippel", "website": "https://www.dippelformn.com" },
+    { "race": "Minnesota State Senate District 41 2026", "name": "Judy Seeberger", "website": "https://judyforsenate.com" },
+    { "race": "Minnesota State Senate District 48 2026", "name": "Julia Coleman", "website": "https://colemanforsenate.com" },
+    { "race": "Minnesota State Senate District 48 2026", "name": "Dan Kessler", "website": "https://kesslerforsenate.com" },
+    { "race": "Minnesota State Senate District 58 2026", "name": "Bill Lieske", "website": "https://lieske4senate.com" },
+    { "race": "Minnesota State Senate District 58 2026", "name": "Mark Legvold", "website": "https://legvold4mnsenate58.com" }
+  ]
+}
