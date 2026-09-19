@@ -1,0 +1,17 @@
+{
+  "_note": "Reviewed policy statements for Minnesota state-legislature quizzes. Each is a statement of a real, currently contested MN policy approach — the bias-audit pipeline (generate variants -> blind score -> select) produces the neutral question text; these statements are never shown to voters. One question per topic per race (the generator enforces this; see the 2026-09 dedupe).",
+  "topics": [
+    { "topic": "HEALTHCARE", "statement": "Create a public option allowing any Minnesotan to buy into MinnesotaCare, the state's subsidized health insurance program." },
+    { "topic": "TAXES", "statement": "Create a new, higher state income tax tier on annual income above one million dollars." },
+    { "topic": "SOCIAL_SECURITY", "statement": "Fully exempt all Social Security benefits from Minnesota state income tax, regardless of the recipient's income." },
+    { "topic": "EDUCATION", "statement": "Create education savings accounts or vouchers that let families use state per-pupil funding toward private school tuition." },
+    { "topic": "HOUSING", "statement": "Require cities to allow duplexes and small multifamily housing on lots currently zoned exclusively for single-family homes." },
+    { "topic": "GUN_POLICY", "statement": "Keep and enforce Minnesota's extreme risk protection order (red flag) law, which lets courts temporarily remove firearms from people found to be a danger to themselves or others." },
+    { "topic": "ENVIRONMENT", "statement": "Keep Minnesota's requirement that electric utilities deliver 100 percent carbon-free electricity by 2040." },
+    { "topic": "LABOR", "statement": "Keep Minnesota's paid family and medical leave program, funded by a payroll tax split between employers and workers, which began paying benefits in 2026." },
+    { "topic": "CRIMINAL_JUSTICE", "statement": "Increase mandatory minimum prison sentences for repeat violent offenders." },
+    { "topic": "IMMIGRATION", "statement": "Keep Minnesota's law allowing residents to obtain a driver's license regardless of immigration status." },
+    { "topic": "INFRASTRUCTURE", "statement": "Keep the metro-area sales tax dedicated to funding public transit expansion and operations." },
+    { "topic": "DRUG_POLICY", "statement": "Allow cities and counties to prohibit licensed cannabis retail businesses within their borders." }
+  ]
+}

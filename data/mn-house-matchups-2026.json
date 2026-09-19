@@ -1,0 +1,299 @@
+{
+ "_source": "Wikipedia: 2026 Minnesota House of Representatives election (per-district Candidates lists, post-Aug-11-primary; contested primaries resolved from that page's primary boxes). Competitive = 2024 general-election margin < 10 points, computed from the 2024 election page's general boxes. Senate excluded: no per-district candidate source without the CAPTCHA-gated SoS portal.",
+ "races": [
+  {
+   "race": "Minnesota State House District 54A 2026",
+   "margin2024": 0.1,
+   "candidates": [
+    {
+     "name": "Aaron Paul",
+     "party": "R"
+    },
+    {
+     "name": "Brad Tabke",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 3B 2026",
+   "margin2024": 0.6,
+   "candidates": [
+    {
+     "name": "Natalie Zeleznikar",
+     "party": "R"
+    },
+    {
+     "name": "Aaron Schweiger",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 48B 2026",
+   "margin2024": 0.9,
+   "candidates": [
+    {
+     "name": "Caleb Steffenhagen",
+     "party": "R"
+    },
+    {
+     "name": "Lucille \"Lucy\" Rehm",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 14B 2026",
+   "margin2024": 1.0,
+   "candidates": [
+    {
+     "name": "Sue Ek",
+     "party": "R"
+    },
+    {
+     "name": "Zachary \"Zach\" Dorholt",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 41A 2026",
+   "margin2024": 1.1,
+   "candidates": [
+    {
+     "name": "Wayne A Johnson",
+     "party": "R"
+    },
+    {
+     "name": "Cole Birkeland",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 35B 2026",
+   "margin2024": 1.2,
+   "candidates": [
+    {
+     "name": "Steve Pape",
+     "party": "R"
+    },
+    {
+     "name": "Kari Rehrauer",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 32B 2026",
+   "margin2024": 1.7,
+   "candidates": [
+    {
+     "name": "Leslie Larson",
+     "party": "R"
+    },
+    {
+     "name": "Matt Norris",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 41B 2026",
+   "margin2024": 2.1,
+   "candidates": [
+    {
+     "name": "William Beck",
+     "party": "R"
+    },
+    {
+     "name": "Jen Fox",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 33B 2026",
+   "margin2024": 2.7,
+   "candidates": [
+    {
+     "name": "Jessica L. Johnson",
+     "party": "R"
+    },
+    {
+     "name": "Josiah Hill",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 11A 2026",
+   "margin2024": 2.8,
+   "candidates": [
+    {
+     "name": "Jeff Dotseth",
+     "party": "R"
+    },
+    {
+     "name": "Chris Swanson",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 36B 2026",
+   "margin2024": 3.3,
+   "candidates": [
+    {
+     "name": "Patty Bradway",
+     "party": "R"
+    },
+    {
+     "name": "Brion Curran",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 18A 2026",
+   "margin2024": 3.4,
+   "candidates": [
+    {
+     "name": "Erica Schwartz",
+     "party": "R"
+    },
+    {
+     "name": "Leah Hanson",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 2A 2026",
+   "margin2024": 3.8,
+   "candidates": [
+    {
+     "name": "Bidal Duran Jr.",
+     "party": "R"
+    },
+    {
+     "name": "Reed Olson",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 35A 2026",
+   "margin2024": 3.8,
+   "candidates": [
+    {
+     "name": "Josh Jungling",
+     "party": "R"
+    },
+    {
+     "name": "Zack Stephenson",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 57B 2026",
+   "margin2024": 4.8,
+   "candidates": [
+    {
+     "name": "Jeff Witte",
+     "party": "R"
+    },
+    {
+     "name": "Brian Cohn",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 58A 2026",
+   "margin2024": 5.0,
+   "candidates": [
+    {
+     "name": "Steven E. Cherney",
+     "party": "R"
+    },
+    {
+     "name": "Kristi Pursell",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 26A 2026",
+   "margin2024": 5.7,
+   "candidates": [
+    {
+     "name": "Aaron Repinski",
+     "party": "R"
+    },
+    {
+     "name": "Dan Wilson",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 55A 2026",
+   "margin2024": 6.8,
+   "candidates": [
+    {
+     "name": "Pam Myhra",
+     "party": "R"
+    },
+    {
+     "name": "Jessica Hanson",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 34A 2026",
+   "margin2024": 7.1,
+   "candidates": [
+    {
+     "name": "Danny Nadeau",
+     "party": "R"
+    },
+    {
+     "name": "Jason Heaser",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 36A 2026",
+   "margin2024": 8.2,
+   "candidates": [
+    {
+     "name": "Sebastian Stoss",
+     "party": "R"
+    },
+    {
+     "name": "Jim DeMay",
+     "party": "DFL"
+    }
+   ]
+  },
+  {
+   "race": "Minnesota State House District 47B 2026",
+   "margin2024": 8.9,
+   "candidates": [
+    {
+     "name": "Ethan Cha",
+     "party": "DFL"
+    },
+    {
+     "name": "Kim Wilson",
+     "party": "Independent"
+    }
+   ]
+  }
+ ]
+}
