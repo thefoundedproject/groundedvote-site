@@ -292,6 +292,24 @@ function MeasuresBlock({ stateCode }) {
   )
 }
 
+// Official per-state page on vote.gov: register online/by mail + check
+// your registration, with state deadlines. Nonpartisan by construction.
+const voteGovUrl = (stateCode) => `https://vote.gov/register/${(stateCode || '').toLowerCase()}`
+
+function RegisterLink({ stateCode, stateName, style }) {
+  if (!stateCode) return null
+  return (
+    <a
+      href={voteGovUrl(stateCode)}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ color: C.gold, fontSize: 13, fontWeight: 600, textDecoration: 'none', ...style }}
+    >
+      Register to vote or check your {stateName ?? stateCode} registration →
+    </a>
+  )
+}
+
 function RaceSelector({ stateCode, stateName, district, divisions, onSelect, onBack }) {
   const [races, setRaces] = useState([])
   const [stateRaces, setStateRaces] = useState([])
@@ -334,6 +352,9 @@ function RaceSelector({ stateCode, stateName, district, divisions, onSelect, onB
         <h1 style={{ color: C.text, fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 12, letterSpacing: '-0.02em' }}>
           2026 Competitive Races
         </h1>
+        <p style={{ margin: '0 0 28px' }}>
+          <RegisterLink stateCode={stateCode} stateName={stateName} />
+        </p>
 
         {isComingSoon ? (
           <ComingSoonBlock stateName={stateName} stateCode={stateCode} />
@@ -1178,6 +1199,16 @@ function Results({ scores, topIssues, race, sessionId, preVote, measureAnswers, 
           <a href="/support" style={{ backgroundColor: 'rgba(255,255,255,0.04)', color: C.textMuted, padding: '12px 20px', borderRadius: 6, fontWeight: 600, fontSize: 13, textDecoration: 'none', border: `1px solid ${C.goldFaint}` }}>
             Support the project
           </a>
+          {race?.state && (
+            <a
+              href={voteGovUrl(race.state)}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ backgroundColor: 'rgba(255,255,255,0.04)', color: C.gold, padding: '12px 20px', borderRadius: 6, fontWeight: 600, fontSize: 13, textDecoration: 'none', border: `1px solid ${C.goldDim}` }}
+            >
+              Register to vote →
+            </a>
+          )}
         </div>
 
       </div>

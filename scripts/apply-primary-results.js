@@ -14,14 +14,17 @@
 //   {
 //     "race": "Arizona Senate 2026",        // exact Race.label
 //     "winners": ["Ruben Gallego", "Kari Lake"],  // advancing to general
+//     "withdrew": ["Jane Doe"],             // never on the primary ballot -> WITHDREW
 //     "eliminateOthers": true               // everyone else -> LOST_PRIMARY
 //   }
 // ]
 // Winners are matched by "First Last" (case-insensitive). Winners get
-// WON_PRIMARY; with eliminateOthers, every other non-withdrawn candidate
-// in the race gets LOST_PRIMARY. Unmatched winner names abort that race
-// (nothing partial), and every action logs a MonitoringChange for the
-// audit trail.
+// WON_PRIMARY; names in withdrew get WITHDREW (for seeded candidates who
+// dropped out or never filed — LOST_PRIMARY would be false on the audit
+// trail); with eliminateOthers, every other non-withdrawn candidate
+// in the race gets LOST_PRIMARY. Unmatched winner or withdrew names abort
+// that race (nothing partial), and every action logs a MonitoringChange
+// for the audit trail.
 
 const fs = require('fs')
 const { PrismaClient } = require('@prisma/client')
@@ -63,15 +66,27 @@ async function main() {
       }
       winners.push(c)
     }
+    const withdrew = []
+    for (const name of entry.withdrew ?? []) {
+      const c = byName.get(norm(name))
+      if (!c) {
+        console.error(`✗ ${entry.race}: withdrew "${name}" not found — race skipped, nothing changed`)
+        abort = true
+        break
+      }
+      withdrew.push(c)
+    }
     if (abort) continue
 
     const winnerIds = new Set(winners.map(c => c.id))
+    const withdrewIds = new Set(withdrew.map(c => c.id))
     const losers = entry.eliminateOthers
-      ? race.candidates.filter(c => !winnerIds.has(c.id) && !['WITHDREW', 'LOST_PRIMARY'].includes(c.status))
+      ? race.candidates.filter(c => !winnerIds.has(c.id) && !withdrewIds.has(c.id) && !['WITHDREW', 'LOST_PRIMARY'].includes(c.status))
       : []
 
     console.log(`\n${entry.race}`)
     for (const c of winners) console.log(`  WON_PRIMARY   ${c.firstName} ${c.lastName}${c.status !== 'ACTIVE' ? ` (was ${c.status})` : ''}`)
+    for (const c of withdrew) console.log(`  WITHDREW      ${c.firstName} ${c.lastName}`)
     for (const c of losers) console.log(`  LOST_PRIMARY  ${c.firstName} ${c.lastName}`)
 
     if (!APPLY) continue
@@ -79,6 +94,9 @@ async function main() {
     await prisma.$transaction(async (tx) => {
       for (const c of winners) {
         await tx.candidate.update({ where: { id: c.id }, data: { status: 'WON_PRIMARY' } })
+      }
+      for (const c of withdrew) {
+        await tx.candidate.update({ where: { id: c.id }, data: { status: 'WITHDREW' } })
       }
       for (const c of losers) {
         await tx.candidate.update({ where: { id: c.id }, data: { status: 'LOST_PRIMARY' } })
@@ -88,7 +106,7 @@ async function main() {
           type: 'PRIMARY_RESULTS_IN',
           raceId: race.id,
           title: `Primary results applied: ${entry.race}`,
-          description: `Advancing: ${winners.map(c => `${c.firstName} ${c.lastName}`).join(', ')}. Eliminated: ${losers.map(c => `${c.firstName} ${c.lastName}`).join(', ') || 'none'}.`,
+          description: `Advancing: ${winners.map(c => `${c.firstName} ${c.lastName}`).join(', ')}. Withdrew/never on ballot: ${withdrew.map(c => `${c.firstName} ${c.lastName}`).join(', ') || 'none'}. Eliminated: ${losers.map(c => `${c.firstName} ${c.lastName}`).join(', ') || 'none'}.`,
           reviewed: true,
         },
       })

@@ -1,0 +1,29 @@
+[
+  {
+    "race": "New Hampshire Senate 2026",
+    "winners": ["Chris Pappas", "John Sununu"],
+    "withdrew": [
+      "Margaret Wood Hassan",
+      "Jeanne Shaheen",
+      "Dan Innis",
+      "Dennis Lamare",
+      "Chuck Morse",
+      "Tejasinha Sivalingam",
+      "Jared Sullivan"
+    ],
+    "eliminateOthers": true,
+    "_source": "Wikipedia: 2026 United States Senate election in New Hampshire (primary Sept 8, 2026). Pappas won D primary 65%, John E. Sununu won R primary 68.5%. On-ballot losers in our DB: Scott Brown (R), Karishma Manzur (D). Withdrew list = seeded candidates never on the Sept 8 ballot: Shaheen retiring (open seat), Hassan not up until 2028 (seed error), Sullivan a former candidate for the seat, Innis/Lamare/Morse/Sivalingam early declared candidates no longer listed."
+  },
+  {
+    "race": "California House District 13 2026",
+    "winners": ["Adam Gray", "Kevin Lincoln"],
+    "eliminateOthers": true,
+    "_source": "Wikipedia: 2026 US House elections in California, District 13. Top-two advancing: Adam Gray (D, incumbent), Kevin Lincoln (R). Eliminated (not in our DB): Daniel Garibay Rodriguez (D), Vin Kruttiventi (R)."
+  },
+  {
+    "race": "California House District 27 2026",
+    "winners": ["George Whitesides", "Jason Gibbs"],
+    "eliminateOthers": true,
+    "_source": "Wikipedia: 2026 US House elections in California, District 27. Top-two advancing: George Whitesides (D, incumbent), Jason Gibbs (R). Eliminated (not in our DB): Caleb Norwood (D), Roberto Ramos (D)."
+  }
+]
