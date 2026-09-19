@@ -231,7 +231,10 @@
    "candidates": [
     {
      "name": "Aaron Repinski",
-     "party": "R"
+     "party": "R",
+     "aka": [
+      "Ripper Repinski"
+     ]
     },
     {
      "name": "Dan Wilson",

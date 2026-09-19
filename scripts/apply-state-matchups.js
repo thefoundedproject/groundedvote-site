@@ -30,8 +30,17 @@ const samePerson = (a, b) => {
   if (na === nb || na.includes(nb) || nb.includes(na)) return true
   const ta = na.split(' '), tb = nb.split(' ')
   if (ta.at(-1) !== tb.at(-1)) return false
-  return ta.slice(0, -1).some(x => tb.slice(0, -1).some(y => x === y || x[0] === y[0] && (x.length === 1 || y.length === 1)))
+  // Given names match on equality, initial, or prefix (Jess ~ Jessica)
+  return ta.slice(0, -1).some(x => tb.slice(0, -1).some(y =>
+    x === y
+    || (x[0] === y[0] && (x.length === 1 || y.length === 1))
+    || (x.length >= 3 && y.length >= 3 && (x.startsWith(y) || y.startsWith(x)))
+  ))
 }
+// Nicknames the loose matcher cannot derive ("Ripper" for Aaron) are
+// declared per-candidate in the data file: { name, party, aka: [...] }
+const matchesListed = (dbName, listed) =>
+  samePerson(dbName, listed.name) || (listed.aka ?? []).some(a => samePerson(dbName, a))
 const splitName = name => {
   const parts = name.replace(/["“”].*?["“”]\s*/g, '').trim().split(/\s+/)
   return { firstName: parts.slice(0, -1).join(' '), lastName: parts.at(-1) }
@@ -48,7 +57,7 @@ async function main() {
 
     const matches = []   // [listed, dbCandidate|null]
     for (const listed of entry.candidates) {
-      const db = race.candidates.find(c => samePerson(`${c.firstName} ${c.lastName}`, listed.name))
+      const db = race.candidates.find(c => matchesListed(`${c.firstName} ${c.lastName}`, listed))
       matches.push([listed, db ?? null])
     }
     const matchedIds = new Set(matches.map(([, db]) => db?.id).filter(Boolean))
