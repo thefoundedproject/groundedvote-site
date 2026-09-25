@@ -87,7 +87,7 @@ export default function Methodology() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {[
-            { n: '1', label: 'Candidate data ingestion', desc: 'Congress.gov voting records, sponsored legislation, and manually-entered position statements are collected for each candidate.' },
+            { n: '1', label: 'Candidate data ingestion', desc: 'For members of Congress, we pull the bills they sponsored and cosponsored from Congress.gov. We also pull their DW-NOMINATE ideology score from voteview.com, computed from every roll-call vote they\'ve cast. For every candidate, we add their campaign website (the address comes from official filings), their Ballotpedia profile, and any position statements entered by hand.' },
             { n: '2', label: 'Question generation', desc: 'Claude generates four neutral question variants per policy topic, constrained to behavioral language ("Would you support a policy that..."). Party names and coded language are explicitly prohibited.' },
             { n: '3', label: 'Bias scoring', desc: 'GPT-4 scores each variant on four dimensions: ideological loading, assumption embedding, emotional framing, and factual accuracy. Scored blind — no model knows the other generated the variants.' },
             { n: '4', label: 'Variant selection', desc: 'Claude reviews bias scores and selects the lowest-scoring variant per topic. All variants, scores, and selection reasoning are archived to the public Audit Trail.' },
@@ -146,7 +146,7 @@ export default function Methodology() {
         </p>
 
         <SourceRow badge="Voting Record" color="#5ECFA6" bg="rgba(94,207,166,0.12)">
-          The most reliable source. For incumbents, Congress.gov voting data is pulled for the 119th Congress. Votes on directly relevant legislation are weighted most heavily. Confidence: 0.85–0.95.
+          For sitting members of Congress. The position rests on the bills they sponsored or cosponsored, pulled from Congress.gov. Congress.gov publishes each member's bills but has no per-member list of floor votes. Their DW-NOMINATE score, built from every roll-call vote they've cast, works as a check. A position that cuts against that score gets lower confidence unless direct evidence backs it up. Confidence: 0.85–0.95.
         </SourceRow>
         <SourceRow badge="Public Statement" color="#7EC8E3" bg="rgba(126,200,227,0.12)">
           Statements from campaign websites, press releases, debate transcripts, or news interviews where the candidate directly addressed the policy topic. Confidence: 0.70–0.85.

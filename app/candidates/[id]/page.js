@@ -165,8 +165,8 @@ function factCheckUrl(claim) {
 }
 
 // ─── record vs. rhetoric section ──────────────────────────────────────────────
-// Plain-language consistency between stated positions and the voting
-// record. No editorial judgment — counts, notes, and sources only.
+// Plain-language consistency between stated positions and the sponsored +
+// cosponsored bill record. No editorial judgment — counts, notes, and sources only.
 function RecordVsRhetoric({ candidate, candidateName }) {
   const score = candidate.rhetoricConsistencyScore
   const bd = candidate.rhetoricBreakdown
@@ -181,7 +181,7 @@ function RecordVsRhetoric({ candidate, candidateName }) {
           Record vs. Rhetoric
         </h2>
         <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
-          {candidateName} has a congressional voting record. The comparison between their stated positions and that record is still being computed — check back soon.
+          {candidateName} serves in Congress, so we can check their stated positions against the bills they&apos;ve sponsored and cosponsored. We&apos;re still running that comparison. Check back soon.
         </p>
       </section>
     )
