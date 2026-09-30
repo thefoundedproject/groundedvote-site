@@ -4,7 +4,7 @@
 // app/components/SiteChrome.jsx — banner + nav + footer (client state lives
 // here so the root layout can be a server component and own real metadata).
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const NAV_LINKS = [
   { href: '/map',         label: 'Race Map' },
@@ -40,10 +40,41 @@ function NavLink({ href, label, onClick }) {
   )
 }
 
+// All states + DC, for the registration dropdown (vote.gov/register/{code})
+const STATES = [
+  ['al','Alabama'],['ak','Alaska'],['az','Arizona'],['ar','Arkansas'],['ca','California'],
+  ['co','Colorado'],['ct','Connecticut'],['de','Delaware'],['dc','District of Columbia'],
+  ['fl','Florida'],['ga','Georgia'],['hi','Hawaii'],['id','Idaho'],['il','Illinois'],
+  ['in','Indiana'],['ia','Iowa'],['ks','Kansas'],['ky','Kentucky'],['la','Louisiana'],
+  ['me','Maine'],['md','Maryland'],['ma','Massachusetts'],['mi','Michigan'],['mn','Minnesota'],
+  ['ms','Mississippi'],['mo','Missouri'],['mt','Montana'],['ne','Nebraska'],['nv','Nevada'],
+  ['nh','New Hampshire'],['nj','New Jersey'],['nm','New Mexico'],['ny','New York'],
+  ['nc','North Carolina'],['nd','North Dakota'],['oh','Ohio'],['ok','Oklahoma'],['or','Oregon'],
+  ['pa','Pennsylvania'],['ri','Rhode Island'],['sc','South Carolina'],['sd','South Dakota'],
+  ['tn','Tennessee'],['tx','Texas'],['ut','Utah'],['vt','Vermont'],['va','Virginia'],
+  ['wa','Washington'],['wv','West Virginia'],['wi','Wisconsin'],['wy','Wyoming'],
+]
+
 function ElectionBanner({ onDismiss }) {
+  // Days until Nov 3, 2026, computed after mount so the server render
+  // (which may sit on a different day) never mismatches hydration.
+  const [days, setDays] = useState(null)
+  useEffect(() => {
+    const electionDay = new Date(2026, 10, 3) // local midnight, Nov 3 2026
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    setDays(Math.round((electionDay - today) / 86400000))
+  }, [])
+
+  const headline = days === null
+    ? '2026 MIDTERM GENERAL ELECTION \u2014 NOVEMBER 3'
+    : days > 1 ? `${days} DAYS UNTIL THE MIDTERMS \u2014 NOVEMBER 3`
+    : days === 1 ? '1 DAY UNTIL THE MIDTERMS \u2014 TOMORROW'
+    : days === 0 ? 'ELECTION DAY \u2014 POLLS ARE OPEN TODAY'
+    : '2026 MIDTERM GENERAL ELECTION \u2014 NOVEMBER 3'
+
   return (
     <div style={{
-      // Solid navy base with the gold tint layered on top — fully opaque,
+      // Solid navy base with the gold tint layered on top \u2014 fully opaque,
       // so scrolling content can never bleed through the fixed header.
       backgroundColor: '#0F1B1F',
       backgroundImage: 'linear-gradient(rgba(216,171,105,0.12), rgba(216,171,105,0.12))',
@@ -58,16 +89,38 @@ function ElectionBanner({ onDismiss }) {
       textAlign: 'center',
     }}>
       <p style={{ color: '#D8AB69', fontSize: 12, fontWeight: 700, margin: 0, letterSpacing: '0.05em' }}>
-        🗳 2026 MIDTERM GENERAL ELECTION — NOVEMBER 3, 2026
+        🗳 {headline}
       </p>
-      <a
-        href="https://vote.gov"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ color: '#5ECFA6', fontSize: 11, fontWeight: 600, textDecoration: 'underline', textDecorationColor: 'rgba(94,207,166,0.4)', letterSpacing: '0.03em' }}
-      >
-        Register or check registration at vote.gov →
-      </a>
+      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ color: '#5ECFA6', fontSize: 11, fontWeight: 600, letterSpacing: '0.03em' }}>
+          Check your registration:
+        </span>
+        <select
+          defaultValue=""
+          aria-label="Check voter registration in your state"
+          onChange={(e) => {
+            const code = e.target.value
+            e.target.value = ''
+            if (!code) return
+            const url = `https://vote.gov/register/${code}`
+            // In-app browsers (LinkedIn/Facebook webviews) block popups even
+            // on real taps; fall back to same-tab navigation so the link
+            // always works where launch traffic actually lands.
+            const w = window.open(url, '_blank', 'noopener')
+            if (!w) window.location.href = url
+          }}
+          style={{
+            backgroundColor: 'rgba(255,255,255,0.06)', color: '#5ECFA6',
+            border: '1px solid rgba(94,207,166,0.35)', borderRadius: 4,
+            fontSize: 11, fontWeight: 600, padding: '2px 4px', fontFamily: 'inherit', cursor: 'pointer',
+          }}
+        >
+          <option value="" disabled>Select your state</option>
+          {STATES.map(([code, name]) => (
+            <option key={code} value={code} style={{ color: '#0F1B1F' }}>{name}</option>
+          ))}
+        </select>
+      </label>
       <button
         onClick={onDismiss}
         aria-label="Dismiss"
