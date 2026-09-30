@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'About | GroundedVote',
+  title: 'About',
   description: 'GroundedVote is built by The Founded Project LLC. Nonpartisan civic alignment for a healthier democracy — no party, no tribe, no fear.',
 }
 

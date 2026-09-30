@@ -11,7 +11,7 @@ import { platformCoverage, availableGeographies, currentPeriod, MIN_COHORT } fro
 export const revalidate = 3600
 
 export const metadata = {
-  title: 'Research Data | GroundedVote',
+  title: 'Research Data',
   description: 'Anonymized, aggregate civic research data from GroundedVote for academic and journalism partners. Minimum cohort 50. No individual data, ever.',
 }
 

@@ -8,7 +8,7 @@ import { getCandidatePhotoUrl, getCandidateInitials } from '@/lib/candidate-phot
 export const dynamic = 'force-dynamic'
 export const revalidate = 300
 export const metadata = {
-  title: 'Candidates | GroundedVote',
+  title: 'Candidates',
   description: 'Browse all 2026 candidates tracked by GroundedVote — with AI-extracted policy positions and bias-audited quiz alignment.',
 }
 

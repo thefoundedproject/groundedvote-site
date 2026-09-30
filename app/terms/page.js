@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Terms of Service | GroundedVote',
+  title: 'Terms of Service',
   description: 'GroundedVote Terms of Service — how you may use this civic alignment platform.',
 }
 

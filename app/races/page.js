@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import RaceList from './RaceList'
 
 export const metadata = {
-  title: '2026 Competitive Races | GroundedVote',
+  title: '2026 Competitive Races',
   description: 'Browse all competitive Senate and House races covered by GroundedVote for 2026. Filter by chamber, status, or state. Find your race and take the alignment quiz.',
 }
 

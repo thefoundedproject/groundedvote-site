@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'How It Works | GroundedVote',
+  title: 'How It Works',
   description: 'GroundedVote matches you to candidates based on your actual policy beliefs — not your party, not your fear. Here is exactly how.',
 }
 

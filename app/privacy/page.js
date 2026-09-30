@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Privacy Policy | GroundedVote',
+  title: 'Privacy Policy',
   description: 'How GroundedVote collects, uses, and protects your information.',
 }
 

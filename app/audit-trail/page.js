@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 
 export const metadata = {
-  title: 'Audit Trail | GroundedVote',
+  title: 'Audit Trail',
   description: 'Every question GroundedVote has generated, every bias score, every variant — public and archived.',
 }
 

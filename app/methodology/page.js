@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Methodology | GroundedVote',
+  title: 'Methodology',
   description: 'How GroundedVote generates bias-audited questions, extracts candidate positions, and computes your alignment score. Full technical methodology.',
 }
 
