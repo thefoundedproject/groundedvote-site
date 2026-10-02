@@ -235,7 +235,7 @@ function CivicQuiz() {
             <p style={{ color: '#E8A820', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 20 }}>Take the Quiz First</p>
             <h3 style={{ color: '#F5F0E8', fontSize: 22, fontWeight: 300, lineHeight: 1.3, marginBottom: 12 }}>Six questions about how you currently vote.</h3>
             <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14, lineHeight: 1.65, marginBottom: 32 }}>
-              Two questions ask what issues matter most to you. We use your answers to make your results more accurate. No wrong answers.
+              Two of the six ask which issues matter most to you; those answers count extra in your final match score. No wrong answers.
             </p>
             <button onClick={() => setStep(1)} style={{ backgroundColor: '#E8A820', color: '#0C1A2E', padding: '16px 40px', borderRadius: 6, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', width: '100%' }}>
               Start the quiz &rarr;

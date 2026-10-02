@@ -103,14 +103,18 @@ function ElectionBanner({ onDismiss }) {
             e.target.value = ''
             if (!code) return
             const url = `https://vote.gov/register/${code}`
-            // window.open with a 'noopener' feature returns null by spec,
-            // which would make a blocked-popup fallback fire every time and
-            // double-navigate. Open plain, sever the opener by hand, and
-            // fall back to same-tab navigation only on a real block (in-app
-            // browsers like LinkedIn/Facebook webviews block popups).
-            const w = window.open(url, '_blank')
-            if (w) w.opener = null
-            else window.location.href = url
+            // In-app webviews (LinkedIn/Facebook) return a non-null stub
+            // from window.open that never opens anything, so a null-check
+            // fallback can't detect the block. A synthesized anchor click
+            // goes through the browser's normal link path instead, which
+            // webviews honor (usually by handing off to the real browser).
+            const a = document.createElement('a')
+            a.href = url
+            a.target = '_blank'
+            a.rel = 'noopener noreferrer'
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
           }}
           style={{
             backgroundColor: 'rgba(255,255,255,0.06)', color: '#5ECFA6',
