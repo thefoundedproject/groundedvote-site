@@ -102,19 +102,13 @@ function ElectionBanner({ onDismiss }) {
             const code = e.target.value
             e.target.value = ''
             if (!code) return
-            const url = `https://vote.gov/register/${code}`
-            // In-app webviews (LinkedIn/Facebook) return a non-null stub
-            // from window.open that never opens anything, so a null-check
-            // fallback can't detect the block. A synthesized anchor click
-            // goes through the browser's normal link path instead, which
-            // webviews honor (usually by handing off to the real browser).
-            const a = document.createElement('a')
-            a.href = url
-            a.target = '_blank'
-            a.rel = 'noopener noreferrer'
-            document.body.appendChild(a)
-            a.click()
-            a.remove()
+            // Same-tab navigation on purpose: every new-tab approach
+            // (window.open, synthesized anchor click) is silently
+            // swallowed somewhere — in-app webviews return a stub from
+            // window.open, popup blockers eat _blank anchors without
+            // user activation. Plain href works in every environment,
+            // and Back returns here.
+            window.location.href = `https://vote.gov/register/${code}`
           }}
           style={{
             backgroundColor: 'rgba(255,255,255,0.06)', color: '#5ECFA6',
