@@ -50,6 +50,12 @@ export const viewport = {
   themeColor: '#0F1B1F',
 }
 
+// Cap edge caching of page HTML at 5 minutes. Fully static pages ship
+// with s-maxage=31536000, which let Railway's edge serve day-old HTML
+// (and day-old JS chunk references) long after a deploy. Pages can
+// still override with their own revalidate.
+export const revalidate = 300
+
 const STRUCTURED_DATA = {
   '@context': 'https://schema.org',
   '@graph': [
