@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getCandidatePhotoUrl, getCandidateInitials } from '@/lib/candidate-photo'
 import { factCheckUrl } from '@/lib/fact-check-link'
+import { isPartyInferred } from '@/lib/evidence'
 
 export const revalidate = 300
 
@@ -116,22 +117,46 @@ async function getUserTopIssues(sessionId) {
 
 // ─── component helpers ────────────────────────────────────────────────────────
 
-function AnswerBar({ value }) {
+// An inferred position is drawn as a dashed estimate, so the bar itself never
+// reads as the candidate's stated position.
+function AnswerBar({ value, inferred = false }) {
   const pct   = ((value - 1) / 4) * 100
   const color = ANSWER_COLORS[value] ?? S.muted
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <div style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: S.faint, overflow: 'hidden' }}>
-        <div style={{ width: `${pct}%`, height: '100%', backgroundColor: color, borderRadius: 2 }} />
+        <div style={{
+          width: `${pct}%`, height: '100%', borderRadius: 2,
+          ...(inferred
+            ? { backgroundImage: `repeating-linear-gradient(90deg, ${color} 0 6px, transparent 6px 10px)`, opacity: 0.75 }
+            : { backgroundColor: color }),
+        }} />
       </div>
-      <span style={{ color, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', minWidth: 110 }}>
-        {ANSWER_LABELS[value] ?? 'Unknown'}
+      <span style={{ color, fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', minWidth: 110, opacity: inferred ? 0.85 : 1 }}>
+        {ANSWER_LABELS[value] ?? 'Unknown'}{inferred ? ' · estimate' : ''}
       </span>
     </div>
   )
 }
 
-function EvidenceBadge({ type }) {
+const INFERRED_TIP = "We found no direct statement, vote or platform position from this candidate on this question. The position shown is estimated from their party's typical stance."
+
+function EvidenceBadge({ answer }) {
+  if (isPartyInferred(answer)) {
+    return (
+      <span title={INFERRED_TIP} style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+        padding: '2px 7px', borderRadius: 3,
+        border: '1px solid rgba(216,171,105,0.7)',
+        backgroundColor: 'rgba(216,171,105,0.14)',
+        color: '#D8AB69',
+        textTransform: 'uppercase', whiteSpace: 'nowrap', cursor: 'help',
+      }}>
+        Inferred from party
+      </span>
+    )
+  }
+  const type = answer?.evidenceType
   return (
     <span style={{
       fontSize: 10, fontWeight: 600, letterSpacing: '0.06em',
@@ -324,12 +349,12 @@ function OnYourIssues({ topIssues, answersByTopic, candidateName }) {
                   <p style={{ color: S.text, fontSize: 14, lineHeight: 1.6, margin: '0 0 12px' }}>
                     {ans.question?.questionText}
                   </p>
-                  <AnswerBar value={ans.answerValue} />
+                  <AnswerBar value={ans.answerValue} inferred={isPartyInferred(ans)} />
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     marginTop: 10, flexWrap: 'wrap',
                   }}>
-                    <EvidenceBadge type={ans.evidenceType} />
+                    <EvidenceBadge answer={ans} />
                     {ans.sourceNote && (
                       <span style={{ color: S.muted, fontSize: 11, fontStyle: 'italic' }}>
                         {ans.sourceNote}
@@ -359,6 +384,9 @@ export default async function CandidatePage({ params, searchParams }) {
   // Personalization: fetch user's top issues from quiz session if linked
   const sessionId    = searchParams?.session ?? null
   const topIssues    = await getUserTopIssues(sessionId)
+
+  // Positions estimated from party rather than the candidate's own record
+  const inferredCount = c.quizAnswers.filter(isPartyInferred).length
 
   // Group all answers by topic (used for both sections)
   const answersByTopic = c.quizAnswers.reduce((acc, a) => {
@@ -510,6 +538,12 @@ export default async function CandidatePage({ params, searchParams }) {
               <div style={{ color: S.text, fontSize: 22, fontWeight: 700 }}>{totalAnswers}</div>
               <div style={{ color: S.muted, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Policy Positions</div>
             </div>
+            {inferredCount > 0 && (
+              <div title={INFERRED_TIP}>
+                <div style={{ color: '#D8AB69', fontSize: 22, fontWeight: 700 }}>{inferredCount} of {totalAnswers}</div>
+                <div style={{ color: S.muted, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Inferred from party</div>
+              </div>
+            )}
             {avgConfidence !== null && (
               <div>
                 <div style={{ color: S.teal, fontSize: 22, fontWeight: 700 }}>{avgConfidence}%</div>
@@ -567,6 +601,10 @@ export default async function CandidatePage({ params, searchParams }) {
                   </h3>
                   <span style={{ color: S.muted, fontSize: 12, marginLeft: 'auto' }}>
                     {answersByTopic[topic].length} position{answersByTopic[topic].length !== 1 ? 's' : ''}
+                    {(() => {
+                      const k = answersByTopic[topic].filter(isPartyInferred).length
+                      return k ? <span style={{ color: '#D8AB69' }}> · {k === answersByTopic[topic].length ? 'all' : k} inferred from party</span> : null
+                    })()}
                   </span>
                 </div>
 
@@ -580,12 +618,12 @@ export default async function CandidatePage({ params, searchParams }) {
                     <p style={{ color: S.text, fontSize: 14, lineHeight: 1.6, margin: '0 0 12px' }}>
                       {ans.question?.questionText}
                     </p>
-                    <AnswerBar value={ans.answerValue} />
+                    <AnswerBar value={ans.answerValue} inferred={isPartyInferred(ans)} />
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       marginTop: 10, flexWrap: 'wrap',
                     }}>
-                      <EvidenceBadge type={ans.evidenceType} />
+                      <EvidenceBadge answer={ans} />
                       {ans.sourceNote && (
                         <span style={{ color: S.muted, fontSize: 11, fontStyle: 'italic' }}>
                           {ans.sourceNote}
