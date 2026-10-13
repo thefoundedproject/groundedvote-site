@@ -91,7 +91,9 @@ async function getCandidate(id) {
     where: { id },
     include: {
       race: { select: { id: true, label: true, state: true, stateFull: true, chamber: true, year: true } },
+      // Archived questions keep their old answers, which are never re-scored.
       quizAnswers: {
+        where: { question: { auditStatus: 'APPROVED' } },
         include: { question: { select: { questionText: true, topic: true, weight: true } } },
         orderBy: { question: { weight: 'desc' } },
       },
