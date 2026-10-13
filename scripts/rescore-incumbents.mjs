@@ -7,7 +7,8 @@
 //
 //   railway run node scripts/rescore-incumbents.mjs                 # dry run
 //   railway run node scripts/rescore-incumbents.mjs --apply --backup <file.json>
-//   add --bioguide C001063,S001201 to limit the run to those members
+//   add --bioguide C001063,S001201 to limit the run to those members,
+//   and --questions <id,id> to limit it to those questions
 
 import { writeFileSync } from 'fs'
 import { prisma } from '../lib/prisma.js'
@@ -15,6 +16,7 @@ import { extractPositionsForCandidate } from '../lib/candidate-positions.js'
 
 const APPLY = process.argv.includes('--apply')
 const backupPath = process.argv[process.argv.indexOf('--backup') + 1]
+const questions = process.argv.includes('--questions') ? process.argv[process.argv.indexOf('--questions') + 1].split(',') : null
 const only = process.argv.includes('--bioguide') ? process.argv[process.argv.indexOf('--bioguide') + 1].split(',') : null
 
 const mix = async (ids) => Object.fromEntries((await prisma.candidateAnswer.groupBy({
@@ -37,7 +39,7 @@ if (!APPLY) {
   process.exit(0)
 }
 if (!backupPath || backupPath.startsWith('--')) throw new Error('--apply needs --backup <file.json>')
-const before = await prisma.candidateAnswer.findMany({ where: { candidateId: { in: ids } } })
+const before = await prisma.candidateAnswer.findMany({ where: { candidateId: { in: ids }, ...(questions ? { questionId: { in: questions } } : {}) } })
 writeFileSync(backupPath, JSON.stringify(before, null, 1))
 console.log(`backed up ${before.length} answers to ${backupPath}`)
 
@@ -45,7 +47,7 @@ let done = 0
 for (const c of candidates) {
   const t = Date.now()
   try {
-    const s = await extractPositionsForCandidate(c.id, { overwrite: true })
+    const s = await extractPositionsForCandidate(c.id, { overwrite: true, onlyQuestionIds: questions })
     const vr = s.details.filter((d) => d.evidenceType === 'VOTING_RECORD').length
     console.log(`[${++done}/${candidates.length}] ${c.firstName} ${c.lastName}: ${s.created} scored, ${s.failed} failed, ${vr} voting record (${Math.round((Date.now() - t) / 1000)}s)`)
   } catch (err) {
