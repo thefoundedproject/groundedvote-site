@@ -1,6 +1,6 @@
 // node scripts/test-fact-check-link.mjs
 import assert from 'node:assert/strict'
-import { isCheckableNote, factCheckUrl } from '../lib/fact-check-link.js'
+import { checkableClaim, isCheckableNote, factCheckUrl } from '../lib/fact-check-link.js'
 
 // Notes that reached the fact checker from GroundedVote on 2026-10-12 and could not be checked.
 const absence = [
@@ -30,4 +30,22 @@ assert.equal(
 )
 assert.equal(isCheckableNote(''), false)
 assert.equal(isCheckableNote(null), false)
-console.log(`ok: ${absence.length} absence notes unlinked, ${checkable.length} checkable notes linked`)
+
+// Mixed notes from a live candidate page (2026-10-12): the record fact is linked, the inference is not.
+const mixed = [
+  ["Ciscomani's sponsored legislation includes multiple defense and veterans bills (Vets CLEAR Act, Pay Our Homeland Defenders Act, Veterans Economic Opportunity and Transition Administration Act), suggesting general support for defense spending, but no direct evidence exists on this specific question of increasing the defense budget above 5% per year above inflation.",
+   "Ciscomani's sponsored legislation includes multiple defense and veterans bills (Vets CLEAR Act, Pay Our Homeland Defenders Act, Veterans Economic Opportunity and Transition Administration Act)"],
+  ["Ciscomani sponsored the Shadow Wolves Improvement Act (related to border security personnel) and represents a competitive southern Arizona district bordering Mexico; as a House Republican he has consistently aligned with strong border security positions, though direct statements on federal funding levels for border infrastructure are inferred rather than explicitly documented here.",
+   'Ciscomani sponsored the Shadow Wolves Improvement Act (related to border security personnel) and represents a competitive southern Arizona district bordering Mexico'],
+  ["Ciscomani's sponsored legislation focuses on housing, veterans, public lands, and immigration enforcement, with no clear evidence of a position on tariffs tied to labor or environmental standards, requiring party-based inference as the primary signal.",
+   "Ciscomani's sponsored legislation focuses on housing, veterans, public lands, and immigration enforcement"],
+]
+for (const [note, want] of mixed) assert.equal(checkableClaim(note), want)
+const nothing = [
+  "Ciscomani's sponsored legislation does not directly address oil and gas permitting, but as a Republican representing a competitive Arizona district, his general legislative profile and party alignment suggest opposition to halting new federal energy permits, inferred from overall policy stance.",
+  'No direct evidence in Ciscomani\'s sponsored legislation addresses foreign assistance; position is inferred from Republican Party alignment and general conservative fiscal priorities.',
+]
+for (const n of nothing) assert.equal(checkableClaim(n), null, n)
+for (const n of absence) assert.equal(checkableClaim(n), null, n)
+
+console.log(`ok: ${absence.length} absence notes unlinked, ${checkable.length} checkable notes linked, ${mixed.length} mixed notes link their record fact`)
