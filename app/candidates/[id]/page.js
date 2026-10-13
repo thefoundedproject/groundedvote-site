@@ -139,7 +139,7 @@ function AnswerBar({ value, inferred = false }) {
   )
 }
 
-const INFERRED_TIP = "We found no direct statement, vote or platform position from this candidate on this question. The position shown is estimated from their party's typical stance."
+const INFERRED_TIP = "We found no direct statement, vote or platform position from this candidate on this question. The position shown is an estimate from their party's typical stance and any related votes named in the note."
 
 function EvidenceBadge({ answer }) {
   if (isPartyInferred(answer)) {
