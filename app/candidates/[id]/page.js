@@ -202,8 +202,8 @@ function FactCheckLink({ candidateName, note, style }) {
 }
 
 // ─── record vs. rhetoric section ──────────────────────────────────────────────
-// Plain-language consistency between stated positions and the sponsored +
-// cosponsored bill record. No editorial judgment — counts, notes, and sources only.
+// Plain-language consistency between stated positions (public statements,
+// campaign platform) and recorded roll-call votes. No editorial judgment — counts, notes, and sources only.
 function RecordVsRhetoric({ candidate, candidateName }) {
   const score = candidate.rhetoricConsistencyScore
   const bd = candidate.rhetoricBreakdown
@@ -218,7 +218,7 @@ function RecordVsRhetoric({ candidate, candidateName }) {
           Record vs. Rhetoric
         </h2>
         <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
-          None of {candidateName}&apos;s positions on this page come from their own statements or votes yet, so there is nothing to compare against their record.
+          We have no public statement or campaign position from {candidateName} on these questions yet, so there is nothing to check against how they voted.
         </p>
       </section>
     )
@@ -231,7 +231,7 @@ function RecordVsRhetoric({ candidate, candidateName }) {
           Record vs. Rhetoric
         </h2>
         <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
-          {candidateName} serves in Congress, so we can check their stated positions against the bills they&apos;ve sponsored and cosponsored. We&apos;re still running that comparison. Check back soon.
+          {candidateName} serves in Congress, so we can check their stated positions against how they voted. We&apos;re still running that comparison. Check back soon.
         </p>
       </section>
     )
@@ -252,7 +252,7 @@ function RecordVsRhetoric({ candidate, candidateName }) {
           </p>
         </div>
         <p style={{ color: S.muted, fontSize: 12, lineHeight: 1.6, margin: 0 }}>
-          Comparison of stated positions with bills they sponsored and cosponsored (Congress.gov), assessed by AI and shown with its working. Draw your own conclusion.
+          Comparison of stated positions with how they voted (recorded roll calls, Voteview), assessed by AI and shown with its working. Draw your own conclusion.
         </p>
       </div>
 
