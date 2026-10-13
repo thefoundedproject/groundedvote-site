@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getCandidatePhotoUrl, getCandidateInitials } from '@/lib/candidate-photo'
+import { factCheckUrl } from '@/lib/fact-check-link'
 
 export const revalidate = 300
 
@@ -157,11 +158,20 @@ function PartyBadge({ party, color }) {
   )
 }
 
-// Link a claim to the RhetoricalPoints fact-checker (its /check page
-// accepts ?q= and runs the claim on arrival). Clean URL handoff — the
-// two platforms stay independent.
-function factCheckUrl(claim) {
-  return `https://rhetoricalpoints.com/check?q=${encodeURIComponent(claim)}`
+// "Fact-check this →" links go to RhetoricalPoints only for notes that say
+// something checkable about the candidate; notes describing a gap in our own
+// research ("no direct evidence was found…") get no link (lib/fact-check-link.js).
+function FactCheckLink({ candidateName, note, style }) {
+  const href = factCheckUrl(candidateName, note)
+  if (!href) return null
+  return (
+    <>
+      {' '}
+      <a href={href} target="_blank" rel="noopener noreferrer" style={style}>
+        Fact-check this →
+      </a>
+    </>
+  )
 }
 
 // ─── record vs. rhetoric section ──────────────────────────────────────────────
@@ -220,10 +230,7 @@ function RecordVsRhetoric({ candidate, candidateName }) {
                 {n.consistent === true ? '✓' : n.consistent === false ? '✗' : '·'}
               </span>
               {n.note}
-              {' '}
-              <a href={factCheckUrl(`${candidateName}: ${n.note}`)} target="_blank" rel="noopener noreferrer" style={{ color: S.gold, textDecoration: 'none', whiteSpace: 'nowrap' }}>
-                Fact-check this →
-              </a>
+              <FactCheckLink candidateName={candidateName} note={n.note} style={{ color: S.gold, textDecoration: 'none', whiteSpace: 'nowrap' }} />
             </p>
           ))}
         </div>
@@ -582,10 +589,7 @@ export default async function CandidatePage({ params, searchParams }) {
                       {ans.sourceNote && (
                         <span style={{ color: S.muted, fontSize: 11, fontStyle: 'italic' }}>
                           {ans.sourceNote}
-                          {' '}
-                          <a href={factCheckUrl(`${candidateName}: ${ans.sourceNote}`)} target="_blank" rel="noopener noreferrer" style={{ color: S.gold, textDecoration: 'none', fontStyle: 'normal', whiteSpace: 'nowrap' }}>
-                            Fact-check this →
-                          </a>
+                          <FactCheckLink candidateName={candidateName} note={ans.sourceNote} style={{ color: S.gold, textDecoration: 'none', fontStyle: 'normal', whiteSpace: 'nowrap' }} />
                         </span>
                       )}
                     </div>
