@@ -211,6 +211,19 @@ function RecordVsRhetoric({ candidate, candidateName }) {
   // Nothing to show for candidates with no congressional record
   if (!candidate.bioguideId) return null
 
+  if ((score === null || score === undefined) && bd?.computedAt) {
+    return (
+      <section style={{ marginBottom: 48, padding: '20px 24px', borderRadius: 10, backgroundColor: S.bgCard, border: `1px solid ${S.border}` }}>
+        <h2 style={{ color: S.gold, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>
+          Record vs. Rhetoric
+        </h2>
+        <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
+          None of {candidateName}&apos;s positions on this page come from their own statements or votes yet, so there is nothing to compare against their record.
+        </p>
+      </section>
+    )
+  }
+
   if (score === null || score === undefined || !bd) {
     return (
       <section style={{ marginBottom: 48, padding: '20px 24px', borderRadius: 10, backgroundColor: S.bgCard, border: `1px solid ${S.border}` }}>
