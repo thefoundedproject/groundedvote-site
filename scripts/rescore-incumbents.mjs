@@ -7,6 +7,7 @@
 //
 //   railway run node scripts/rescore-incumbents.mjs                 # dry run
 //   railway run node scripts/rescore-incumbents.mjs --apply --backup <file.json>
+//   add --bioguide C001063,S001201 to limit the run to those members
 
 import { writeFileSync } from 'fs'
 import { prisma } from '../lib/prisma.js'
@@ -14,13 +15,14 @@ import { extractPositionsForCandidate } from '../lib/candidate-positions.js'
 
 const APPLY = process.argv.includes('--apply')
 const backupPath = process.argv[process.argv.indexOf('--backup') + 1]
+const only = process.argv.includes('--bioguide') ? process.argv[process.argv.indexOf('--bioguide') + 1].split(',') : null
 
 const mix = async (ids) => Object.fromEntries((await prisma.candidateAnswer.groupBy({
   by: ['evidenceType'], where: { candidateId: { in: ids } }, _count: true,
 })).map((g) => [g.evidenceType, g._count]))
 
 const candidates = await prisma.candidate.findMany({
-  where: { bioguideId: { not: null }, status: { in: ['ACTIVE', 'WON_PRIMARY'] } },
+  where: { bioguideId: only ? { in: only } : { not: null }, status: { in: ['ACTIVE', 'WON_PRIMARY'] } },
   select: { id: true, firstName: true, lastName: true, bioguideId: true, race: { select: { label: true } }, _count: { select: { quizAnswers: true } } },
   orderBy: { lastName: 'asc' },
 })
