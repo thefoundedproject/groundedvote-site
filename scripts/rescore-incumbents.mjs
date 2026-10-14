@@ -8,7 +8,8 @@
 //   railway run node scripts/rescore-incumbents.mjs                 # dry run
 //   railway run node scripts/rescore-incumbents.mjs --apply --backup <file.json>
 //   add --bioguide C001063,S001201 to limit the run to those members,
-//   and --questions <id,id> to limit it to those questions
+//   and --questions <id,id> to limit it to those questions;
+//   --federal-sites re-scores federal nominees with a campaign website instead
 
 import { writeFileSync } from 'fs'
 import { prisma } from '../lib/prisma.js'
@@ -23,14 +24,18 @@ const mix = async (ids) => Object.fromEntries((await prisma.candidateAnswer.grou
   by: ['evidenceType'], where: { candidateId: { in: ids } }, _count: true,
 })).map((g) => [g.evidenceType, g._count]))
 
+// --federal-sites: federal nominees with a campaign website, incumbent or not.
+const scope = process.argv.includes('--federal-sites')
+  ? { website: { not: null }, race: { level: { not: 'STATE' } } }
+  : { bioguideId: only ? { in: only } : { not: null } }
 const candidates = await prisma.candidate.findMany({
-  where: { bioguideId: only ? { in: only } : { not: null }, status: { in: ['ACTIVE', 'WON_PRIMARY'] } },
+  where: { ...scope, status: { in: ['ACTIVE', 'WON_PRIMARY'] } },
   select: { id: true, firstName: true, lastName: true, bioguideId: true, race: { select: { label: true } }, _count: { select: { quizAnswers: true } } },
   orderBy: { lastName: 'asc' },
 })
 const ids = candidates.map((c) => c.id)
 const pairs = candidates.reduce((n, c) => n + c._count.quizAnswers, 0)
-console.log(`${candidates.length} candidates with a congressional record, ${pairs} existing answers`)
+console.log(`${candidates.length} candidates, ${pairs} existing answers`)
 console.log('evidence mix before:', await mix(ids))
 
 if (!APPLY) {

@@ -39,7 +39,9 @@ async function main() {
   for (const s of sites) {
     const race = await prisma.race.findFirst({ where: { label: s.race }, include: { candidates: true } })
     if (!race) { console.error(`✗ race not found: ${s.race}`); missing++; continue }
-    const c = race.candidates.find(c => samePerson(`${c.firstName} ${c.lastName}`, s.name))
+    // Races keep losing-primary rows; a name can match both, so prefer the live candidate.
+    const live = c => (['ACTIVE', 'WON_PRIMARY'].includes(c.status) ? 0 : 1)
+    const c = race.candidates.filter(c => samePerson(`${c.firstName} ${c.lastName}`, s.name)).sort((a, b) => live(a) - live(b))[0]
     if (!c) { console.error(`✗ ${s.race}: candidate not found: ${s.name}`); missing++; continue }
     if (c.website && !OVERWRITE) { console.log(`  = ${c.firstName} ${c.lastName}: keeps ${c.website}`); kept++; continue }
     console.log(`  SET ${c.firstName} ${c.lastName} -> ${s.website}`)
