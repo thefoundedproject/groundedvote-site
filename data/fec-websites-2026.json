@@ -1,0 +1,448 @@
+{
+  "_source": "FEC principal campaign committee filings (Form 1 website field), OpenFEC API, fetched 2026-10-14. Matched on last name, state, office, district and 2026 candidacy. Review before applying.",
+  "_needsReview": [
+    "Kevin Lincoln (California House District 13 2026): H4CA09093 / C00845826 filed no website",
+    "Matt Little (Minnesota House District 2 2026): H6MN02230 / C00903807 filed no website",
+    "Seth Bodnar (Montana Senate 2026): S6MT00287 / C00941708 filed no website",
+    "Mike Lawler (New York House District 17 2026): H2NY17162 / C00815415 filed no website",
+    "Jacqueline Auringer (New York House District 18 2026): H6NY18252 / C00946723 filed no website",
+    "Mike Lipetri (New York House District 3 2026): H0NY02267 / C00937490 filed no website",
+    "Patti Adair (Oregon House District 5 2026): H6OR05242 / C00927228 filed no website",
+    "Janelle Bynum (Oregon House District 5 2026): H4OR05304 / C00843425 filed no website",
+    "Bob Brooks (Pennsylvania House District 7 2026): H6PA07188 / C00917096 filed no website"
+  ],
+  "sites": [
+    {
+      "race": "Arizona House District 1 2026",
+      "name": "Jay Feely",
+      "website": "https://jayfeelyforcongress.com",
+      "fecCandidateId": "H6AZ05190",
+      "committeeId": "C00903088",
+      "committeeName": "FEELY FOR CONGRESS"
+    },
+    {
+      "race": "Arizona House District 1 2026",
+      "name": "Amish Shah",
+      "website": "https://amishforarizona.com",
+      "fecCandidateId": "H4AZ01194",
+      "committeeId": "C00836502",
+      "committeeName": "AMISH FOR ARIZONA"
+    },
+    {
+      "race": "Arizona House District 6 2026",
+      "name": "Juan Ciscomani",
+      "website": "https://www.juanciscomani.com",
+      "fecCandidateId": "H2AZ02360",
+      "committeeId": "C00786194",
+      "committeeName": "CISCOMANI FOR CONGRESS"
+    },
+    {
+      "race": "Arizona House District 6 2026",
+      "name": "Joanna Mendoza",
+      "website": "https://www.joannamendoza.com",
+      "fecCandidateId": "H6AZ06099",
+      "committeeId": "C00897090",
+      "committeeName": "MENDOZA FOR CONGRESS"
+    },
+    {
+      "race": "California House District 13 2026",
+      "name": "Adam Gray",
+      "website": "https://www.adamgrayforcongress.com",
+      "fecCandidateId": "H2CA13115",
+      "committeeId": "C00801431",
+      "committeeName": "ADAM GRAY FOR CONGRESS"
+    },
+    {
+      "race": "California House District 27 2026",
+      "name": "Jason Gibbs",
+      "website": "https://www.jasongibbsforcongress.com",
+      "fecCandidateId": "H6CA27306",
+      "committeeId": "C00909887",
+      "committeeName": "JASON GIBBS FOR CONGRESS"
+    },
+    {
+      "race": "California House District 27 2026",
+      "name": "George Whitesides",
+      "website": "https://www.georgewhitesides.com",
+      "fecCandidateId": "H4CA27111",
+      "committeeId": "C00834028",
+      "committeeName": "GEORGE WHITESIDES FOR CONGRESS"
+    },
+    {
+      "race": "Colorado House District 8 2026",
+      "name": "Gabe Evans",
+      "website": "https://electgabeevans.com",
+      "fecCandidateId": "H4CO08034",
+      "committeeId": "C00849844",
+      "committeeName": "ELECTGABEEVANS.COM"
+    },
+    {
+      "race": "Colorado House District 8 2026",
+      "name": "Manny Rutinel",
+      "website": "https://mannyforcolorado.com",
+      "fecCandidateId": "H6CO08013",
+      "committeeId": "C00896670",
+      "committeeName": "MANNY RUTINEL FOR CONGRESS"
+    },
+    {
+      "race": "Georgia House District 7 2026",
+      "name": "Anthony Kozycki",
+      "website": "https://kozyckiforcongress.com",
+      "fecCandidateId": "H6GA07221",
+      "committeeId": "C00942185",
+      "committeeName": "KOZYCKI FOR CONGRESS"
+    },
+    {
+      "race": "Georgia House District 7 2026",
+      "name": "Rich McCormick",
+      "website": "https://www.richmccormick.us",
+      "fecCandidateId": "H0GA07273",
+      "committeeId": "C00706747",
+      "committeeName": "FRIENDS OF MCCORMICK"
+    },
+    {
+      "race": "Georgia Senate 2026",
+      "name": "Mike Collins",
+      "website": "https://mikecollinsga.com",
+      "fecCandidateId": "S6GA00390",
+      "committeeId": "C00544684",
+      "committeeName": "MIKE COLLINS FOR SENATE"
+    },
+    {
+      "race": "Georgia Senate 2026",
+      "name": "Jon Ossoff",
+      "website": "https://electjon.com",
+      "fecCandidateId": "S8GA00180",
+      "committeeId": "C00718866",
+      "committeeName": "JON OSSOFF FOR SENATE"
+    },
+    {
+      "race": "Iowa House District 3 2026",
+      "name": "Zach Nunn",
+      "website": "https://zachnunn.com",
+      "fecCandidateId": "H2IA03119",
+      "committeeId": "C00784389",
+      "committeeName": "IOWANS FOR ZACH NUNN"
+    },
+    {
+      "race": "Iowa House District 3 2026",
+      "name": "Sarah Trone Garriott",
+      "website": "https://sarahforiowa.com",
+      "fecCandidateId": "H6IA03268",
+      "committeeId": "C00904086",
+      "committeeName": "SARAH FOR IOWA"
+    },
+    {
+      "race": "Maine House District 2 2026",
+      "name": "Matthew Dunlap",
+      "website": "https://www.mattdunlapforuscongress.com",
+      "fecCandidateId": "H6ME02171",
+      "committeeId": "C00922377",
+      "committeeName": "DUNLAP FOR CONGRESS"
+    },
+    {
+      "race": "Maine House District 2 2026",
+      "name": "Paul Lepage",
+      "website": "https://lepageforcongress.com",
+      "fecCandidateId": "H6ME02148",
+      "committeeId": "C00904094",
+      "committeeName": "PAUL LEPAGE FOR CONGRESS"
+    },
+    {
+      "race": "Michigan House District 7 2026",
+      "name": "Tom Barrett",
+      "website": "https://www.tombarrettforcongress.com",
+      "fecCandidateId": "H2MI07123",
+      "committeeId": "C00793976",
+      "committeeName": "TOM BARRETT FOR CONGRESS"
+    },
+    {
+      "race": "Michigan House District 7 2026",
+      "name": "William Lawrence",
+      "website": "https://wewill2026.com",
+      "fecCandidateId": "H6MI07298",
+      "committeeId": "C00916809",
+      "committeeName": "FRIENDS OF WILLIAM LAWRENCE"
+    },
+    {
+      "race": "Michigan House District 8 2026",
+      "name": "Kristen McDonald Rivet",
+      "website": "https://www.kristenmcdonaldrivet.com",
+      "fecCandidateId": "H4MI08218",
+      "committeeId": "C00864207",
+      "committeeName": "KRISTEN FOR MICHIGAN"
+    },
+    {
+      "race": "Michigan House District 8 2026",
+      "name": "Tom Smith",
+      "website": "https://tomsmithformi.com",
+      "fecCandidateId": "H6MI08312",
+      "committeeId": "C00951830",
+      "committeeName": "TOM SMITH FOR CONGRESS"
+    },
+    {
+      "race": "Michigan Senate 2026",
+      "name": "Abdul El-Sayed",
+      "website": "https://abdulforsenate.com",
+      "fecCandidateId": "S6MI00418",
+      "committeeId": "C00902668",
+      "committeeName": "ABDUL FOR U.S. SENATE"
+    },
+    {
+      "race": "Michigan Senate 2026",
+      "name": "Mike Rogers",
+      "website": "https://rogersforsenate.com",
+      "fecCandidateId": "S4MI00595",
+      "committeeId": "C00849810",
+      "committeeName": "ROGERS FOR SENATE"
+    },
+    {
+      "race": "Minnesota House District 2 2026",
+      "name": "Eric Pratt",
+      "website": "https://www.ericprattmn.com",
+      "fecCandidateId": "H6MN02263",
+      "committeeId": "C00912824",
+      "committeeName": "ERIC PRATT FOR MINNESOTA COMMITTEE"
+    },
+    {
+      "race": "Minnesota Senate 2026",
+      "name": "Peggy Flanagan",
+      "website": "https://peggyflanagan.com",
+      "fecCandidateId": "S6MN00440",
+      "committeeId": "C00897751",
+      "committeeName": "PEGGY FLANAGAN FOR MINNESOTA"
+    },
+    {
+      "race": "Minnesota Senate 2026",
+      "name": "Michele Tafoya",
+      "website": "https://micheletafoya.com",
+      "fecCandidateId": "S6MN00556",
+      "committeeId": "C00935528",
+      "committeeName": "TAFOYA FOR SENATE"
+    },
+    {
+      "race": "Montana Senate 2026",
+      "name": "Kurt Alme",
+      "website": "https://almeforsenate.com",
+      "fecCandidateId": "S6MT00295",
+      "committeeId": "C00942060",
+      "committeeName": "ALME FOR SENATE"
+    },
+    {
+      "race": "Montana Senate 2026",
+      "name": "Alani Bankhead",
+      "website": "https://www.alaniformt.com",
+      "fecCandidateId": "S6MT00253",
+      "committeeId": "C00937201",
+      "committeeName": "FRIENDS OF ALANI BANKHEAD"
+    },
+    {
+      "race": "New Hampshire Senate 2026",
+      "name": "Chris Pappas",
+      "website": "https://www.chrispappas.org",
+      "fecCandidateId": "S6NH00141",
+      "committeeId": "C00660464",
+      "committeeName": "CHRIS PAPPAS FOR SENATE"
+    },
+    {
+      "race": "New Hampshire Senate 2026",
+      "name": "John Sununu",
+      "website": "https://www.sununusenator.com",
+      "fecCandidateId": "S6NH00208",
+      "committeeId": "C00924092",
+      "committeeName": "SUNUNU SENATOR"
+    },
+    {
+      "race": "New Mexico House District 2 2026",
+      "name": "Greg Cunningham",
+      "website": "https://www.cunninghamfornm.com",
+      "fecCandidateId": "H6NM02127",
+      "committeeId": "C00921791",
+      "committeeName": "CUNNINGHAM FOR NM"
+    },
+    {
+      "race": "New Mexico House District 2 2026",
+      "name": "Gabe Vasquez",
+      "website": "https://gabeforcongress.com",
+      "fecCandidateId": "H2NM02191",
+      "committeeId": "C00789404",
+      "committeeName": "GABE VASQUEZ FOR CONGRESS"
+    },
+    {
+      "race": "New York House District 17 2026",
+      "name": "Cait Conley",
+      "website": "https://www.caitconley.com",
+      "fecCandidateId": "H6NY17171",
+      "committeeId": "C00900431",
+      "committeeName": "CAIT FOR NEW YORK"
+    },
+    {
+      "race": "New York House District 18 2026",
+      "name": "Pat Ryan",
+      "website": "https://patryanforcongress.com",
+      "fecCandidateId": "H8NY19223",
+      "committeeId": "C00815290",
+      "committeeName": "PAT RYAN FOR CONGRESS"
+    },
+    {
+      "race": "New York House District 3 2026",
+      "name": "Tom Suozzi",
+      "website": "https://suozziforcongress2024.com",
+      "fecCandidateId": "H6NY03247",
+      "committeeId": "C00607200",
+      "committeeName": "SUOZZI FOR CONGRESS"
+    },
+    {
+      "race": "New York House District 4 2026",
+      "name": "Jeanine Driscoll",
+      "website": "https://driscoll4congress.com",
+      "fecCandidateId": "H6NY04211",
+      "committeeId": "C00948034",
+      "committeeName": "DRISCOLL FOR CONGRESS"
+    },
+    {
+      "race": "New York House District 4 2026",
+      "name": "Laura Gillen",
+      "website": "https://lauragillen.com",
+      "fecCandidateId": "H2NY04244",
+      "committeeId": "C00840165",
+      "committeeName": "GILLEN FOR NY"
+    },
+    {
+      "race": "North Carolina Senate 2026",
+      "name": "Roy Cooper",
+      "website": "https://www.roycooper.com",
+      "fecCandidateId": "S6NC00407",
+      "committeeId": "C00913566",
+      "committeeName": "COOPER FOR NORTH CAROLINA"
+    },
+    {
+      "race": "North Carolina Senate 2026",
+      "name": "Michael Whatley",
+      "website": "https://www.michaelwhatley.com",
+      "fecCandidateId": "S6NC00415",
+      "committeeId": "C00913996",
+      "committeeName": "WHATLEY FOR SENATE"
+    },
+    {
+      "race": "Pennsylvania House District 7 2026",
+      "name": "Ryan Mackenzie",
+      "website": "https://ryanforpa.com",
+      "fecCandidateId": "H8PA15195",
+      "committeeId": "C00846501",
+      "committeeName": "MACKENZIE FOR CONGRESS COMMITTEE"
+    },
+    {
+      "race": "Pennsylvania House District 8 2026",
+      "name": "Rob Bresnahan",
+      "website": "https://www.robforpa.com",
+      "fecCandidateId": "H4PA08124",
+      "committeeId": "C00852137",
+      "committeeName": "ROB FOR PA"
+    },
+    {
+      "race": "Pennsylvania House District 8 2026",
+      "name": "Paige Cognetti",
+      "website": "https://paigeforpa.com",
+      "fecCandidateId": "H6PA08293",
+      "committeeId": "C00918151",
+      "committeeName": "PAIGE FOR PA"
+    },
+    {
+      "race": "Texas House District 28 2026",
+      "name": "Henry Cuellar",
+      "website": "https://www.henrycuellar.com",
+      "fecCandidateId": "H2TX23082",
+      "committeeId": "C00371302",
+      "committeeName": "TEXANS FOR HENRY CUELLAR CONGRESSIONAL CAMPAIGN"
+    },
+    {
+      "race": "Texas House District 28 2026",
+      "name": "Tano Tijerina",
+      "website": "https://www.tanoforcongress.com",
+      "fecCandidateId": "H6TX28124",
+      "committeeId": "C00929174",
+      "committeeName": "TANO TIJERINA FOR CONGRESS INC"
+    },
+    {
+      "race": "Texas Senate 2026",
+      "name": "Ken Paxton",
+      "website": "https://www.kenpaxton.com",
+      "fecCandidateId": "S6TX00388",
+      "committeeId": "C00901918",
+      "committeeName": "KEN PAXTON FOR SENATE"
+    },
+    {
+      "race": "Texas Senate 2026",
+      "name": "James Talarico",
+      "website": "https://jamestalarico.com",
+      "fecCandidateId": "S6TX00479",
+      "committeeId": "C00919084",
+      "committeeName": "TALARICO FOR TEXAS"
+    },
+    {
+      "race": "Virginia House District 2 2026",
+      "name": "Jen Kiggans",
+      "website": "https://www.jenforcongress.com",
+      "fecCandidateId": "H2VA02064",
+      "committeeId": "C00776120",
+      "committeeName": "KIGGANS FOR CONGRESS"
+    },
+    {
+      "race": "Virginia House District 2 2026",
+      "name": "Elaine Luria",
+      "website": "https://elaineforcongress.com",
+      "fecCandidateId": "H6VA02198",
+      "committeeId": "C00926303",
+      "committeeName": "ELAINE LURIA FOR CONGRESS"
+    },
+    {
+      "race": "Virginia House District 7 2026",
+      "name": "Doug Ollivant",
+      "website": "https://dougforvirginia.com",
+      "fecCandidateId": "H6VA07205",
+      "committeeId": "C00921650",
+      "committeeName": "OLLIVANT FOR CONGRESS"
+    },
+    {
+      "race": "Virginia House District 7 2026",
+      "name": "Eugene Vindman",
+      "website": "https://vindmanforcongress.com",
+      "fecCandidateId": "H4VA07234",
+      "committeeId": "C00856955",
+      "committeeName": "VINDMAN FOR CONGRESS"
+    },
+    {
+      "race": "Washington House District 3 2026",
+      "name": "John Braun",
+      "website": "https://www.votebraun.com",
+      "fecCandidateId": "H6WA03275",
+      "committeeId": "C00915884",
+      "committeeName": "JOHN BRAUN FOR CONGRESS"
+    },
+    {
+      "race": "Washington House District 3 2026",
+      "name": "Marie Gluesenkamp Perez",
+      "website": "https://www.marieforcongress.com",
+      "fecCandidateId": "H2WA03217",
+      "committeeId": "C00806174",
+      "committeeName": "MARIE FOR CONGRESS"
+    },
+    {
+      "race": "Wisconsin House District 3 2026",
+      "name": "Rebecca Cooke",
+      "website": "https://cookeforwisconsin.com",
+      "fecCandidateId": "H4WI03169",
+      "committeeId": "C00844993",
+      "committeeName": "COOKE FOR CONGRESS"
+    },
+    {
+      "race": "Wisconsin House District 3 2026",
+      "name": "Derrick Van Orden",
+      "website": "https://www.vanordenforcongress.com",
+      "fecCandidateId": "H0WI03175",
+      "committeeId": "C00742007",
+      "committeeName": "VAN ORDEN FOR CONGRESS"
+    }
+  ]
+}
