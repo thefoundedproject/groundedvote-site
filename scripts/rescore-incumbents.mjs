@@ -33,6 +33,8 @@ const candidates = await prisma.candidate.findMany({
   select: { id: true, firstName: true, lastName: true, bioguideId: true, race: { select: { label: true } }, _count: { select: { quizAnswers: true } } },
   orderBy: { lastName: 'asc' },
 })
+// --skip N resumes an interrupted run (candidates are ordered by last name).
+if (process.argv.includes('--skip')) candidates.splice(0, Number(process.argv[process.argv.indexOf('--skip') + 1]))
 const ids = candidates.map((c) => c.id)
 const pairs = candidates.reduce((n, c) => n + c._count.quizAnswers, 0)
 console.log(`${candidates.length} candidates, ${pairs} existing answers`)
