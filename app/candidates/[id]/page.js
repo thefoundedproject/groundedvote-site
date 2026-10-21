@@ -218,7 +218,9 @@ function RecordVsRhetoric({ candidate, candidateName }) {
           Record vs. Rhetoric
         </h2>
         <p style={{ color: S.muted, fontSize: 14, lineHeight: 1.65, margin: 0 }}>
-          We have no public statement or campaign position from {candidateName} on these questions yet, so there is nothing to check against how they voted.
+          {bd.checked > 0
+            ? `We checked ${bd.checked} of ${candidateName}'s stated positions against their recorded votes. None of those votes was on the same policy, so there is no score yet.`
+            : `We have no public statement or campaign position from ${candidateName} on these questions yet, so there is nothing to check against how they voted.`}
         </p>
       </section>
     )
