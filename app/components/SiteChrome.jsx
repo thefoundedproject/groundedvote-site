@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react'
 const NAV_LINKS = [
   { href: '/map',         label: 'Race Map' },
   { href: '/races',       label: 'All Races' },
+  { href: '/pulse',       label: 'Pulse' },
   { href: '/how-it-works',label: 'How It Works' },
   { href: '/methodology', label: 'Methodology' },
   { href: '/about',       label: 'About' },
