@@ -59,7 +59,10 @@ export async function GET() {
     const raceRows = raceIds.length
       ? await prisma.race.findMany({ where: { id: { in: raceIds } }, select: { id: true, label: true, district: true, chamber: true, level: true } })
       : []
-    const labelOf = Object.fromEntries(raceRows.map(r => [r.id, r.label + (r.district ? ` · District ${r.district}` : '')]))
+    const labelOf = Object.fromEntries(raceRows.map(r => {
+      const hasDistrict = r.district && !r.label.toLowerCase().includes('district')
+      return [r.id, r.label + (hasDistrict ? ` · District ${r.district}` : '')]
+    }))
     const raceProgress = perRace.map(r => ({
       label: labelOf[r.raceId] || 'Race',
       completions: r._count._all,
