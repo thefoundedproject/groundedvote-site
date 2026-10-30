@@ -15,7 +15,7 @@ export default function NotFound() {
           This page doesn't exist.
         </h1>
         <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 16, lineHeight: 1.7, marginBottom: 48, maxWidth: 380, margin: '0 auto 48px' }}>
-          The link may be broken or the page may have moved. GroundedVote covers 21 states and 35 competitive races for 2026 — find yours below.
+          The link may be broken or the page may have moved. Find your 2026 races below.
         </p>
 
         {/* Navigation tiles */}
