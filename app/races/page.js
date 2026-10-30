@@ -3,7 +3,7 @@ import RaceList from './RaceList'
 
 export const metadata = {
   title: '2026 Competitive Races',
-  description: 'Browse all competitive Senate and House races covered by GroundedVote for 2026. Filter by chamber, status, or state. Find your race and take the alignment quiz.',
+  description: 'Browse the U.S. Senate, U.S. House, and Minnesota legislative races covered by GroundedVote for 2026. Filter by chamber, status, or state. Find your race and take the alignment quiz.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -28,8 +28,10 @@ async function getRaces() {
 export default async function RacesPage() {
   const races = await getRaces()
   const totalReady = races.filter(r => r._count.questions >= 5 && r.candidates.length >= 2).length
-  const senateCount = races.filter(r => r.chamber === 'SENATE').length
-  const houseCount = races.filter(r => r.chamber === 'HOUSE').length
+  const federal = races.filter(r => r.level === 'FEDERAL')
+  const senateCount = federal.filter(r => r.chamber === 'SENATE').length
+  const houseCount = federal.filter(r => r.chamber === 'HOUSE').length
+  const stateCount = races.length - federal.length
 
   return (
     <>
@@ -40,10 +42,10 @@ export default async function RacesPage() {
             2026 Election Coverage
           </p>
           <h1 style={{ color: S.text, fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 300, lineHeight: 1.1, letterSpacing: '-0.025em', marginBottom: 16 }}>
-            Competitive races we cover
+            Races we cover
           </h1>
           <p style={{ color: S.muted, fontSize: 16, lineHeight: 1.75, maxWidth: 560, marginBottom: 32 }}>
-            {races.length} competitive federal races — {senateCount} Senate seats and {houseCount} House districts. {totalReady} quiz-ready today.
+            {federal.length} competitive federal races ({senateCount} U.S. Senate, {houseCount} U.S. House) and {stateCount} Minnesota state legislative races. {totalReady} quiz-ready today.
           </p>
           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
             {[

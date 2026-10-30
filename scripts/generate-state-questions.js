@@ -23,17 +23,14 @@
 const fs = require('fs')
 const { PrismaClient } = require('@prisma/client')
 const Anthropic = require('@anthropic-ai/sdk')
-const OpenAI = require('openai').default
 
 const prisma = new PrismaClient()
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 const APPLY = process.argv.includes('--apply')
 const arg = (f) => { const i = process.argv.indexOf(f); return i !== -1 ? process.argv[i + 1] : null }
 
 const GENERATION_MODEL = process.env.GENERATION_MODEL || 'claude-opus-4-8'
-const SCORING_MODEL = 'gpt-4o'
 const SELECTION_MODEL = 'claude-sonnet-4-6'
 
 async function generateVariants(position, topic) {
@@ -79,35 +76,8 @@ Return a JSON object with exactly this shape:
 
 Where "total" is the sum of the four scores. Lower total = more neutral.
 Return only the JSON object, no other text.`
-  const response = await openai.chat.completions.create({
-    model: SCORING_MODEL,
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_object' },
-    temperature: 0,
-  })
-  const content = response.choices[0]?.message?.content
-  if (!content) throw new Error('Pass 2 returned empty content')
-  const parsed = JSON.parse(content)
-  let scores = null
-  if (Array.isArray(parsed)) scores = parsed
-  else if (Array.isArray(parsed.scores)) scores = parsed.scores
-  else if (Array.isArray(parsed.questions)) scores = parsed.questions
-  else {
-    const values = Object.values(parsed)
-    if (values.length === 1 && Array.isArray(values[0])) scores = values[0]
-    else if (values.length >= variants.length && values.every(v => v && typeof v === 'object')) scores = values
-  }
-  if (!Array.isArray(scores) || scores.length < variants.length) {
-    throw new Error(`Pass 2 returned unusable shape: ${content.slice(0, 120)}`)
-  }
-  return scores.map((s, i) => ({
-    index: s.index ?? i,
-    loaded_language: s.loaded_language ?? 0,
-    false_equivalence: s.false_equivalence ?? 0,
-    asymmetric_framing: s.asymmetric_framing ?? 0,
-    cultural_assumption: s.cultural_assumption ?? 0,
-    total: s.total ?? (s.loaded_language ?? 0) + (s.false_equivalence ?? 0) + (s.asymmetric_framing ?? 0) + (s.cultural_assumption ?? 0),
-  }))
+  const { scoreWithBackup } = await import('../lib/scoring-model.mjs')
+  return scoreWithBackup(prompt, variants.length)
 }
 
 async function selectBestVariant(variants, scores) {
@@ -208,7 +178,7 @@ async function main() {
             falseEquivalence: scores[i]?.false_equivalence ?? null,
             asymmetricFraming: scores[i]?.asymmetric_framing ?? null,
             culturalAssumption: scores[i]?.cultural_assumption ?? null,
-            scoredBy: SCORING_MODEL,
+            scoredBy: scores[i]?.scoredBy ?? 'gpt-4o',
             selected: text === best.text,
           })),
         })

@@ -76,7 +76,7 @@ export default async function AuditPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
           {[
             { label: 'Pass 1 — Generation', desc: 'Claude generates 4 variants per position using only behavioral language.' },
-            { label: 'Pass 2 — Scoring', desc: 'GPT-4 scores each variant blind across 4 bias dimensions (0–100).' },
+            { label: 'Pass 2 — Scoring', desc: 'GPT-4o scores each variant blind across 4 bias dimensions (0–100). Claude Sonnet scores if OpenAI is unavailable; each variant names its scorer.' },
             { label: 'Pass 3 — Selection', desc: 'Claude selects the lowest-bias, most accessible neutral variant.' },
           ].map(step => (
             <div key={step.label}>
@@ -154,7 +154,7 @@ export default async function AuditPage() {
                               {v.selected ? '✓ Selected' : `Variant ${vi + 1}`}
                             </span>
                             {v.biasScore != null && (
-                              <span style={{ color: 'rgba(245,240,232,0.4)', fontSize: 11 }}>Score: {Math.round(v.biasScore)}</span>
+                              <span style={{ color: 'rgba(245,240,232,0.4)', fontSize: 11 }}>Score: {Math.round(v.biasScore)}{v.scoredBy ? ` · ${v.scoredBy}` : ''}</span>
                             )}
                           </div>
                           <p style={{ color: v.selected ? 'rgba(245,240,232,0.8)' : 'rgba(245,240,232,0.4)', fontSize: 13, lineHeight: 1.55, margin: 0, textDecoration: v.selected ? 'none' : 'none' }}>

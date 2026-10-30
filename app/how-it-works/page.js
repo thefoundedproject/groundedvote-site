@@ -58,13 +58,13 @@ export default function HowItWorks() {
               Three AI models are involved — one writes the question, one scores it for bias, one picks the cleanest version. If a question has loaded language, slanted framing, or a built-in "right" answer, it gets rewritten or thrown out.
             </p>
             <p style={{ color: 'rgba(245,240,232,0.55)', fontSize: 16, lineHeight: 1.75 }}>
-              We use two different AI companies so no single model's blind spots take over. The whole audit trail is public. You can check our work yourself.
+              We use two different AI companies so no single model's blind spots take over. If OpenAI is unavailable, Claude does the scoring too, and the audit trail shows which model scored each question. The whole audit trail is public. You can check our work yourself.
             </p>
           </div>
           <div style={{ order: 1 }}>
             {[
               { pass: 'Pass 1', title: 'Generation', desc: 'Claude generates 3–5 question variants from each candidate position using only behavioral language. No party names. No political labels.' },
-              { pass: 'Pass 2', title: 'Bias Scoring', desc: 'GPT-4 scores each variant on four dimensions: loaded language, false equivalence, asymmetric framing, embedded cultural assumption. Scored blind — no knowledge of which model generated it.' },
+              { pass: 'Pass 2', title: 'Bias Scoring', desc: 'GPT-4o scores each variant on four dimensions: loaded language, false equivalence, asymmetric framing, embedded cultural assumption. Scored blind — no knowledge of which model generated it.' },
               { pass: 'Pass 3', title: 'Selection', desc: 'The highest-scoring neutral variant is selected. All variants and scores are archived in the public audit trail.' },
             ].map((item, i) => (
               <div key={item.pass} style={{ padding: '20px 24px', marginBottom: 8, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 8, borderLeft: '2px solid #D8AB69' }}>
@@ -127,7 +127,7 @@ export default function HowItWorks() {
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
           <div>
             <h2 style={{ color: '#F5F0E8', fontSize: 24, fontWeight: 300, marginBottom: 8 }}>Ready to find your match?</h2>
-            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14 }}>The full platform launches before the 2026 election cycle.</p>
+            <p style={{ color: 'rgba(245,240,232,0.45)', fontSize: 14 }}>The quiz is live for 2026 races.</p>
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <a href="/#quiz" style={{ backgroundColor: '#D8AB69', color: '#0F1B1F', padding: '14px 32px', borderRadius: 6, fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Take the awareness quiz</a>

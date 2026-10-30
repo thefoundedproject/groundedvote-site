@@ -15,10 +15,8 @@
  */
 
 const { PrismaClient } = require('@prisma/client')
-const OpenAI = require('openai').default
 
 const prisma = new PrismaClient()
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 const APPROVE_THRESHOLD = 60
 
@@ -29,11 +27,8 @@ const topicFilter = args.includes('--topic') ? args[args.indexOf('--topic') + 1]
 // âââ GPT-4o: REWRITE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 async function rewriteQuestion(questionText, biasScore) {
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{
-      role: 'user',
-      content: `You are editing civic quiz questions for a nonpartisan voter guide to make them politically neutral.
+  const { completeWithBackup } = await import('../lib/scoring-model.mjs')
+  const { value } = await completeWithBackup(`You are editing civic quiz questions for a nonpartisan voter guide to make them politically neutral.
 
 This question scored ${biasScore}/400 on a bias audit (passing threshold is below 60). Rewrite it to score below 60 by:
 - Removing loaded or emotionally charged language
@@ -45,11 +40,8 @@ This question scored ${biasScore}/400 on a bias audit (passing threshold is belo
 Original question:
 "${questionText}"
 
-Respond with ONLY the rewritten question text â no quotes, no explanation, no preamble.`
-    }],
-    temperature: 0.3,
-  })
-  return response.choices[0].message.content.trim().replace(/^["']|["']$/g, '').trim()
+Respond with ONLY the rewritten question text â no quotes, no explanation, no preamble.`, { temperature: 0.3 })
+  return value.trim().replace(/^["']|["']$/g, '').trim()
 }
 
 // âââ GPT-4o: RESCORE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
@@ -67,14 +59,9 @@ Question: "${text}"
 
 Respond with ONLY a JSON object like: {"loaded_language": 10, "false_equivalence": 5, "asymmetric_framing": 8, "cultural_assumption": 3, "total": 26}`
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0,
-  })
-  const raw = response.choices[0].message.content.trim()
-  const jsonStr = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
-  return JSON.parse(jsonStr)
+  const { completeWithBackup, parseJsonObject } = await import('../lib/scoring-model.mjs')
+  const { value } = await completeWithBackup(prompt, { parse: parseJsonObject })
+  return value
 }
 
 // âââ MAIN ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ

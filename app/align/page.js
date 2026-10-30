@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from 'react'
 // Derived from KEY_2026_RACES in lib/congress.js.
 const ACTIVE_STATES = new Set([
   'AZ','CA','CO','GA','IA','ME','MI','MN','MT',
-  'NC','NH','NM','NV','NY','OH','OR','PA','TX','VA','WA','WI',
+  'NC','NH','NM','NY','OR','PA','TX','VA','WA','WI',
 ])
 
 const US_STATES = [

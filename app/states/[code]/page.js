@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export const revalidate = 300
 
-const ACTIVE_STATES = ['AZ','CA','CO','GA','IA','ME','MI','MN','MT','NC','NH','NM','NV','NY','OH','OR','PA','TX','VA','WA','WI']
+const ACTIVE_STATES = ['AZ','CA','CO','GA','IA','ME','MI','MN','MT','NC','NH','NM','NY','OR','PA','TX','VA','WA','WI']
 
 
 export async function generateMetadata({ params }) {
@@ -157,7 +157,7 @@ export default async function StatePage({ params }) {
             How the {stateFull} voter guide works
           </h2>
           <p style={{ color: S.muted, fontSize: 15, lineHeight: 1.85, marginBottom: 16 }}>
-            GroundedVote generates policy questions for each competitive race using a 3-pass AI bias audit — Claude Opus drafts, GPT-4o scores, Claude Sonnet selects. Candidate positions are extracted from voting records, public statements, and campaign platforms, then matched against your answers using weighted cosine similarity.
+            GroundedVote generates policy questions for each competitive race using a 3-pass AI bias audit — Claude Opus drafts, GPT-4o scores (Claude Sonnet if OpenAI is unavailable), Claude Sonnet selects. Candidate positions are extracted from voting records, public statements, and campaign platforms, then matched against your answers using weighted cosine similarity.
           </p>
           <p style={{ color: S.muted, fontSize: 15, lineHeight: 1.85, marginBottom: 24 }}>
             Results show alignment scores without party labels. You see the percentage match first, and can explore the evidence behind each position.

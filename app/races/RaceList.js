@@ -94,7 +94,7 @@ export default function RaceList({ races }) {
                           <div style={{ flex: 1 }}>
                             <p style={{ color: S.text, fontSize: 15, fontWeight: 600, margin: '0 0 3px' }}>{race.label}</p>
                             <p style={{ color: S.muted, fontSize: 12, margin: '0 0 8px' }}>
-                              {race.chamber === 'SENATE' ? 'U.S. Senate' : 'U.S. House'}
+                              {race.level === 'STATE' ? 'State' : 'U.S.'} {race.chamber === 'SENATE' ? 'Senate' : 'House'}
                               {race.district ? ` · District ${race.district}` : ''}
                               {' · '}{race._count.questions} approved questions
                               {' · '}{race.candidates.length} candidates

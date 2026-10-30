@@ -143,7 +143,7 @@ export default function SupportPage() {
           <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 32 }}>Where It Goes</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32 }}>
             {[
-              { label: 'AI Pipeline', desc: 'Every question goes through a 3-pass bias audit using Claude and GPT-4. Each race costs real API dollars to generate.' },
+              { label: 'AI Pipeline', desc: 'Every question goes through a 3-pass bias audit using Claude and GPT-4o. Each race costs real API dollars to generate.' },
               { label: 'Candidate Research', desc: 'Verifying positions, cross-referencing voting records, and seeding new races takes time and data costs.' },
               { label: 'Server Infrastructure', desc: 'Railway hosting, PostgreSQL database, and email delivery keep the platform running year-round.' },
               { label: 'Expanding Coverage', desc: 'More races, more states, earlier coverage. Your support funds the next 50 races added to the platform.' },

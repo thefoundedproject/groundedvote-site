@@ -87,9 +87,9 @@ export default function Methodology() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {[
-            { n: '1', label: 'Candidate data ingestion', desc: 'For members of Congress, we pull the bills they sponsored and cosponsored from Congress.gov. We also pull their DW-NOMINATE ideology score from voteview.com, computed from every roll-call vote they\'ve cast. For every candidate, we add their campaign website (the address comes from official filings), their Ballotpedia profile, and any position statements entered by hand.' },
+            { n: '1', label: 'Candidate data ingestion', desc: 'For members of Congress, we pull their recorded floor votes from the last three Congresses, published by voteview.com, along with the bills they sponsored and cosponsored from Congress.gov and their DW-NOMINATE ideology score. For every candidate, we add their campaign website (the address comes from official filings), their Ballotpedia profile, and any position statements entered by hand.' },
             { n: '2', label: 'Question generation', desc: 'Claude generates four neutral question variants per policy topic, constrained to behavioral language ("Would you support a policy that..."). Party names and coded language are explicitly prohibited.' },
-            { n: '3', label: 'Bias scoring', desc: 'GPT-4 scores each variant on four dimensions: ideological loading, assumption embedding, emotional framing, and factual accuracy. Scored blind — no model knows the other generated the variants.' },
+            { n: '3', label: 'Bias scoring', desc: 'GPT-4o scores each variant on four dimensions: ideological loading, assumption embedding, emotional framing, and factual accuracy. Scored blind — no model knows the other generated the variants. If OpenAI is unavailable, Claude Sonnet scores instead with the same blind prompt, and the audit trail names the model.' },
             { n: '4', label: 'Variant selection', desc: 'Claude reviews bias scores and selects the lowest-scoring variant per topic. All variants, scores, and selection reasoning are archived to the public Audit Trail.' },
             { n: '5', label: 'Candidate position mapping', desc: 'Claude analyzes each candidate\'s record and assigns a 1–5 position on every approved question. Confidence is scored honestly and shown to voters. Source type is always disclosed.' },
           ].map(({ n, label, desc }) => (
@@ -118,8 +118,8 @@ export default function Methodology() {
         <StepCard number="1" title="Generation" model="Claude Opus">
           Claude generates four variants of each question from candidate position data. The prompt enforces: no party names, no coded language (radical, extreme, socialist, MAGA), no embedded assumptions about reasonable positions. Questions must be under 40 words and directly grounded in the candidate's stated or recorded position.
         </StepCard>
-        <StepCard number="2" title="Bias Scoring" model="GPT-4o">
-          GPT-4 scores each variant from 0–100 on four dimensions: ideological loading (does framing favor one side?), assumption embedding (does the question imply a correct answer?), emotional amplification (does word choice provoke rather than inform?), and factual grounding (is the question accurately tied to the stated position?). GPT-4 scores all four variants blind — it does not know Claude wrote them.
+        <StepCard number="2" title="Bias Scoring" model="GPT-4o (backup: Claude Sonnet)">
+          GPT-4o scores each variant from 0–100 on four dimensions: ideological loading (does framing favor one side?), assumption embedding (does the question imply a correct answer?), emotional amplification (does word choice provoke rather than inform?), and factual grounding (is the question accurately tied to the stated position?). GPT-4o scores all four variants blind — it does not know Claude wrote them. If OpenAI is unavailable, Claude Sonnet scores with the same blind prompt. Those questions lose the separation between companies, so the audit trail names the model that scored each one.
         </StepCard>
         <StepCard number="3" title="Selection" model="Claude Sonnet">
           A second Claude instance reviews the four scored variants. It selects the question with the lowest composite bias score, or flags the set for human review if all variants exceed the bias threshold. The selection reasoning, scores, and all variants are written to the public Audit Trail.
@@ -146,7 +146,7 @@ export default function Methodology() {
         </p>
 
         <SourceRow badge="Voting Record" color="#5ECFA6" bg="rgba(94,207,166,0.12)">
-          For sitting members of Congress. The position rests on the bills they sponsored or cosponsored, pulled from Congress.gov. Congress.gov publishes each member's bills but has no per-member list of floor votes. Their DW-NOMINATE score, built from every roll-call vote they've cast, works as a check. A position that cuts against that score gets lower confidence unless direct evidence backs it up. Confidence: 0.85–0.95.
+          For current and recent members of Congress. This label requires a recorded floor vote on the specific policy in the question, taken from the 117th, 118th and 119th Congresses as published by voteview.com. The bill must be named in the source note. A pattern of related votes does not qualify and is labeled Party Inference. Their DW-NOMINATE score works as a check: a position that cuts against it gets lower confidence unless direct evidence backs it up. Confidence: 0.85–0.95.
         </SourceRow>
         <SourceRow badge="Public Statement" color="#7EC8E3" bg="rgba(126,200,227,0.12)">
           Statements from campaign websites, press releases, debate transcripts, or news interviews where the candidate directly addressed the policy topic. Confidence: 0.70–0.85.
@@ -155,12 +155,18 @@ export default function Methodology() {
           Positions drawn from the candidate's official platform documents. Less precise than direct statements but stronger than inference. Confidence: 0.60–0.75.
         </SourceRow>
         <SourceRow badge="Party Inference" color="#D8AB69" bg="rgba(216,171,105,0.12)">
-          When direct evidence is unavailable, the candidate's party platform is used as a weak prior. The model is instructed not to stereotype — if direct evidence contradicts party norms, the evidence wins. Confidence: 0.35–0.50. Always displayed to voters.
+          When direct evidence is unavailable, the candidate's party platform is used as a weak prior. The model is instructed not to stereotype — if direct evidence contradicts party norms, the evidence wins. Confidence: never above 0.60. Always displayed to voters.
         </SourceRow>
 
         <div style={{ marginTop: 24, padding: '16px 20px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, border: `1px solid ${S.cardBorder}` }}>
           <p style={{ color: S.muted, fontSize: 13, lineHeight: 1.65, margin: 0 }}>
             <strong style={{ color: S.text }}>Confidence score displayed.</strong> Every candidate position card on the results page shows its source type. Positions with confidence below 0.65 display a numeric confidence percentage so voters can weight uncertain data appropriately.
+          </p>
+        </div>
+
+        <div style={{ marginTop: 16, padding: '16px 20px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, border: `1px solid ${S.cardBorder}` }}>
+          <p style={{ color: S.muted, fontSize: 13, lineHeight: 1.65, margin: 0 }}>
+            <strong style={{ color: S.text }}>Record vs. rhetoric.</strong> For members of Congress, the candidate profile can compare what they have said or promised with how they voted. Only Public Statement and Campaign Platform positions are checked, each against recorded votes on that same policy. Voting Record positions are left out because they already rest on the votes. When no vote matches the same policy, the profile says so and shows no score.
           </p>
         </div>
       </Section>
@@ -242,7 +248,7 @@ export default function Methodology() {
         {[
           ['Challengers have less of a paper trail', 'Official records only exist for current and former members of Congress. For challengers who haven\'t held federal office, we work from public statements and party platforms — and we tell you when that\'s happening, with a lower confidence score.'],
           ['AI scoring is an estimate, not a verdict', 'Even with strong sources, AI-assigned positions are our best read — not a confirmed statement from the candidate. Use it as one signal, not the whole picture. We show you the confidence level so you can judge.'],
-          ['We cover competitive federal races, not every race', 'For 2026 we track 35 Senate and House races chosen for electoral competitiveness. State legislature, judicial, and local races aren\'t there yet. We\'re working on it.'],
+          ['We don\'t cover every race', 'For 2026 we track competitive U.S. Senate and House races and the Minnesota state legislature. Other state legislatures, judicial races, and local races aren\'t there yet. The Races page has the current list.'],
           ['We reduce bias. We can\'t eliminate it.', 'The three-pass audit catches a lot. It doesn\'t catch everything. The questions are cleaner than what you\'d find anywhere else — but they\'re not perfect. Nothing is.'],
         ].map(([title, desc]) => (
           <div key={title} style={{ padding: '16px 0', borderBottom: `1px solid rgba(216,171,105,0.07)` }}>
