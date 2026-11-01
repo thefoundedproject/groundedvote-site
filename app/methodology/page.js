@@ -128,7 +128,7 @@ export default function Methodology() {
         <div style={{ marginTop: 28, padding: '20px 24px', backgroundColor: 'rgba(94,207,166,0.06)', borderRadius: 8, border: '1px solid rgba(94,207,166,0.2)' }}>
           <p style={{ color: S.teal, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Public Audit Trail</p>
           <p style={{ color: S.muted, fontSize: 13, lineHeight: 1.65, margin: 0 }}>
-            The record is incomplete, and the Audit Trail says by how much. Most published questions show a final bias score. A small batch of early questions has no score on record, and only a small share still has all four variants and the scoring model on file, because rejected versions were not archived at first. See{' '}
+            The record is incomplete, and the Audit Trail says by how much. Every published question has a final bias score. 66 copies of 3 early questions were published without one and were scored afterward, in November 2026. Only a small share has all four variants and the scoring model on file, because rejected versions were not archived at first. See{' '}
             <a href="/audit-trail" style={{ color: S.teal, textDecoration: 'none', fontWeight: 600 }}>/audit-trail</a>.
             No account required.
           </p>
