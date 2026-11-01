@@ -53,19 +53,19 @@ export default function HowItWorks() {
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 64, alignItems: 'center' }}>
           <div style={{ order: 2 }}>
             <p style={{ color: '#D8AB69', fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>Step 02</p>
-            <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 20 }}>We check every question for hidden spin before you ever see it.</h2>
+            <h2 style={{ color: '#F5F0E8', fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 300, lineHeight: 1.2, marginBottom: 20 }}>We check questions for hidden spin before you see them.</h2>
             <p style={{ color: 'rgba(245,240,232,0.55)', fontSize: 16, lineHeight: 1.75, marginBottom: 16 }}>
               Three AI models are involved — one writes the question, one scores it for bias, one picks the cleanest version. If a question has loaded language, slanted framing, or a built-in "right" answer, it gets rewritten or thrown out.
             </p>
             <p style={{ color: 'rgba(245,240,232,0.55)', fontSize: 16, lineHeight: 1.75 }}>
-              We use two different AI companies so no single model's blind spots take over. If OpenAI is unavailable, Claude does the scoring too, and the audit trail shows which model scored each question. The whole audit trail is public. You can check our work yourself.
+              We use two different AI companies so no single model's blind spots take over. If OpenAI is unavailable, Claude does the scoring too, and the audit trail names that model where the versions are archived. The audit trail is public, and it says how much of the record it holds.
             </p>
           </div>
           <div style={{ order: 1 }}>
             {[
-              { pass: 'Pass 1', title: 'Generation', desc: 'Claude generates 3–5 question variants from each candidate position using only behavioral language. No party names. No political labels.' },
+              { pass: 'Pass 1', title: 'Generation', desc: 'Claude generates 4 question variants from each policy position using only behavioral language. No party names. No political labels.' },
               { pass: 'Pass 2', title: 'Bias Scoring', desc: 'GPT-4o scores each variant on four dimensions: loaded language, false equivalence, asymmetric framing, embedded cultural assumption. Scored blind — no knowledge of which model generated it.' },
-              { pass: 'Pass 3', title: 'Selection', desc: 'The highest-scoring neutral variant is selected. All variants and scores are archived in the public audit trail.' },
+              { pass: 'Pass 3', title: 'Selection', desc: 'Claude picks the final question from the three lowest-bias variants. Its bias score goes on the public audit trail. We archive the rejected variants for questions written since we began keeping them, which is a small share so far.' },
             ].map((item, i) => (
               <div key={item.pass} style={{ padding: '20px 24px', marginBottom: 8, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 8, borderLeft: '2px solid #D8AB69' }}>
                 <p style={{ color: 'rgba(216,171,105,0.6)', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>{item.pass}</p>
@@ -99,7 +99,7 @@ export default function HowItWorks() {
               { label: 'Your belief profile', desc: 'A clear picture of what you actually value, independent of party.' },
               { label: 'Candidate alignment scores', desc: 'Which candidates match your positions and by how much.' },
               { label: 'Issue-by-issue breakdown', desc: 'Where each candidate aligns and where they diverge.' },
-              { label: 'Full methodology access', desc: 'Every question, every bias score, every source — available to review.' },
+              { label: 'Full methodology access', desc: 'Scoring method, published bias scores and labeled sources, available to review.' },
             ].map(item => (
               <div key={item.label} style={{ padding: '14px 0', borderBottom: '1px solid rgba(216,171,105,0.1)' }}>
                 <p style={{ color: '#D8AB69', fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{item.label}</p>

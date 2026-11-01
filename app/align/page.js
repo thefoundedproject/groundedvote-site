@@ -123,7 +123,7 @@ function StateSelector({ onStateSelected }) {
           Where do you actually<br />stand?
         </h1>
         <p style={{ color: C.textMuted, fontSize: 16, lineHeight: 1.65, marginBottom: 48, maxWidth: 520 }}>
-          Enter your address to find the competitive races on your ballot. Every question is bias-audited by AI before it reaches you. No party labels. Just your positions against theirs.
+          Enter your address to find the competitive races on your ballot. Questions are scored for bias by AI, and the Audit Trail shows the scores. No party labels. Just your positions against theirs.
         </p>
 
         {/* Address form */}
@@ -679,7 +679,7 @@ function QuizQuestions({ race, sessionId, questions, onComplete }) {
 
         {/* Reassurance footer */}
         <p style={{ color: C.textFaint, fontSize: 11, marginTop: 28, textAlign: 'center', lineHeight: 1.6 }}>
-          Every question was bias-audited before reaching you. Party affiliations are never shown.
+          Questions are scored for bias by AI, and the Audit Trail shows the scores. Party affiliations are never shown.
         </p>
       </div>
     </div>
@@ -1167,7 +1167,7 @@ function Results({ scores, topIssues, race, sessionId, preVote, measureAnswers, 
         {/* Methodology note */}
         <div style={{ padding: '18px 22px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 8, border: `1px solid ${C.goldFaint}`, marginBottom: 32 }}>
           <p style={{ color: C.textMuted, fontSize: 12, lineHeight: 1.65, margin: 0 }}>
-            Match scores are weighted by your stated issue priorities. Source badges show the evidence basis for each candidate position — hover for details. Every question was bias-audited before reaching you.{' '}
+            Match scores are weighted by your stated issue priorities. Source badges show the evidence basis for each candidate position — hover for details. Questions are scored for bias by AI before reaching you.{' '}
             <a href="/methodology" style={{ color: C.gold, textDecoration: 'none', fontWeight: 600 }}>Full methodology →</a>
           </p>
         </div>
@@ -1221,7 +1221,7 @@ function Results({ scores, topIssues, race, sessionId, preVote, measureAnswers, 
 function WelcomeScreen({ race, questionCount, onBegin }) {
   const points = [
     `You are about to answer ${questionCount} questions drawn from what the candidates in this race have said and done.`,
-    'Every question was reviewed by three AI models for biased language before it reached you. Questions that failed that review were rewritten until they passed.',
+    'AI models write these questions and score them for biased language. A question that fails is rewritten and scored again, and it stays out of the quiz until it passes.',
     'You can mark any question as very important to you. Those questions count more in your score.',
     'One optional question comes first: who would you vote for today? Your answer stays private, and it comes back at the end alongside your results. You can skip it.',
   ]

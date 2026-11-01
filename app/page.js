@@ -226,7 +226,7 @@ function CivicQuiz() {
             We take real candidate positions and turn them into clear, unbiased questions. You answer based on what you actually think. Then you see which candidates line up with your beliefs &mdash; not your party label.
           </p>
           <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 14, lineHeight: 1.7, maxWidth: 400, marginTop: 12, opacity: heroVisible ? 1 : 0, transition: 'opacity 1.2s ease 1.1s' }}>
-            Every question is reviewed for fairness before you see it. No spin. No hidden agenda.
+            Questions are scored for bias by AI, and the scores are public. No hidden agenda.
           </p>
         </div>
 
@@ -435,7 +435,7 @@ export default function Home() {
           <Reveal delay={300}>
             <div style={{ textAlign: 'center', marginTop: 48 }}>
               <p style={{ color: 'rgba(245,240,232,0.35)', fontSize: 13, lineHeight: 1.6, maxWidth: 480, margin: '0 auto' }}>
-                Every question is publicly reviewed. Every bias score is on record. You can read the full methodology before you answer anything.
+                The bias scores are public, and the Audit Trail says what is missing. You can read the full methodology before you answer anything.
               </p>
               <a href="/methodology" style={{ display: 'inline-block', marginTop: 20, color: '#E8A820', fontSize: 13, fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid rgba(232,168,32,0.4)', paddingBottom: 2 }}>Read the full methodology &rarr;</a>
             </div>
@@ -465,7 +465,7 @@ export default function Home() {
 
           {[
             { num: '01', phase: 'Candidate Data Collection', desc: 'We pull from official government records, voting histories, and verified campaign platforms. The more official the source, the more weight it carries. No guessing from press releases.' },
-            { num: '02', phase: 'Bias Review', desc: 'Three AI models review every question for one-sided language or unbalanced framing. Any question that does not pass gets rewritten. The full review log is available to the public.' },
+            { num: '02', phase: 'Bias Review', desc: 'AI models write questions and score them for one-sided language or unbalanced framing. A question that does not pass gets rewritten. The published scores are available to the public.' },
             { num: '03', phase: 'Civic Alignment', desc: 'You answer a short quiz about real policy issues. Questions in the areas you told us matter most to you count for more. At the end, you see which candidates actually line up with what you believe \u2014 not what your party told you to believe.' },
           ].map((step, i) => (
             <Reveal key={step.num} delay={i * 100}>

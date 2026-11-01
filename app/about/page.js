@@ -50,7 +50,7 @@ export default function About() {
             The questions are checked before they reach you.
           </h2>
           <p style={{ color: S.muted, fontSize: 15, lineHeight: 1.8, marginBottom: 16 }}>
-            Every question on GroundedVote was built by AI, then checked by a second AI for bias, then selected by a third. Not one person with an agenda deciding what you read. The whole audit trail is public — you can see every version of every question and why it was chosen or rejected.
+            Questions on GroundedVote are written by AI, scored for bias by a second AI, and selected by a third. Not one person with an agenda deciding what you read. The Audit Trail shows recent questions and their bias scores, and says how much of the record it holds.
           </p>
           <p style={{ color: S.muted, fontSize: 15, lineHeight: 1.8, marginBottom: 24 }}>
             No party labels during the quiz. No loaded language. No framing that tips you toward an answer. Just the policy — and where you stand on it.
@@ -102,7 +102,7 @@ export default function About() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[
               ['No party. No tribe. No fear.', 'We do not favor any political party. We do not accept funding from candidates, PACs, or partisan organizations. Our only interest is in voters knowing what they believe and who most closely shares it.'],
-              ['Transparency as a product feature.', 'Every question\'s full audit record is public. Every candidate position\'s source is labeled. Every limitation in our methodology is disclosed. Transparency is not a PR commitment — it is built into the system.'],
+              ['Transparency as a product feature.', 'Bias scores and the Audit Trail are public, and the Audit Trail states what is missing from it. Every candidate position\'s source is labeled. Every limitation in our methodology is disclosed. Transparency is not a PR commitment — it is built into the system.'],
               ['Checking out makes sense. We\'re giving you a reason to come back.', 'If you stopped voting or stopped caring, that\'s not apathy. That\'s what happens when the system doesn\'t work for you. We\'re building something that might change that.'],
               ['No advertising. Ever.', 'GroundedVote runs on donations and grants. No advertiser, candidate, or PAC pays to influence what questions you see or how your results come out.'],
             ].map(([title, body]) => (

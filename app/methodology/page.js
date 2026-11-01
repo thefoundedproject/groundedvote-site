@@ -89,8 +89,8 @@ export default function Methodology() {
           {[
             { n: '1', label: 'Candidate data ingestion', desc: 'For members of Congress, we pull their recorded floor votes from the last three Congresses, published by voteview.com, along with the bills they sponsored and cosponsored from Congress.gov and their DW-NOMINATE ideology score. For every candidate, we add their campaign website (the address comes from official filings), their Ballotpedia profile, and any position statements entered by hand.' },
             { n: '2', label: 'Question generation', desc: 'Claude generates four neutral question variants per policy topic, constrained to behavioral language ("Would you support a policy that..."). Party names and coded language are explicitly prohibited.' },
-            { n: '3', label: 'Bias scoring', desc: 'GPT-4o scores each variant on four dimensions: ideological loading, assumption embedding, emotional framing, and factual accuracy. Scored blind — no model knows the other generated the variants. If OpenAI is unavailable, Claude Sonnet scores instead with the same blind prompt, and the audit trail names the model.' },
-            { n: '4', label: 'Variant selection', desc: 'Claude reviews bias scores and selects the lowest-scoring variant per topic. All variants, scores, and selection reasoning are archived to the public Audit Trail.' },
+            { n: '3', label: 'Bias scoring', desc: 'GPT-4o scores each variant on four dimensions: loaded language, false equivalence, asymmetric framing, and cultural assumption. Scored blind — no model knows the other generated the variants. If OpenAI is unavailable, Claude Sonnet scores instead with the same blind prompt, and the audit trail names the model.' },
+            { n: '4', label: 'Variant selection', desc: 'Claude picks the final question from the three lowest-scoring variants. Its bias score goes on the public Audit Trail.' },
             { n: '5', label: 'Candidate position mapping', desc: 'Claude analyzes each candidate\'s record and assigns a 1–5 position on every approved question. Confidence is scored honestly and shown to voters. Source type is always disclosed.' },
           ].map(({ n, label, desc }) => (
             <div key={n} style={{ display: 'flex', gap: 16, padding: '16px 0', borderBottom: `1px solid rgba(216,171,105,0.07)` }}>
@@ -119,17 +119,17 @@ export default function Methodology() {
           Claude generates four variants of each question from candidate position data. The prompt enforces: no party names, no coded language (radical, extreme, socialist, MAGA), no embedded assumptions about reasonable positions. Questions must be under 40 words and directly grounded in the candidate's stated or recorded position.
         </StepCard>
         <StepCard number="2" title="Bias Scoring" model="GPT-4o (backup: Claude Sonnet)">
-          GPT-4o scores each variant from 0–100 on four dimensions: ideological loading (does framing favor one side?), assumption embedding (does the question imply a correct answer?), emotional amplification (does word choice provoke rather than inform?), and factual grounding (is the question accurately tied to the stated position?). GPT-4o scores all four variants blind — it does not know Claude wrote them. If OpenAI is unavailable, Claude Sonnet scores with the same blind prompt. Those questions lose the separation between companies, so the audit trail names the model that scored each one.
+          GPT-4o scores each variant from 0–100 on four dimensions: loaded language (emotionally charged or politically coded words), false equivalence (presenting unequal positions as equal, or ignoring context), asymmetric framing (framing that advantages one side), and cultural assumption (cultural or ideological assumptions built into the question). The four add up to a total out of 400, and lower is more neutral. GPT-4o scores all four variants blind — it does not know Claude wrote them. If OpenAI is unavailable, Claude Sonnet scores with the same blind prompt. Those questions lose the separation between companies, so the audit trail names the model that scored each one.
         </StepCard>
         <StepCard number="3" title="Selection" model="Claude Sonnet">
-          A second Claude instance reviews the four scored variants. It selects the question with the lowest composite bias score, or flags the set for human review if all variants exceed the bias threshold. The selection reasoning, scores, and all variants are written to the public Audit Trail.
+          A second Claude instance reads the three lowest-scoring variants and picks the one that is most factually grounded, easiest to understand and free of partisan language. The final score goes on the public Audit Trail. A question that fails the audit is rewritten by AI and must score under 60 out of 400 to enter the quiz. No person reviews this step.
         </StepCard>
 
         <div style={{ marginTop: 28, padding: '20px 24px', backgroundColor: 'rgba(94,207,166,0.06)', borderRadius: 8, border: '1px solid rgba(94,207,166,0.2)' }}>
           <p style={{ color: S.teal, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Public Audit Trail</p>
           <p style={{ color: S.muted, fontSize: 13, lineHeight: 1.65, margin: 0 }}>
-            Every question's full audit record — all four variants, their bias scores, the selection reasoning, and which model made each decision — is publicly accessible at{' '}
-            <a href="/audit-trail" style={{ color: S.teal, textDecoration: 'none', fontWeight: 600 }}>/audit</a>.
+            The record is incomplete, and the Audit Trail says by how much. Most published questions show a final bias score. A small batch of early questions has no score on record, and only a small share still has all four variants and the scoring model on file, because rejected versions were not archived at first. See{' '}
+            <a href="/audit-trail" style={{ color: S.teal, textDecoration: 'none', fontWeight: 600 }}>/audit-trail</a>.
             No account required.
           </p>
         </div>
